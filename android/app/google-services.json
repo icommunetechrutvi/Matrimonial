@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "731827972083",
+    "project_id": "web-notification-6aab1",
+    "storage_bucket": "web-notification-6aab1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:731827972083:android:b316f7b2141d7150e09486",
+        "android_client_info": {
+          "package_name": "com.example.matrimony"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBoAM_K3CeGb4Ltg0eJDTWDf5kOUvFeO9c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
