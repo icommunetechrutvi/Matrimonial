@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:matrimony/extra_page.dart';
 import 'package:matrimony/home_screen/home_screen.dart';
 import 'package:matrimony/search_screen/search_screen.dart';
 
@@ -31,7 +30,7 @@ class _MyBottomMenuPageState extends State<BottomMenuScreen> {
     HomeScreen(),
     SearchScreen(),
     HomeScreen(),
-    MyExtraPage(),
+    SearchScreen(),
   ];
 
   @override

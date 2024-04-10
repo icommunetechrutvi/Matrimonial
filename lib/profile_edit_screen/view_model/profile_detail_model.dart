@@ -76,9 +76,12 @@ class ProfileData {
   Null? rememberToken;
   int? isDelete;
   Null? emailVerifiedAt;
+  String? fcmToken;
   String? createdAt;
   String? updatedAt;
+  String? favorite;
   int? age;
+  // List<SimilarProfiles>? similarProfiles;
   List<ProfileImages>? profileImages;
 
   ProfileData(
@@ -132,9 +135,12 @@ class ProfileData {
         this.rememberToken,
         this.isDelete,
         this.emailVerifiedAt,
+        this.fcmToken,
         this.createdAt,
         this.updatedAt,
+        this.favorite,
         this.age,
+        // this.similarProfiles,
         this.profileImages});
 
   ProfileData.fromJson(Map<String, dynamic> json) {
@@ -196,9 +202,17 @@ class ProfileData {
     rememberToken = json['remember_token'];
     isDelete = json['is_delete'];
     emailVerifiedAt = json['email_verified_at'];
+    fcmToken = json['fcm_token'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
+    favorite = json['favorite'];
     age = json['age'];
+    // if (json['similar_profiles'] != null) {
+    //   similarProfiles = <SimilarProfiles>[];
+    //   json['similar_profiles'].forEach((v) {
+    //     similarProfiles!.add(new SimilarProfiles.fromJson(v));
+    //   });
+    // }
     if (json['profile_images'] != null) {
       profileImages = <ProfileImages>[];
       json['profile_images'].forEach((v) {
@@ -267,9 +281,15 @@ class ProfileData {
     data['remember_token'] = this.rememberToken;
     data['is_delete'] = this.isDelete;
     data['email_verified_at'] = this.emailVerifiedAt;
+    data['fcm_token'] = this.fcmToken;
     data['created_at'] = this.createdAt;
     data['updated_at'] = this.updatedAt;
+    data['favorite'] = this.favorite;
     data['age'] = this.age;
+    // if (this.similarProfiles != null) {
+    //   data['similar_profiles'] =
+    //       this.similarProfiles!.map((v) => v.toJson()).toList();
+    // }
     if (this.profileImages != null) {
       data['profile_images'] =
           this.profileImages!.map((v) => v.toJson()).toList();

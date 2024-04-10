@@ -11,4 +11,6 @@ class PrefKeys {
   static const String KEYEMAIL="email";
   static const String KEYNAME="fName";
   static const String KEYAVTAR="avtar";
+  static const String KEYGENDER="gender";
+  static const String KEYPROFILEID="profileID";
 }

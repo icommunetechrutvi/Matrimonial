@@ -4,16 +4,15 @@ class LoginModel {
   String? accessToken;
   String? tokenType;
   int? expiresIn;
-  String? error;
   Profiles? profiles;
 
-  LoginModel(  {this.status,
-    this.message,
-    this.accessToken,
-    this.tokenType,
-    this.expiresIn,
-    this.error,
-    this.profiles});
+  LoginModel(
+      {this.status,
+        this.message,
+        this.accessToken,
+        this.tokenType,
+        this.expiresIn,
+        this.profiles});
 
   LoginModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
@@ -21,7 +20,6 @@ class LoginModel {
     accessToken = json['access_token'];
     tokenType = json['token_type'];
     expiresIn = json['expires_in'];
-    error = json['error'];
     profiles = json['profiles'] != null
         ? new Profiles.fromJson(json['profiles'])
         : null;
@@ -34,7 +32,6 @@ class LoginModel {
     data['access_token'] = this.accessToken;
     data['token_type'] = this.tokenType;
     data['expires_in'] = this.expiresIn;
-    data['error'] = this.error;
     if (this.profiles != null) {
       data['profiles'] = this.profiles!.toJson();
     }
@@ -96,6 +93,7 @@ class Profiles {
   String? fcmToken;
   String? createdAt;
   String? updatedAt;
+  String? imageName;
 
   Profiles(
       {this.id,
@@ -150,7 +148,8 @@ class Profiles {
         this.emailVerifiedAt,
         this.fcmToken,
         this.createdAt,
-        this.updatedAt});
+        this.updatedAt,
+        this.imageName});
 
   Profiles.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -206,6 +205,7 @@ class Profiles {
     fcmToken = json['fcm_token'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
+    imageName = json['image_name'];
   }
 
   Map<String, dynamic> toJson() {
@@ -263,6 +263,7 @@ class Profiles {
     data['fcm_token'] = this.fcmToken;
     data['created_at'] = this.createdAt;
     data['updated_at'] = this.updatedAt;
+    data['image_name'] = this.imageName;
     return data;
   }
 }

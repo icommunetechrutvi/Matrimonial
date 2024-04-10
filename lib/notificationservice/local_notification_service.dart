@@ -2,7 +2,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
-import 'package:matrimony/profile_screen/profile_details.dart';
+import 'package:matrimony/profile_edit_screen/profile_details.dart';
 
 BuildContext? context = Get.key.currentContext;
 

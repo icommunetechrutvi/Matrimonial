@@ -3,11 +3,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:matrimony/bottom_screet/view_model/country_model.dart';
-import 'package:matrimony/bottom_screet/view_model/educations_model.dart';
-import 'package:matrimony/bottom_screet/view_model/global_value_model.dart';
-import 'package:matrimony/bottom_screet/view_model/occupation_model.dart';
-import 'package:matrimony/bottom_screet/view_model/state_model.dart';
+import 'package:matrimony/bottom_sheet_screen/view_model/country_model.dart';
+import 'package:matrimony/bottom_sheet_screen/view_model/educations_model.dart';
+import 'package:matrimony/bottom_sheet_screen/view_model/global_value_model.dart';
+import 'package:matrimony/bottom_sheet_screen/view_model/occupation_model.dart';
+import 'package:matrimony/bottom_sheet_screen/view_model/state_model.dart';
 import 'package:matrimony/utils/app_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

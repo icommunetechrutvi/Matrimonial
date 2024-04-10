@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:matrimony/login_screen/forgot_screen.dart';
@@ -10,7 +9,8 @@ import 'package:matrimony/login_screen/view_model/LoginModel.dart';
 import 'package:matrimony/ui_screen/bottom_menu.dart';
 import 'package:matrimony/utils/app_theme.dart';
 import 'package:matrimony/utils/appcolor.dart';
-import 'package:matrimony/utils/shared_pref/helper.dart';
+import 'package:matrimony/utils/shared_pref/pref_keys.dart';
+import 'package:matrimony/webservices/Webservices.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -19,10 +19,10 @@ class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
 
   @override
-  State<LoginScreen> createState() => _SignInPage1State();
+  State<LoginScreen> createState() => _LoginPageState();
 }
 
-class _SignInPage1State extends State<LoginScreen> {
+class _LoginPageState extends State<LoginScreen> {
   bool _isPasswordVisible = false;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -56,9 +56,8 @@ class _SignInPage1State extends State<LoginScreen> {
     setState(() {
       _isLoading = true;
     });
-    var url = Uri.parse(
-        'https://matrimonial.icommunetech.com/public/api/profile_login');
-
+    var url = Uri.parse( '${Webservices.baseUrl+Webservices.profileLogin}');
+    print("url~~${url}");
     var jsonData = json.encode({
       'email_number_profileid': '${_emailController.text.isNull ?"null":_emailController.text}',
       'password': '${_passwordController.text.isNull?"":_passwordController.text}',
@@ -81,23 +80,22 @@ class _SignInPage1State extends State<LoginScreen> {
 
         print("response~~~~^^^^${user.message}");
         setState(() {
-          // if (user.status == false) {
-          //   _isLoading = false;
-          //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          //     content: Text("${user.message}"),
-          //     backgroundColor: Colors.redAccent,
-          //   ));
-          // } else {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text("${user.message}"),
-              backgroundColor: AppColor.lightGreen,
-            ));
+
+          AppTheme.showAlert("${user.message}");
+            // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            //   content: Text("${user.message}"),
+            //   backgroundColor: AppColor.lightGreen,
+            // ));
             _isLoading = false;
             prefs.setString('accessToken', user.accessToken.toString());
             prefs.setString('userId', user.profiles!.id.toString());
-            prefs.setString('userName', user.profiles!.firstName.toString());
-            prefs.setString('emailId', user.profiles!.emailId.toString());
-            prefs.setString('gender', user.profiles!.gender.toString());
+
+            prefs.setString(PrefKeys.KEYNAME, user.profiles!.firstName.toString());
+            prefs.setString(PrefKeys.KEYEMAIL, user.profiles!.emailId.toString());
+            prefs.setString(PrefKeys.KEYAVTAR, user.profiles!.imageName.toString());
+            prefs.setString(PrefKeys.KEYGENDER, user.profiles!.gender.toString());
+            prefs.setString(PrefKeys.KEYPROFILEID, user.profiles!.id.toString());
+
             Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
               builder: (context) {
                 return BottomMenuScreen();
@@ -110,10 +108,11 @@ class _SignInPage1State extends State<LoginScreen> {
       } else {
         setState(() {
         _isLoading = false;
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("${response}"),
-          backgroundColor: Colors.redAccent,
-        ));
+        AppTheme.showInvalidAlert("Invalid credentials");
+        // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        //   content: Text("${response}"),
+        //   backgroundColor: Colors.redAccent,
+        // ));
 
         });
         throw Exception('Failed to load data');

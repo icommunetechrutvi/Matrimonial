@@ -1,14 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_swiper_view/flutter_swiper_view.dart';
 import 'package:matrimony/ui_screen/appBar_screen.dart';
-import 'package:matrimony/ui_screen/bottom_menu.dart';
-import 'package:matrimony/search_screen/search_screen.dart';
-import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
-import 'dart:developer';
-
-import 'package:matrimony/ui_screen/side_drawer.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

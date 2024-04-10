@@ -32,6 +32,7 @@ class NotificationsModel {
 
 class NotificationData {
   String? fullName;
+  int? profileId;
   int? viewProfileId;
   String? imageName;
   int? isDefault;
@@ -39,11 +40,12 @@ class NotificationData {
   String? type;
   String? createdAt;
   String? updatedAt;
-  int? id;
-  int? profileId;
+  int? viewFavoritesId;
+  int? viewContactId;
 
   NotificationData(
       {this.fullName,
+        this.profileId,
         this.viewProfileId,
         this.imageName,
         this.isDefault,
@@ -51,11 +53,12 @@ class NotificationData {
         this.type,
         this.createdAt,
         this.updatedAt,
-        this.id,
-        this.profileId});
+        this.viewFavoritesId,
+        this.viewContactId});
 
   NotificationData.fromJson(Map<String, dynamic> json) {
     fullName = json['full_name'];
+    profileId = json['profile_id'];
     viewProfileId = json['viewProfileId'];
     imageName = json['image_name'];
     isDefault = json['is_default'];
@@ -63,13 +66,14 @@ class NotificationData {
     type = json['type'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
-    id = json['id'];
-    profileId = json['profile_id'];
+    viewFavoritesId = json['viewFavoritesId'];
+    viewContactId = json['viewContactId'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['full_name'] = this.fullName;
+    data['profile_id'] = this.profileId;
     data['viewProfileId'] = this.viewProfileId;
     data['image_name'] = this.imageName;
     data['is_default'] = this.isDefault;
@@ -77,8 +81,8 @@ class NotificationData {
     data['type'] = this.type;
     data['created_at'] = this.createdAt;
     data['updated_at'] = this.updatedAt;
-    data['id'] = this.id;
-    data['profile_id'] = this.profileId;
+    data['viewFavoritesId'] = this.viewFavoritesId;
+    data['viewContactId'] = this.viewContactId;
     return data;
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:matrimony/utils/appcolor.dart';
+import 'package:overlay_support/overlay_support.dart';
 
 class AppTheme {
   // static Icon commonIcon(Color color, double size) {
@@ -101,7 +102,22 @@ class AppTheme {
       fontWeight: FontWeight.bold,
       color: Colors.black,);
   }
-
+  static TextStyle tabText(
+      [double? size,  TextDecoration? decoration]) {
+    return TextStyle(
+      decoration: decoration,
+      fontSize: 16,
+      fontWeight: FontWeight.bold,
+      color: Colors.black,);
+  }
+  static TextStyle tabNameText(
+      [double? size,  TextDecoration? decoration]) {
+    return TextStyle(
+      decoration: decoration,
+      fontWeight: FontWeight.bold,
+      fontSize: 19,
+      color: Colors.black,);
+  }
   static BoxDecoration ConDecoration(
       [double? size, Color? color, TextDecoration? decoration]) {
     return BoxDecoration(
@@ -142,21 +158,32 @@ class AppTheme {
       ],);
   }
 
-  //
-  // static LinearGradient linearGradientBtnStop({bool? isFromTab}) {
-  //   return const LinearGradient(
-  //     tileMode: TileMode.repeated,
-  //     begin: Alignment.topCenter,
-  //     end: Alignment.bottomCenter,
-  //     colors: [
-  //       Color.fromARGB(255, 234, 234, 234),
-  //       Color.fromARGB(255, 234, 234, 234),
-  //       Color.fromARGB(255, 188, 188, 188),
-  //       Color.fromARGB(255, 112, 112, 112),
-  //       Color.fromARGB(255, 75, 75, 75),
-  //     ],
-  //   );
-  // }
+  static showAlert(String message) {
+    showSimpleNotification(
+        Text(
+          message,
+          style:
+          const TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
+        ),
+        background: AppColor.alert,
+        foreground:AppColor.alert,
+        slideDismiss: true,
+        duration: const Duration(seconds: 3));
+  }
+  static showInvalidAlert(String message) {
+    showSimpleNotification(
+        Text(
+          message,
+          style:
+          const TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
+        ),
+        background: AppColor.red,
+        foreground:AppColor.red,
+        slideDismiss: true,
+        duration: const Duration(seconds: 3));
+  }
+
+
 
   static InkWell container(String text, BuildContext context, Function onTapd) {
     double screenWidth = MediaQuery.of(context).size.width;

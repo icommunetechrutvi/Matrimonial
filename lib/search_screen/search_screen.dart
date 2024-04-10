@@ -1,15 +1,16 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:matrimony/bottom_screet/bottom_sheet_screen.dart';
-import 'package:matrimony/profile_screen/profile_details.dart';
-import 'package:matrimony/profile_screen/profile_edit_screen.dart';
+import 'package:http/http.dart' as http;
+import 'package:matrimony/bottom_sheet_screen/bottom_sheet_screen.dart';
+import 'package:matrimony/bottom_sheet_screen/view_model/global_value_model.dart';
+import 'package:matrimony/profile_edit_screen/profile_details.dart';
 import 'package:matrimony/search_screen/profile_model.dart';
 import 'package:matrimony/ui_screen/appBar_screen.dart';
 import 'package:matrimony/ui_screen/side_drawer.dart';
-import 'package:http/http.dart' as http;
 import 'package:matrimony/utils/appcolor.dart';
+import 'package:matrimony/utils/shared_pref/pref_keys.dart';
+import 'package:matrimony/webservices/Webservices.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -32,27 +33,27 @@ class _SearchScreenNewState extends State<SearchScreen> {
   void initState() {
     super.initState();
     setState(() {
+      fetchGlobalValues();
       profileViewApi();
     });
   }
 
-  /*void openBottomSheet() {
-    double screenHeight = MediaQuery.of(context).size.height;
-    showModalBottomSheet(
-      isScrollControlled: true,
-      useSafeArea: true,
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-            height: screenHeight * 0.7,
-            */ /*MediaQuery.of(context).size.height * 0.70*/ /*
-            child: BottomScreen(),
-        );
-        // return MyCheckbox(
-        // );
-      },
-    );
-  }*/
+  Future<void> fetchGlobalValues() async {
+    final url = Uri.parse('${Webservices.baseUrl+Webservices.globalValue}');
+    final response = await http.get(url);
+    print("url~~${url}");
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      final localPickData = GlobalValueModel.fromJson(responseData);
+      print("localPickData${localPickData.data}");
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('globalApiData', response.body);
+
+    } else {
+      throw Exception('Failed to load income options');
+    }
+  }
 
   Future<void> openBottomSheet() async {
     double screenHeight = MediaQuery.of(context).size.height;
@@ -92,8 +93,9 @@ class _SearchScreenNewState extends State<SearchScreen> {
 
   Future<void> profileViewApi() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-   final userName = prefs.getString('gender')?? "null";
-   final gender;
+    final userName  = prefs.getString(PrefKeys.KEYGENDER)!;
+
+    final gender;
    if(userName =="2"){
      gender=1;
    }
@@ -104,13 +106,12 @@ class _SearchScreenNewState extends State<SearchScreen> {
       _isLoading = true;
     });
     final url = Uri.parse(
-        'https://matrimonial.icommunetech.com/public/api/profile_list?gender=${gender}');
+        '${Webservices.baseUrl+Webservices.profileList}gender=${gender}');
+    print("url~~${url}");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
       setState(() {
-        // final userMap = json.decode(response.body);
-        // final occupationModel = CurrentProfileData.fromJson(userMap);
 
         var jsonList = jsonDecode(response.body) as Map<String, dynamic>;
         print("jsonList$jsonList");
@@ -124,13 +125,7 @@ class _SearchScreenNewState extends State<SearchScreen> {
           for (var img in profileImages.profileImages ?? []) {
             profileImage.add(img);
           }
-          // final defaultProfileImage= CurrentProfileData();
-          // for(var img in defaultProfileImage.profileImages! ) {
-          //   profileImage.add(img);
-          //   print("alGetLocalPickupLoad${alGetProfileDetail}");
-          // }
         }
-
         print("UserData@@${profileImage}");
       });
     } else {
@@ -253,23 +248,17 @@ class _SearchScreenNewState extends State<SearchScreen> {
                                       Expanded(
                                         flex: 1,
                                         child: Container(
-                                          margin: EdgeInsets.all(15),
+                                          margin: EdgeInsets.all(8),
                                           height: isPortrait
-                                              ? MediaQuery.of(context)
-                                                      .size
-                                                      .height *
-                                                  0.1
-                                              : MediaQuery.of(context)
-                                                      .size
-                                                      .height *
-                                                  0.3,
+                                              ? MediaQuery.of(context).size.height *  0.09
+                                              : MediaQuery.of(context).size.height *0.3,
                                           decoration: BoxDecoration(
                                             shape: BoxShape.circle,
                                             image: DecorationImage(
                                               image: NetworkImage(
                                                   "https://matrimonial.icommunetech.com/public/icommunetech/profiles/images/" +
                                                       "${alGetProfileDetail[index].profileImages?[0].imageName}"),
-                                              fit: BoxFit.cover,
+                                              fit: BoxFit.fill,
                                             ),
                                           ),
                                         ),
@@ -317,21 +306,19 @@ class _SearchScreenNewState extends State<SearchScreen> {
                                       Expanded(
                                         flex: 1,
                                         child: InkWell(
-                                            onTap: () {
+                                            onTap: () async {
                                               Navigator.push(context,
                                                   MaterialPageRoute(
                                                 builder: (context) {
                                                    return ProfileDetailScreen(
                                                     profileId:
-                                                        alGetProfileDetail[
-                                                                index]
-                                                            .id,
+                                                        alGetProfileDetail[index] .id,
                                                   );
                                                 },
                                               ));
                                             },
                                             child: Column(
-                                              children: [
+                                              children: const [
                                                 Icon(
                                                   Icons.remove_red_eye_rounded,
                                                   color: Color.fromARGB(

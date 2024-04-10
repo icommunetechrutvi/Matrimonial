@@ -2,9 +2,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:matrimony/login_screen/login_screen.dart';
 import 'package:matrimony/notificationservice/local_notification_service.dart';
-import 'package:matrimony/notificationservice/notification_list.dart';
 import 'package:matrimony/ui_screen/bottom_menu.dart';
-import 'package:matrimony/utils/shared_pref/helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {

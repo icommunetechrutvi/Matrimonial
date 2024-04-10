@@ -4,17 +4,19 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:get/utils.dart';
 import 'package:http/http.dart' as http;
-import 'package:matrimony/bottom_screet/view_model/country_model.dart';
-import 'package:matrimony/bottom_screet/view_model/educations_model.dart';
-import 'package:matrimony/bottom_screet/view_model/global_value_model.dart';
-import 'package:matrimony/bottom_screet/view_model/occupation_model.dart';
-import 'package:matrimony/bottom_screet/view_model/state_model.dart';
-import 'package:matrimony/profile_screen/view_model/profile_detail_model.dart';
+import 'package:matrimony/bottom_sheet_screen/view_model/country_model.dart';
+import 'package:matrimony/bottom_sheet_screen/view_model/educations_model.dart';
+import 'package:matrimony/bottom_sheet_screen/view_model/global_value_model.dart';
+import 'package:matrimony/bottom_sheet_screen/view_model/occupation_model.dart';
+import 'package:matrimony/bottom_sheet_screen/view_model/state_model.dart';
+import 'package:matrimony/profile_edit_screen/view_model/profile_detail_model.dart';
 import 'package:matrimony/search_screen/search_screen.dart';
 import 'package:matrimony/ui_screen/appBar_screen.dart';
 import 'package:matrimony/ui_screen/side_drawer.dart';
 import 'package:matrimony/utils/app_theme.dart';
 import 'package:matrimony/utils/appcolor.dart';
+import 'package:matrimony/utils/shared_pref/pref_keys.dart';
+import 'package:matrimony/webservices/Webservices.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileEditScreen extends StatefulWidget {
@@ -136,13 +138,14 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
 
   Future<void> getProfileDetailApi() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final stringValue = prefs.getString('userId')!;
+    final stringValue  = prefs.getString(PrefKeys.KEYPROFILEID)!;
     print("userId~~~**${stringValue}");
     setState(() {
       _isLoading = true;
     });
     final url = Uri.parse(
-        'https://matrimonial.icommunetech.com/public/api/profile_detail/${stringValue}');
+        '${Webservices.baseUrl+Webservices.profileDetail+stringValue}');
+    print("url~~${url}");
     final response = await http.get(url);
     if (response.statusCode == 200) {
       // setState(() {
@@ -159,7 +162,7 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
       addressController.text = alGetProfileDetail[0].data!.address1!;
       cityController.text = alGetProfileDetail[0].data!.city!;
       mobileController.text = alGetProfileDetail[0].data!.mobileNo!;
-      altMobileController.text = alGetProfileDetail[0].data!.altPhone!;
+      altMobileController.text = alGetProfileDetail[0].data!.altPhone.toString().isNull ?'':alGetProfileDetail[0].data!.altPhone.toString() ;
       emailController.text = alGetProfileDetail[0].data!.emailId!;
       incomeController.text = alGetProfileDetail[0].data!.incomeTo!.toString() +
           " to " +
@@ -275,21 +278,13 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
 
   Future<dynamic> postProfileEdit() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final stringValue = prefs.getString('userId')!;
+    final stringValue  = prefs.getString(PrefKeys.KEYPROFILEID)!;
     setState(() {
       _isLoading = true;
     });
-    // showDialog(
-    //     context: context,
-    //     builder: (context) {
-    //       return Center(
-    //         child: CircularProgressIndicator(
-    //           color: AppColor.mainAppColor,
-    //         ),
-    //       );
-    //     });
     var url = Uri.parse(
-        'https://matrimonial.icommunetech.com/public/api/profile_edit/${stringValue}');
+        '${Webservices.baseUrl+Webservices.profileEdit+stringValue}');
+    print("url~~${url}");
 
     var jsonData = json.encode({
       'first_name':
@@ -389,8 +384,9 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
   }
 
   Future<void> fetchCountry() async {
-    final response = await http.get(Uri.parse(
-        'https://matrimonial.icommunetech.com/public/api/country_list'));
+    final url=Uri.parse('${Webservices.baseUrl+Webservices.countryList}');
+    final response = await http.get(url);
+    print("url~~${url}");
     if (response.statusCode == 200) {
       setState(() {
         final userMap = json.decode(response.body);
@@ -406,7 +402,8 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
 
   Future<void> fetchState(countryId) async {
     final url = Uri.parse(
-        'https://matrimonial.icommunetech.com/public/api/state_list/$countryId');
+        '${Webservices.baseUrl+Webservices.stateList+countryId.toString()}');
+    print("url~~${url}");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -421,8 +418,8 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
   }
 
   Future<void> fetchEducation() async {
-    final url = Uri.parse(
-        'https://matrimonial.icommunetech.com/public/api/education_list');
+    final url = Uri.parse('${Webservices.baseUrl+Webservices.educationList}');
+    print("url~~${url}");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -439,8 +436,8 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
   }
 
   Future<void> fetchOccupation() async {
-    final url = Uri.parse(
-        'https://matrimonial.icommunetech.com/public/api/occupation_list');
+    final url = Uri.parse('${Webservices.baseUrl+Webservices.occupationList}');
+    print("url~~${url}");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -473,6 +470,9 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
         heightList.add(value as String);
         heightKeys.add(key);
       });
+
+      print("heightList~~~${heightList}");
+      print("heightKeys~~~${heightKeys}");
 
       Map<String, dynamic> dietLists = responseData['data']['diet_list'];
       dietLists.forEach((key, value) {
@@ -744,7 +744,7 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
                                 'Mobile No',
                                 'Alt Phone',
                                 mobileController,
-                                altMobileController,
+                                altMobileController!,
                               ),
                             ],
                           ),

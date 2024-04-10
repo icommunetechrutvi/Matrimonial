@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
-import 'package:matrimony/profile_screen/view_model/profile_detail_model.dart';
+import 'package:matrimony/profile_edit_screen/view_model/profile_detail_model.dart';
 import 'package:matrimony/ui_screen/appBar_screen.dart';
 import 'package:matrimony/ui_screen/side_drawer.dart';
 import 'package:matrimony/utils/app_theme.dart';
 import 'package:matrimony/utils/appcolor.dart';
+import 'package:matrimony/utils/shared_pref/pref_keys.dart';
+import 'package:matrimony/webservices/Webservices.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ImageEditScreen extends StatefulWidget {
@@ -54,13 +56,15 @@ class _MyImageEditPageState extends State<ImageEditScreen> {
 
   Future<void> getProfileDetailApi() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final stringValue = prefs.getString('userId')!;
+    final stringValue  = prefs.getString(PrefKeys.KEYPROFILEID)!;
+
     print("userId~~~**${stringValue}");
     setState(() {
       _isLoading = true;
     });
     final url = Uri.parse(
-        'https://matrimonial.icommunetech.com/public/api/profile_detail/${stringValue}');
+        '${Webservices.baseUrl+Webservices.profileDetail+stringValue.toString()}');
+    print("url!!!${url}");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -74,18 +78,7 @@ class _MyImageEditPageState extends State<ImageEditScreen> {
 
         _isLoading = false;
         profileImages.addAll(localPickData.data?.profileImages ?? []);
-
-        String? defaultImageName;
-
-        for (var image in profileImages) {
-          if (image.isDefault == 1) {
-            defaultImageName = image.imageName;
-            break;
-          }
-        }
-
-        prefs.setString('imageName', defaultImageName!);
-
+      print("profileImages!!!${alGetProfileDetail}");
 
 
 
@@ -175,7 +168,7 @@ class _MyImageEditPageState extends State<ImageEditScreen> {
             child: _isLoading
                 ? Center(
                     child: CircularProgressIndicator(
-                      color: AppColor.buttonColor,
+                      color: AppColor.lightGreen,
                     ),
                     widthFactor: 60,
                   )
