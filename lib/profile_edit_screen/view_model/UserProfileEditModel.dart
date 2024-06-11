@@ -1,45 +1,26 @@
-class LoginModel {
-  bool? status;
+class UserProfileEditModel {
   String? message;
-  String? accessToken;
-  String? tokenType;
-  int? expiresIn;
-  Profiles? profiles;
+  ProfileEdit? profile;
 
-  LoginModel(
-      {this.status,
-        this.message,
-        this.accessToken,
-        this.tokenType,
-        this.expiresIn,
-        this.profiles});
+  UserProfileEditModel({this.message, this.profile});
 
-  LoginModel.fromJson(Map<String, dynamic> json) {
-    status = json['status'];
+  UserProfileEditModel.fromJson(Map<String, dynamic> json) {
     message = json['message'];
-    accessToken = json['access_token'];
-    tokenType = json['token_type'];
-    expiresIn = json['expires_in'];
-    profiles = json['profiles'] != null
-        ? new Profiles.fromJson(json['profiles'])
-        : null;
+    profile =
+    json['profile'] != null ? new ProfileEdit.fromJson(json['profile']) : null;
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
     data['message'] = this.message;
-    data['access_token'] = this.accessToken;
-    data['token_type'] = this.tokenType;
-    data['expires_in'] = this.expiresIn;
-    if (this.profiles != null) {
-      data['profiles'] = this.profiles!.toJson();
+    if (this.profile != null) {
+      data['profile'] = this.profile!.toJson();
     }
     return data;
   }
 }
 
-class Profiles {
+class ProfileEdit {
   int? id;
   String? password;
   String? profileID;
@@ -70,9 +51,9 @@ class Profiles {
   int? bloodGroup;
   int? complexion;
   int? religionId;
-  String? subcaste;
+  Null? subcaste;
   int? professionId;
-  String? zip;
+  Null? zip;
   int? fathersStatus;
   int? mothersStatus;
   int? noOfBrothers;
@@ -81,21 +62,21 @@ class Profiles {
   String? aboutMyFamily;
   String? contactPerson;
   String? convenientTime;
-  String? lastLoggedIn;
+  Null? lastLoggedIn;
   int? isActive;
   int? paidStatus;
   int? photoAvailable;
   int? iBy;
   int? completed;
-  String? rememberToken;
+  Null? rememberToken;
   int? isDelete;
-  String? emailVerifiedAt;
+  Null? emailVerifiedAt;
   String? fcmToken;
+  Null? forgotVerificationCode;
   String? createdAt;
   String? updatedAt;
-  String? imageName;
 
-  Profiles(
+  ProfileEdit(
       {this.id,
         this.password,
         this.profileID,
@@ -147,11 +128,11 @@ class Profiles {
         this.isDelete,
         this.emailVerifiedAt,
         this.fcmToken,
+        this.forgotVerificationCode,
         this.createdAt,
-        this.updatedAt,
-        this.imageName});
+        this.updatedAt});
 
-  Profiles.fromJson(Map<String, dynamic> json) {
+  ProfileEdit.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     password = json['password'];
     profileID = json['profileID'];
@@ -203,9 +184,9 @@ class Profiles {
     isDelete = json['is_delete'];
     emailVerifiedAt = json['email_verified_at'];
     fcmToken = json['fcm_token'];
+    forgotVerificationCode = json['forgot_verification_code'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
-    imageName = json['image_name'];
   }
 
   Map<String, dynamic> toJson() {
@@ -261,9 +242,9 @@ class Profiles {
     data['is_delete'] = this.isDelete;
     data['email_verified_at'] = this.emailVerifiedAt;
     data['fcm_token'] = this.fcmToken;
+    data['forgot_verification_code'] = this.forgotVerificationCode;
     data['created_at'] = this.createdAt;
     data['updated_at'] = this.updatedAt;
-    data['image_name'] = this.imageName;
     return data;
   }
 }

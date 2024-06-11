@@ -8,7 +8,10 @@ import 'package:matrimony/bottom_sheet_screen/view_model/educations_model.dart';
 import 'package:matrimony/bottom_sheet_screen/view_model/global_value_model.dart';
 import 'package:matrimony/bottom_sheet_screen/view_model/occupation_model.dart';
 import 'package:matrimony/bottom_sheet_screen/view_model/state_model.dart';
+import 'package:matrimony/utils/ProgressHUD.dart';
 import 'package:matrimony/utils/app_theme.dart';
+import 'package:matrimony/utils/appcolor.dart';
+import 'package:matrimony/webservices/Webservices.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BottomScreen extends StatefulWidget {
@@ -27,8 +30,8 @@ class _BottomScreenState extends State<BottomScreen> {
   List<String> religionOptions = [];
   List<String> maritalStatusOption = [];
   List<bool> _selectedMaritalStatus = [];
-  List<String> genderOption = [];
-  String? _selectedGender = "Male";
+  // List<String> genderOption = [];
+  String? _selectedGender = "male";
   String? _selectedPhoto = "Yes";
 
   List<String> bodyTypeOptions = [];
@@ -38,8 +41,8 @@ class _BottomScreenState extends State<BottomScreen> {
   List<bool> _selectedComplexion = [];
   String? _selectedValue;
   String? _selectedIncome;
-  String? _selectedAge;
-  String? _selectedAgeS;
+  String? _selectedAge="18";
+  String? _selectedAgeS="25";
 
   List<String> photoOptions = ["Yes", "No"];
 
@@ -58,11 +61,17 @@ class _BottomScreenState extends State<BottomScreen> {
   late Map<String, dynamic> _dietList;
 
   var globalValueModel = GlobalValueModel();
-  GlobalValueModel? _globalValueModel;
   List<GlobalData> incomeOption = [];
   List<CountryData> countryNames = [];
 
   final TextEditingController searchController = TextEditingController();
+  bool iLoaded = false;
+  bool isApiCallProcess = false;
+  RangeValues _ageRange = RangeValues(18, 65);
+  List<String> _heightKeys = [];
+  RangeValues? _heightRange;
+  Map<String, String> _heightList = {};
+
 
 //key all ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   String? incomeKey;
@@ -80,7 +89,14 @@ class _BottomScreenState extends State<BottomScreen> {
   void initState() {
     super.initState();
     setState(() {
-      fetchGlobalValues();
+      fetchGlobalValues().then((_) {
+        setState(() {
+          _heightKeys = _heightList.keys.toList();
+          if (_heightKeys.isNotEmpty) {
+            _heightRange = RangeValues(1, (_heightKeys.length - 1).toDouble());
+          }
+        });
+      });
       fetchCountry();
       fetchEducation();
       fetchOccupation();
@@ -98,7 +114,7 @@ class _BottomScreenState extends State<BottomScreen> {
           );
         });*/
     var url = Uri.parse(
-        'https://matrimonial.icommunetech.com/public/api/profile_list');
+        '${Webservices.baseUrl+Webservices.profileList}');
 
     var jsonData = json.encode({
       'keyword': '${searchController.text.isNull ? "" :searchController.text}',
@@ -114,8 +130,9 @@ class _BottomScreenState extends State<BottomScreen> {
       'education_id[]': '${educationKey.isNull ?"":educationKey}',
       'profession_id[]': '${professionKey.isNull ?"":professionKey}',
       'income': '${incomeKey.isNull ? "" : incomeKey}',
-      'start_age': '${_selectedAge.isNull ?"":_selectedAge}',
-      'end_age': '${_selectedAgeS.isNull?"":_selectedAgeS}',
+      'start_age': '${_ageRange.start.toInt().toString().isNull ?18:_ageRange.start.toInt().toString()}',
+      'end_age': '${_ageRange.end.toInt().toString().isNull?25:_ageRange.end.toInt().toString()}',
+      // 'height': '${_heightRange?.start.toInt().toString()}-${_heightRange?.end.toInt().toString()}',
       // 'marital_status[]':'',
     });
     print("formData!!!${jsonData}");
@@ -144,6 +161,9 @@ class _BottomScreenState extends State<BottomScreen> {
   }
 
   Future<void> fetchGlobalValues() async {
+    setState(() {
+      isApiCallProcess = true;
+    });
     final response = await http.get(Uri.parse(
         'https://matrimonial.icommunetech.com/public/api/global_values'));
     if (response.statusCode == 200) {
@@ -158,14 +178,14 @@ class _BottomScreenState extends State<BottomScreen> {
       _dietList = responseData['data']['diet_list'];
       _religionList = responseData['data']['religion_list'];
       _maritalList = responseData['data']['maritalstatus_list'];
-      final Map<String, dynamic> genderList =
-          responseData['data']['gender_list'];
+      // final Map<String, dynamic> genderList =
+      //     responseData['data']['gender_list'];
       bodyTypeOptions =
           List<String>.from(responseData['data']['bodytype_list']);
       ageOptions = List<String>.from(responseData['data']['age_list']);
       complexionOptions =
           List<String>.from(responseData['data']['complexion_list']);
-
+      _heightList = Map<String, String>.from(responseData['data']['height_list']);
 
         _selectedComplexion =
             List<bool>.filled(complexionOptions.length, false);
@@ -176,9 +196,16 @@ class _BottomScreenState extends State<BottomScreen> {
         dietOptions = _dietList.values.toList().cast<String>();
         religionOptions = _religionList.values.toList().cast<String>();
         maritalStatusOption = _maritalList.values.toList().cast<String>();
-        genderOption = genderList.values.toList().cast<String>();
+        // genderOption = genderList.values.toList().cast<String>();
 
+
+          setState(() {
+            isApiCallProcess = false;
+          });
     } else {
+      setState(() {
+        isApiCallProcess = false;
+      });
       throw Exception('Failed to load income options');
     }
   }
@@ -268,21 +295,35 @@ class _BottomScreenState extends State<BottomScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return ProgressHUD(
+      child: _uiSetup(context),
+      inAsyncCall: isApiCallProcess,
+      opacity: 0.3, key: Key("new"), valueColor: AlwaysStoppedAnimation( AppColor.mainAppColor),
+    );
+  }
+
+  // @override
+  Widget _uiSetup(BuildContext context) {
     // double screenWidth = MediaQuery.of(context).size.width;
     // double screenheight = MediaQuery.of(context).size.height;
     return Container(
-      decoration: const BoxDecoration(
+    /*  decoration: const BoxDecoration(
         image: DecorationImage(
             image: AssetImage(
               "assets/images/bg_pink.jpg",
             ),
             fit: BoxFit.fill),
-      ),
+      ),*/
+      color:AppColor.mainAppColor,
       child: Container(
         height: 950,
         child: SingleChildScrollView(
           padding: EdgeInsets.only(left: 8, right: 8),
-          child: Column(
+          child:/*iLoaded? Center(
+            child: CircularProgressIndicator(
+              color: AppColor.buttonColor,
+            ),
+          ):*/ Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
@@ -304,13 +345,13 @@ class _BottomScreenState extends State<BottomScreen> {
                         print('Error occurred: $e');
                       }
                     },
-                    style: const ButtonStyle(
+                    style: ButtonStyle(
                       backgroundColor: MaterialStatePropertyAll(
-                          Color.fromARGB(255, 126, 143, 130)),
+                         AppColor.mainText),
                     ),
                     child: Text(
                       "Submit",
-                      style: AppTheme.nextBold(),
+                      style: AppTheme.buttonBold(),
                     ),
                   ),
                 ),
@@ -339,169 +380,342 @@ class _BottomScreenState extends State<BottomScreen> {
                   ],
                 ),
               ),
-              const Divider(
-                height: 1,
-                thickness: 1,
-              ),
-              buildTitle("Gender"),
-              Row(
-                children: genderOption.map((option) {
-                  return Expanded(
-                    child: RadioListTile<String>(
-                      activeColor: MaterialStateColor.resolveWith(
-                          (states) => Color(0XFFB63728)),
-                      title: Text(option),
-                      value: option,
-                      groupValue: _selectedGender,
-                      onChanged: (String? value) {
-                        setState(() {
-                          _selectedGender = value!;
-                          print("_selectedGender${_selectedGender}");
-                          if (_selectedGender == "Male") {
-                            genderKey = 1.toString();
-                          } else {
-                            genderKey = 2.toString();
-                          }
-                        });
-                      },
-                    ),
-                  );
-                }).toList(),
-              ),
-              const Divider(
-                height: 1,
-                thickness: 1,
-              ),
-              buildTitle("Country"),
-              // DropdownButtonHideUnderline
-
-              Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      padding: EdgeInsets.only(left: 23,right: 23),
-                      // padding: EdgeInsets.symmetric(horizontal: 15,vertical: 0),
-                      margin: EdgeInsets.all(3),
-                      decoration: AppTheme.ConDecoration(),
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          DropdownMenu<CountryData>(
-                            textStyle: AppTheme.profileText(),
-                            // Adjust the width to accommodate the arrow
-                            width: 140,
-                            trailingIcon: Icon(Icons.keyboard_arrow_down,color: Colors.black,),
-                            menuStyle: MenuStyle(padding: MaterialStatePropertyAll(EdgeInsets.all(15))),
-                            inputDecorationTheme: InputDecorationTheme(border: UnderlineInputBorder(borderRadius: BorderRadius.circular(0))),
-                            hintText: "Please Select",
-                            // controller: menuController,
-                            menuHeight: 160,
-                            enableFilter: true,
-                            onSelected: (CountryData? menu) {
+              Container(
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(13),color: AppColor.white),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildTitle("Gender"),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: RadioListTile(
+                            activeColor: AppColor.mainText,
+                            title: Text("Male"),
+                            value: "male",
+                            groupValue:_selectedGender,
+                            onChanged: (value){
                               setState(() {
-                                _selectedCountry = menu;
-                                fetchState(_selectedCountry!.id);
+                                _selectedGender=value;
+                                genderKey = 1.toString();
                               });
                             },
-                            dropdownMenuEntries:
-                            _country.map<DropdownMenuEntry<CountryData>>((CountryData menu) {
-                              return DropdownMenuEntry<CountryData>(
-                                value: menu,
-                                label: menu.countryName.toString(),
-                              );
-                              // leadingIcon: Icon(menu.countryName.toString()));
-                            }).toList(),
                           ),
-                        ],
-                      ),
+                        ),
+                        Expanded(
+                          flex: 4,
+                          child: RadioListTile(
+                            activeColor: AppColor.mainText,
+                            title: Text("Female"),
+                            value: "female",
+                            groupValue: _selectedGender,
+                            onChanged: (value){
+                              setState(() {
+                                _selectedGender=value;
+                                genderKey = 2.toString();
+                              });
+                            },
+                          ),
+                        ),
+                      ],
                     ),
-                    /* Container(
-                      padding: EdgeInsets.symmetric(horizontal: 15),
-                      margin: EdgeInsets.all(6),
-                      decoration: AppTheme.ConDecoration(),
-                      child: DropdownButton<CountryData>(
-                        borderRadius: BorderRadius.circular(12),
-                        isExpanded: true,
-                        value: _selectedCountry,
-                        hint: Text('Please Select'),
-                        underline: Column(),
-                        icon: const Icon(Icons.keyboard_arrow_down,
-                            color: Colors.black),
-                        onChanged: (CountryData? newValue) {
-                          setState(() {
-                            _selectedCountry = newValue;
-                            countryId = _selectedCountry!.id!;
-                            fetchState(_selectedCountry!.id);
-                          });
-                        },
-                        items: _country.map<DropdownMenuItem<CountryData>>(
-                            (CountryData country) {
-                          return DropdownMenuItem<CountryData>(
-                            value: country,
-                            child: Text(country.countryName!),
-                          );
-                        }).toList(),
-                      ),
-                    ),*/
-                  ),
-                  Expanded(
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 12),
-                      margin: EdgeInsets.all(6),
-                      decoration: AppTheme.ConDecoration(),
-                      child: DropdownButton<StateData>(
-                        borderRadius: BorderRadius.circular(12),
-                        isExpanded: true,
-                        value: _selectedState,
-                        hint: Text('Please Select'),
-                        underline: Column(),
-                        icon: const Icon(Icons.keyboard_arrow_down,
-                            color: Colors.black),
-                        onChanged: (StateData? newValue) {
-                          setState(() {
-                            _selectedState = newValue;
-                            print("_selectedState   ${_selectedState?.state!.isEmpty}");
-                          });
-                        },
-                        items: _state.map<DropdownMenuItem<StateData>>(
-                            (StateData state) {
-                          return DropdownMenuItem<StateData>(
-                            value: state,
-                            child: Text(state.state!),
-                          );
-                        }).toList(),
-                      ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 12,),
+              Container(
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(13),color: AppColor.white),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildTitle("Country"),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.only(left: 23,right: 23),
+                            // padding: EdgeInsets.symmetric(horizontal: 15,vertical: 0),
+                            margin: EdgeInsets.all(3),
+                            decoration: AppTheme.ConDecoration(),
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                DropdownMenu<CountryData>(
+                                  textStyle: AppTheme.profileText(),
+                                  // Adjust the width to accommodate the arrow
+                                  width: 140,
+                                  trailingIcon: Icon(Icons.keyboard_arrow_down,color: Colors.black,),
+                                  menuStyle: MenuStyle(padding: MaterialStatePropertyAll(EdgeInsets.all(15))),
+                                  inputDecorationTheme: InputDecorationTheme(border: UnderlineInputBorder(borderRadius: BorderRadius.circular(0))),
+                                  hintText: "Please Select",
+                                  // controller: menuController,
+                                  menuHeight: 160,
+                                  enableFilter: true,
+                                  onSelected: (CountryData? menu) {
+                                    setState(() {
+                                      _selectedCountry = menu;
+                                      fetchState(_selectedCountry!.id);
+                                    });
+                                  },
+                                  dropdownMenuEntries:
+                                  _country.map<DropdownMenuEntry<CountryData>>((CountryData menu) {
+                                    return DropdownMenuEntry<CountryData>(
+                                      value: menu,
+                                      label: menu.countryName.toString(),
+                                    );
+                                    // leadingIcon: Icon(menu.countryName.toString()));
+                                  }).toList(),
+                                ),
+                              ],
+                            ),
+                          ),
+                          /* Container(
+                            padding: EdgeInsets.symmetric(horizontal: 15),
+                            margin: EdgeInsets.all(6),
+                            decoration: AppTheme.ConDecoration(),
+                            child: DropdownButton<CountryData>(
+                              borderRadius: BorderRadius.circular(12),
+                              isExpanded: true,
+                              value: _selectedCountry,
+                              hint: Text('Please Select'),
+                              underline: Column(),
+                              icon: const Icon(Icons.keyboard_arrow_down,
+                                  color: Colors.black),
+                              onChanged: (CountryData? newValue) {
+                                setState(() {
+                                  _selectedCountry = newValue;
+                                  countryId = _selectedCountry!.id!;
+                                  fetchState(_selectedCountry!.id);
+                                });
+                              },
+                              items: _country.map<DropdownMenuItem<CountryData>>(
+                                  (CountryData country) {
+                                return DropdownMenuItem<CountryData>(
+                                  value: country,
+                                  child: Text(country.countryName!),
+                                );
+                              }).toList(),
+                            ),
+                          ),*/
+                        ),
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 12),
+                            margin: EdgeInsets.all(6),
+                            decoration: AppTheme.ConDecoration(),
+                            child: DropdownButton<StateData>(
+                              borderRadius: BorderRadius.circular(12),
+                              isExpanded: true,
+                              value: _selectedState,
+                              hint: Text('Please Select'),
+                              underline: Column(),
+                              icon: const Icon(Icons.keyboard_arrow_down,
+                                  color: Colors.black),
+                              onChanged: (StateData? newValue) {
+                                setState(() {
+                                  _selectedState = newValue;
+                                  print("_selectedState   ${_selectedState?.state!.isEmpty}");
+                                });
+                              },
+                              items: _state.map<DropdownMenuItem<StateData>>(
+                                  (StateData state) {
+                                return DropdownMenuItem<StateData>(
+                                  value: state,
+                                  child: Text(state.state!),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                  ],
+                ),
+              ),
+
+              SizedBox(
+                height: 12,
+              ),
+               Container(
+                 decoration: BoxDecoration(borderRadius: BorderRadius.circular(13),color: AppColor.white),
+                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildTitle("Age",),
+                    Column(
+                      children: [
+                        RangeSlider(
+                          inactiveColor:AppColor.sliderColor,
+                          activeColor: AppColor.mainText,
+                          values: _ageRange,
+                          min: 18,
+                          max: 100,
+                          divisions: 82,
+                          labels: RangeLabels(
+                            '${_ageRange.start.toInt()}',
+                            '${_ageRange.end.toInt()}',
+                          ),
+                          onChanged: (RangeValues newRange) {
+                            setState(() {
+                              _ageRange = newRange;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+              ),
+               ),
+              SizedBox(
+                height: 12,
+              ),
+               Divider(height: 8),
+              _heightKeys.isEmpty || _heightRange == null
+                  ? Center(child: Text('No height keys available')):  Container(
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(13), color: Colors.white),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildTitle("Height",),
+                    Column(
+                      children: [
+                        RangeSlider(
+                          inactiveColor: Colors.grey,
+                          activeColor: AppColor.mainText,
+                          values: _heightRange ?? RangeValues(0, 0),
+                          min: 1,
+                          max: (_heightKeys.length - 1).toDouble(),
+                          divisions: _heightKeys.length - 1,
+                          labels: RangeLabels(
+                            _heightList[_heightKeys[_heightRange?.start.toInt() ?? 0]] ?? '',
+                            _heightList[_heightKeys[_heightRange?.end.toInt() ?? 0]] ?? '',
+                          ),
+                          onChanged: (RangeValues newRange) {
+                            setState(() {
+                              _heightRange = newRange;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
               SizedBox(
                 height: 12,
               ),
-              Divider(height: 1, thickness: 1),
-              buildTitle("Age"),
-              Row(
+            /*  Container(
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(13),color: AppColor.white),
+            child:  Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10),
-                      margin: EdgeInsets.all(6),
-                      decoration: AppTheme.ConDecoration(),
+                   buildTitle("Age"),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          margin: EdgeInsets.all(6),
+                          decoration: BoxDecoration(border: Border.all(width: 1,),borderRadius: BorderRadius.circular(30)),
+                          // decoration: AppTheme.ConDecoration(),
+                          child: DropdownButton<String>(
+                            menuMaxHeight: 170,
+                            borderRadius: BorderRadius.circular(12),
+                            isExpanded: true,
+                            value: _selectedAge,
+                            hint: Text('Please Select'),
+                            underline: Column(),
+                            icon: const Icon(Icons.keyboard_arrow_down,
+                                color: Colors.black),
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                _selectedAge = newValue!;
+                                print("_selectedAge$_selectedAge");
+                              });
+                            },
+                            items: ageOptions
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                      Text("To",),
+                      Expanded(
+                          child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        margin: EdgeInsets.all(6),decoration: BoxDecoration(border: Border.all(width: 1,),borderRadius: BorderRadius.circular(30)),
+                        // decoration: AppTheme.ConDecoration(),
+                        child: DropdownButton<String>(
+                          menuMaxHeight: 170,
+                          borderRadius: BorderRadius.circular(12),
+                          isExpanded: true,
+                          value: _selectedAgeS,
+                          hint: Text('Please Select'),
+                          underline: Column(),
+                          icon: const Icon(Icons.keyboard_arrow_down,
+                              color: Colors.black),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              _selectedAgeS = newValue!;
+                              print("_selectedAgeS${_selectedAgeS}");
+                            });
+                          },
+                          items: ageOptions
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
+                      )),
+                    ],
+                  ),
+                ],
+              ),
+                ),
+              SizedBox(
+                height: 12,
+              ),*/
+
+              Container(
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(13),color: AppColor.white),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildTitle("Income"),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 22),
+                      margin: EdgeInsets.all(10),
+                      decoration: BoxDecoration(border: Border.all(width: 1,),borderRadius: BorderRadius.circular(30)),
+                      // decoration: AppTheme.ConDecoration(),
                       child: DropdownButton<String>(
                         borderRadius: BorderRadius.circular(12),
                         isExpanded: true,
-                        value: _selectedAge,
+                        value: _selectedIncome,
                         hint: Text('Please Select'),
                         underline: Column(),
                         icon: const Icon(Icons.keyboard_arrow_down,
                             color: Colors.black),
                         onChanged: (String? newValue) {
                           setState(() {
-                            _selectedAge = newValue!;
-                            print("_selectedAge$_selectedAge");
+                            _selectedIncome = newValue;
+
+                            for (var entry in _incomeList.entries) {
+                              if (entry.value == newValue) {
+                                incomeKey = entry.key;
+                                print("INCOME!!!!${incomeKey}");
+                                break;
+                              }
+                            }
                           });
                         },
-                        items: ageOptions
+                        items: incomeOptions
                             .map<DropdownMenuItem<String>>((String value) {
                           return DropdownMenuItem<String>(
                             value: value,
@@ -510,136 +724,93 @@ class _BottomScreenState extends State<BottomScreen> {
                         }).toList(),
                       ),
                     ),
-                  ),
-                  Expanded(
-                      child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                    margin: EdgeInsets.all(6),
-                    decoration: AppTheme.ConDecoration(),
-                    child: DropdownButton<String>(
-                      borderRadius: BorderRadius.circular(12),
-                      isExpanded: true,
-                      value: _selectedAgeS,
-                      hint: Text('Please Select'),
-                      underline: Column(),
-                      icon: const Icon(Icons.keyboard_arrow_down,
-                          color: Colors.black),
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          _selectedAgeS = newValue!;
-                          print("_selectedAgeS${_selectedAgeS}");
-                        });
-                      },
-                      items: ageOptions
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 12,
+              ),
+              Container(
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(13),color: AppColor.white),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildTitle("Religion"),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 22),
+                      margin: EdgeInsets.all(10),
+                      decoration: BoxDecoration(border: Border.all(width: 1,),borderRadius: BorderRadius.circular(30)),
+                      // decoration: AppTheme.ConDecoration(),
+                      child: DropdownButton<String>(
+                        borderRadius: BorderRadius.circular(12),
+                        isExpanded: true,
+                        value: _selectedValue,
+                        hint: const Text('Please Select'),
+                        underline: Column(),
+                        icon: const Icon(Icons.keyboard_arrow_down,
+                            color: Colors.black),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            _selectedValue = newValue;
+
+                            for (var entry in _religionList.entries) {
+                              if (entry.value == newValue) {
+                                religionKey = entry.key;
+                                print("Religion!!!!${religionKey}");
+                                break;
+                              }
+                            }
+                          });
+                        },
+                        items: religionOptions
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 12,
+              ),
+              Container(
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(13),color: AppColor.white),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildTitle("Photo Available"),
+                    Row(
+                      children: photoOptions.map((option) {
+                        return Expanded(
+                          child: RadioListTile<String>(
+                            activeColor: MaterialStateColor.resolveWith(
+                                (states) => AppColor.mainText),
+                            title: Text(option),
+                            value: option,
+                            groupValue: _selectedPhoto,
+                            onChanged: (String? value) {
+                              setState(() {
+                                _selectedPhoto = value;
+                                setState(() {
+                                  print("option~~~$option");
+                                  if (_selectedPhoto == "Yes") {
+                                    photoKey = 1.toString();
+                                  } else {
+                                    photoKey = 0.toString();
+                                  }
+                                });
+                              });
+                            },
+                          ),
                         );
                       }).toList(),
                     ),
-                  )),
-                ],
-              ),
-              Divider(height: 1, thickness: 1),
-              buildTitle("Income"),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 22),
-                margin: EdgeInsets.all(10),
-                decoration: AppTheme.ConDecoration(),
-                child: DropdownButton<String>(
-                  borderRadius: BorderRadius.circular(12),
-                  isExpanded: true,
-                  value: _selectedIncome,
-                  hint: Text('Please Select'),
-                  underline: Column(),
-                  icon: const Icon(Icons.keyboard_arrow_down,
-                      color: Colors.black),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _selectedIncome = newValue;
-
-                      for (var entry in _incomeList.entries) {
-                        if (entry.value == newValue) {
-                          incomeKey = entry.key;
-                          print("INCOME!!!!${incomeKey}");
-                          break;
-                        }
-                      }
-                    });
-                  },
-                  items: incomeOptions
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
+                  ],
                 ),
-              ),
-              Divider(height: 1, thickness: 1),
-              buildTitle("Religion"),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 22),
-                margin: EdgeInsets.all(10),
-                decoration: AppTheme.ConDecoration(),
-                child: DropdownButton<String>(
-                  borderRadius: BorderRadius.circular(12),
-                  isExpanded: true,
-                  value: _selectedValue,
-                  hint: const Text('Please Select'),
-                  underline: Column(),
-                  icon: const Icon(Icons.keyboard_arrow_down,
-                      color: Colors.black),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _selectedValue = newValue;
-
-                      for (var entry in _religionList.entries) {
-                        if (entry.value == newValue) {
-                          religionKey = entry.key;
-                          print("Religion!!!!${religionKey}");
-                          break;
-                        }
-                      }
-                    });
-                  },
-                  items: religionOptions
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-              ),
-              Divider(height: 1, thickness: 1),
-              buildTitle("Photo Available"),
-              Row(
-                children: photoOptions.map((option) {
-                  return Expanded(
-                    child: RadioListTile<String>(
-                      activeColor: MaterialStateColor.resolveWith(
-                          (states) => Color(0XFFB63728)),
-                      title: Text(option),
-                      value: option,
-                      groupValue: _selectedPhoto,
-                      onChanged: (String? value) {
-                        setState(() {
-                          _selectedPhoto = value;
-                          setState(() {
-                            print("option~~~$option");
-                            if (_selectedPhoto == "Yes") {
-                              photoKey = 1.toString();
-                            } else {
-                              photoKey = 0.toString();
-                            }
-                          });
-                        });
-                      },
-                    ),
-                  );
-                }).toList(),
               ),
               Divider(height: 1, thickness: 1),
               ExpansionTile(
@@ -657,7 +828,7 @@ class _BottomScreenState extends State<BottomScreen> {
                           Expanded(
                             child: CheckboxListTile(
                               checkColor: Colors.white,
-                              activeColor: Color.fromARGB(255, 238, 130, 132),
+                              activeColor:AppColor.mainText,
                               controlAffinity: ListTileControlAffinity.leading,
                               value: _selectedBodyType.length > index * 2
                                   ? _selectedBodyType[index * 2]
@@ -695,7 +866,7 @@ class _BottomScreenState extends State<BottomScreen> {
                             Expanded(
                               child: CheckboxListTile(
                                 checkColor: Colors.white,
-                                activeColor: Color.fromARGB(255, 238, 130, 132),
+                                activeColor:AppColor.mainText,
                                 controlAffinity:
                                     ListTileControlAffinity.leading,
                                 value: _selectedBodyType.length > index * 2 + 1
@@ -755,7 +926,7 @@ class _BottomScreenState extends State<BottomScreen> {
                           Expanded(
                             child: CheckboxListTile(
                               checkColor: Colors.white,
-                              activeColor: Color.fromARGB(255, 238, 130, 132),
+                              activeColor:AppColor.mainText,
                               controlAffinity: ListTileControlAffinity.leading,
                               value: _selectedComplexion.length > index * 2
                                   ? _selectedComplexion[index * 2]
@@ -792,7 +963,7 @@ class _BottomScreenState extends State<BottomScreen> {
                             Expanded(
                               child: CheckboxListTile(
                                 checkColor: Colors.white,
-                                activeColor: Color.fromARGB(255, 238, 130, 132),
+                                activeColor:AppColor.mainText,
                                 controlAffinity:
                                     ListTileControlAffinity.leading,
                                 value:
@@ -850,7 +1021,7 @@ class _BottomScreenState extends State<BottomScreen> {
                           Expanded(
                             child: CheckboxListTile(
                               checkColor: Colors.white,
-                              activeColor: Color.fromARGB(255, 238, 130, 132),
+                              activeColor:AppColor.mainText,
                               controlAffinity: ListTileControlAffinity.leading,
                               value: _selectedDiet.length > index * 2
                                   ? _selectedDiet[index * 2]
@@ -886,7 +1057,7 @@ class _BottomScreenState extends State<BottomScreen> {
                             Expanded(
                               child: CheckboxListTile(
                                 checkColor: Colors.white,
-                                activeColor: Color.fromARGB(255, 238, 130, 132),
+                                activeColor:AppColor.mainText,
                                 controlAffinity:
                                     ListTileControlAffinity.leading,
                                 value: _selectedDiet.length > index * 2 + 1
@@ -944,7 +1115,7 @@ class _BottomScreenState extends State<BottomScreen> {
                             Expanded(
                               child: CheckboxListTile(
                                 checkColor: Colors.white,
-                                activeColor: Color.fromARGB(255, 238, 130, 132),
+                                activeColor:AppColor.mainText,
                                 controlAffinity:
                                     ListTileControlAffinity.leading,
                                 value: _selectedEducation.length > firstIndex
@@ -979,8 +1150,7 @@ class _BottomScreenState extends State<BottomScreen> {
                               Expanded(
                                 child: CheckboxListTile(
                                   checkColor: Colors.white,
-                                  activeColor:
-                                      Color.fromARGB(255, 238, 130, 132),
+                                  activeColor:AppColor.mainText,
                                   controlAffinity:
                                       ListTileControlAffinity.leading,
                                   value: _selectedEducation.length > secondIndex
@@ -1037,7 +1207,7 @@ class _BottomScreenState extends State<BottomScreen> {
                             Expanded(
                               child: CheckboxListTile(
                                 checkColor: Colors.white,
-                                activeColor: Color.fromARGB(255, 238, 130, 132),
+                                activeColor:AppColor.mainText,
                                 controlAffinity:
                                     ListTileControlAffinity.leading,
                                 value: _selectedOccupation.length > firstIndex
@@ -1072,8 +1242,7 @@ class _BottomScreenState extends State<BottomScreen> {
                               Expanded(
                                 child: CheckboxListTile(
                                   checkColor: Colors.white,
-                                  activeColor:
-                                      Color.fromARGB(255, 238, 130, 132),
+                                  activeColor:AppColor.mainText,
                                   controlAffinity:
                                       ListTileControlAffinity.leading,
                                   value:
@@ -1129,7 +1298,7 @@ class _BottomScreenState extends State<BottomScreen> {
                           Expanded(
                             child: CheckboxListTile(
                               checkColor: Colors.white,
-                              activeColor: Color.fromARGB(255, 238, 130, 132),
+                              activeColor:AppColor.mainText,
                               controlAffinity: ListTileControlAffinity.leading,
                               value: _selectedMaritalStatus.length > index * 2
                                   ? _selectedMaritalStatus[index * 2]
@@ -1175,7 +1344,7 @@ class _BottomScreenState extends State<BottomScreen> {
                             Expanded(
                               child: CheckboxListTile(
                                 checkColor: Colors.white,
-                                activeColor: Color.fromARGB(255, 238, 130, 132),
+                                activeColor:AppColor.mainText,
                                 controlAffinity:
                                     ListTileControlAffinity.leading,
                                 value: _selectedMaritalStatus.length >
@@ -1255,11 +1424,11 @@ class _BottomScreenState extends State<BottomScreen> {
                     },
                     child: Text(
                       "Submit",
-                      style: AppTheme.nextBold(),
+                      style: AppTheme.buttonBold(),
                     ),
                     style: ButtonStyle(
                       backgroundColor: MaterialStatePropertyAll(
-                          Color.fromARGB(255, 126, 143, 130)),
+                        AppColor.mainText),
                     ),
                   ),
                 ),

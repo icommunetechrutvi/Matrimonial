@@ -9,6 +9,7 @@ import 'package:matrimony/bottom_sheet_screen/view_model/educations_model.dart';
 import 'package:matrimony/bottom_sheet_screen/view_model/global_value_model.dart';
 import 'package:matrimony/bottom_sheet_screen/view_model/occupation_model.dart';
 import 'package:matrimony/bottom_sheet_screen/view_model/state_model.dart';
+import 'package:matrimony/profile_edit_screen/view_model/UserProfileEditModel.dart';
 import 'package:matrimony/profile_edit_screen/view_model/profile_detail_model.dart';
 import 'package:matrimony/search_screen/search_screen.dart';
 import 'package:matrimony/ui_screen/appBar_screen.dart';
@@ -150,7 +151,6 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
     if (response.statusCode == 200) {
       // setState(() {
       var jsonList = jsonDecode(response.body) as Map<String, dynamic>;
-      print("jsonList$jsonList");
       final localPickData = ProfileDetailModel.fromJson(jsonList);
       print("localPickData^^^^${localPickData.data}");
 
@@ -359,15 +359,18 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
       );
       print('Response status: ${response.statusCode}');
       if (response.statusCode == 200) {
-        print('Response DATA#######: ${response.body}');
+        var jsonList = jsonDecode(response.body) as Map<String, dynamic>;
+        final user= UserProfileEditModel.fromJson(jsonList);
+        prefs.setString(PrefKeys.KEYNAME,user.profile!.firstName ?? "kmkjlmnkjn");
+        prefs.setString(PrefKeys.KEYEMAIL,user.profile!.emailId ?? "kmkjlmnkjn");
         await Future.delayed(Duration(seconds: 1));
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("${alGetProfileDetail[0].message}"),
+          content: Text("${user.message}"),
           backgroundColor: AppColor.lightGreen,
         ));
         Navigator.pushReplacement(context, MaterialPageRoute(
           builder: (context) {
-            return SearchScreen();
+            return SearchScreen(selectedMaritalStatus: "",selectedGender: "",selectedAge: "",selectedAgeS: "",);
           },
         ));
         setState(() {
@@ -532,17 +535,39 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Color.fromARGB(255, 255, 241, 241),
-      appBar: CommonAppBar(
-        text: "Edit Profile",
-        scaffoldKey: _scaffoldKey,
-        key: Key("cv"),
+      // appBar: CommonAppBar(
+      //   text: "Edit Profile",
+      //   scaffoldKey: _scaffoldKey,
+      //   key: Key("cv"),
+      // ),
+      // drawer: SideDrawer(),
+      appBar:AppBar(
+        backgroundColor: AppColor.white,
+        title: Text(
+          "Profile Edit",
+          style: TextStyle(
+            fontSize: 16,
+            color: AppColor.black,
+            fontWeight: FontWeight.bold,
+            fontFamily: FontName.poppinsRegular,
+          ),
+        ),
+        leading:IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Image(
+              image: AssetImage("assets/icon/back_app_bar.png"),
+              height: screenHeight * 0.02),
+        ),
       ),
-      drawer: SideDrawer(),
+
       body: Stack(fit: StackFit.expand, children: [
-        Image.asset(
+        Container(color: AppColor.mainAppColor),
+       /* Image.asset(
           "assets/images/bg_pink.jpg",
           fit: BoxFit.fill,
-        ),
+        ),*/
         SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
@@ -570,12 +595,13 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
                           color: AppColor.appGreenColor, size: 29),
                       children: [
                         Container(
-                          decoration: const BoxDecoration(
+                          color:AppColor.mainAppColor,
+                         /* decoration: const BoxDecoration(
                             image: DecorationImage(
                               image: AssetImage("assets/images/bg_pink.jpg"),
                               fit: BoxFit.cover,
                             ),
-                          ),
+                          ),*/
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -654,7 +680,6 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
                                             child: DropdownSearch<CountryData>(
                                               popupProps: PopupProps.menu(
                                                 constraints: BoxConstraints.loose(Size.fromHeight(250)),
-                                                // showSelectedItems: true,
                                                 showSearchBox: true,
                                                 searchFieldProps: TextFieldProps(
                                                   decoration: InputDecoration(
@@ -770,12 +795,13 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
                         color: AppColor.appGreenColor, size: 29),
                     children: [
                       Container(
-                        decoration: BoxDecoration(
+                        color:AppColor.mainAppColor,
+                        /*decoration: BoxDecoration(
                           image: DecorationImage(
                             image: AssetImage("assets/images/bg_pink.jpg"),
                             fit: BoxFit.cover,
                           ),
-                        ),
+                        ),*/
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -1334,12 +1360,13 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
                           color: AppColor.appGreenColor, size: 29),
                       children: [
                         Container(
-                          decoration: BoxDecoration(
+                          color:AppColor.mainAppColor,
+                         /* decoration: BoxDecoration(
                             image: DecorationImage(
                               image: AssetImage("assets/images/bg_pink.jpg"),
                               fit: BoxFit.cover,
                             ),
-                          ),
+                          ),*/
                           child: Column(
                             children: [
                               Row(
@@ -1484,7 +1511,7 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
                     await postProfileEdit();
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Color.fromARGB(255, 126, 143, 130),
+                    primary:AppColor.mainText
                   ),
                   child: Text(
                     "Update",

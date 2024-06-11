@@ -33,56 +33,60 @@ class NotificationsModel {
 class NotificationData {
   String? fullName;
   int? profileId;
-  int? viewProfileId;
+  int? blockProfileId;
   String? imageName;
   int? isDefault;
   int? visitedProfileId;
   String? type;
   String? createdAt;
   String? updatedAt;
-  int? viewFavoritesId;
+  int? viewProfileId;
   int? viewContactId;
+  int? viewFavoritesId;
 
   NotificationData(
       {this.fullName,
         this.profileId,
-        this.viewProfileId,
+        this.blockProfileId,
         this.imageName,
         this.isDefault,
         this.visitedProfileId,
         this.type,
         this.createdAt,
         this.updatedAt,
-        this.viewFavoritesId,
-        this.viewContactId});
+        this.viewProfileId,
+        this.viewContactId,
+        this.viewFavoritesId});
 
   NotificationData.fromJson(Map<String, dynamic> json) {
     fullName = json['full_name'];
     profileId = json['profile_id'];
-    viewProfileId = json['viewProfileId'];
+    blockProfileId = json['blockProfileId'];
     imageName = json['image_name'];
     isDefault = json['is_default'];
     visitedProfileId = json['visited_profile_id'];
     type = json['type'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
-    viewFavoritesId = json['viewFavoritesId'];
+    viewProfileId = json['viewProfileId'];
     viewContactId = json['viewContactId'];
+    viewFavoritesId = json['viewFavoritesId'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['full_name'] = this.fullName;
     data['profile_id'] = this.profileId;
-    data['viewProfileId'] = this.viewProfileId;
+    data['blockProfileId'] = this.blockProfileId;
     data['image_name'] = this.imageName;
     data['is_default'] = this.isDefault;
     data['visited_profile_id'] = this.visitedProfileId;
     data['type'] = this.type;
     data['created_at'] = this.createdAt;
     data['updated_at'] = this.updatedAt;
-    data['viewFavoritesId'] = this.viewFavoritesId;
+    data['viewProfileId'] = this.viewProfileId;
     data['viewContactId'] = this.viewContactId;
+    data['viewFavoritesId'] = this.viewFavoritesId;
     return data;
   }
 }

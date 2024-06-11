@@ -39,6 +39,9 @@ class ViewProfileData {
   String? createdAt;
   String? updatedAt;
   int? age;
+  String? profileCountry;
+  String? education;
+
 
   ViewProfileData(
       {this.viewprofile,
@@ -57,6 +60,8 @@ class ViewProfileData {
         this.religionId,
         this.createdAt,
         this.updatedAt,
+        this.education,
+        this.profileCountry,
         this.age});
 
   ViewProfileData.fromJson(Map<String, dynamic> json) {
@@ -77,6 +82,8 @@ class ViewProfileData {
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     age = json['age'];
+    profileCountry = json['profilecountry'];
+    education = json['education'];
   }
 
   Map<String, dynamic> toJson() {
@@ -98,6 +105,8 @@ class ViewProfileData {
     data['created_at'] = this.createdAt;
     data['updated_at'] = this.updatedAt;
     data['age'] = this.age;
+    data['profilecountry'] = this.profileCountry;
+    data['education'] = this.education;
     return data;
   }
 }

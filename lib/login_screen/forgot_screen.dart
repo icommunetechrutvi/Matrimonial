@@ -131,7 +131,7 @@ class _MyForgotScreen extends State<ForgotScreen> {
                             Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(
                                     builder: (BuildContext context) =>
-                                        BottomMenuScreen()));
+                                        BottomMenuScreen(pageId: 1,)));
                             // if (_formKey.currentState?.validate() ?? false) {
                             //   /// do something
                             // }

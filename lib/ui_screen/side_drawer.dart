@@ -1,9 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:matrimony/blocked_profile/connection_screen.dart';
+import 'package:matrimony/blocked_profile/match_list_screen.dart';
 import 'package:matrimony/blocked_profile/viewed_contact_screen.dart';
 import 'package:matrimony/blocked_profile/viewed_profile_screen.dart';
+import 'package:matrimony/login_screen/change_password.dart';
 import 'package:matrimony/login_screen/login_screen.dart';
-import 'package:matrimony/profile_edit_screen/blocklist_screen.dart';
+import 'package:matrimony/profile_edit_screen/profile_details.dart';
+import 'package:matrimony/utils/appcolor.dart';
+import 'package:matrimony/wishList_screen/blocklist_screen.dart';
 import 'package:matrimony/profile_edit_screen/image_edit_screen.dart';
 import 'package:matrimony/profile_edit_screen/profile_edit_screen.dart';
 import 'package:matrimony/wishList_screen/wishlist_screen.dart';
@@ -18,6 +23,7 @@ class SideDrawer extends StatefulWidget {
 
 class _SecondScreenState extends State<SideDrawer> {
   var userName = '';
+  var loginId = '';
   var emailId = '';
   var imageName = '';
   var userGender = '';
@@ -32,10 +38,15 @@ class _SecondScreenState extends State<SideDrawer> {
 
   Future<void> getValue() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    // prefs.reload();
     emailId = prefs.getString(PrefKeys.KEYEMAIL)!;
     userName = prefs.getString(PrefKeys.KEYNAME) ?? "kmkjlmnkjn";
     imageName = prefs.getString(PrefKeys.KEYAVTAR)!;
     userGender = prefs.getString(PrefKeys.KEYGENDER)!;
+    loginId = prefs.getString(PrefKeys.KEYPROFILEID)!;
+
+    print("userName${userName}");
+    print("emailId${emailId}");
   }
 
   @override
@@ -63,13 +74,13 @@ class _SecondScreenState extends State<SideDrawer> {
                   Container(
                     child: UserAccountsDrawerHeader(
                       decoration: BoxDecoration(
-                        color: Color.fromARGB(255, 248, 205, 206),
+                        color: AppColor.mainAppColor,
                       ),
                       accountEmail: emailId?.isNotEmpty ?? false
                           ? Text(
                               emailId ?? "jghjknn",
                               style: TextStyle(
-                                color: Colors.pink,
+                                color:AppColor.mainText,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -88,8 +99,8 @@ class _SecondScreenState extends State<SideDrawer> {
                       accountName: userName?.isNotEmpty ?? false
                           ? Text(
                               userName ?? "nckjndjk",
-                              style: const TextStyle(
-                                color: Colors.pink,
+                              style: TextStyle(
+                                color:AppColor.mainText,
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -133,14 +144,68 @@ class _SecondScreenState extends State<SideDrawer> {
                     ),
                   ),
                   ListTile(
-                    leading: const Icon(
-                      Icons.add_photo_alternate,
-                      color: Color.fromARGB(255, 126, 143, 130),
+                    leading:  Icon(
+                      Icons.home,
+                      color: AppColor.mainText,
                     ),
-                    title: const Text(
+                    title:  Text('Home ',
+                        style: TextStyle(
+                          color: AppColor.mainText,
+                        )),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BottomMenuScreen(pageId: 0),
+                          ));
+                    },
+                  ),
+                  ListTile(
+                    leading:  Icon(
+                      Icons.person,
+                      color: AppColor.mainText,
+                    ),
+                    title:  Text('My Profile',
+                        style: TextStyle(
+                          color: AppColor.mainText,
+                        )),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BottomMenuScreen(pageId: 3),
+                          ));
+                    },
+                  ),
+                  ListTile(
+                    leading:  Icon(
+                      Icons.search,
+                      color: AppColor.mainText,
+                    ),
+                    title:  Text('Search ',
+                        style: TextStyle(
+                          color: AppColor.mainText,
+                        )),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BottomMenuScreen(pageId: 1),
+                          ));
+                    },
+                  ),
+                /*  ListTile(
+                    leading: Icon(
+                      Icons.add_photo_alternate,
+                      color:AppColor.mainText,
+                    ),
+                    title: Text(
                       'Edit Photos',
                       style: TextStyle(
-                        color: Color.fromARGB(255, 126, 143, 130),
+                        color:AppColor.mainText,
                       ),
                     ),
                     onTap: () {
@@ -153,31 +218,13 @@ class _SecondScreenState extends State<SideDrawer> {
                     },
                   ),
                   ListTile(
-                    leading: const Icon(
-                      Icons.search,
-                      color: Color.fromARGB(255, 126, 143, 130),
-                    ),
-                    title: const Text('Search ',
-                        style: TextStyle(
-                          color: Color.fromARGB(255, 126, 143, 130),
-                        )),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => BottomMenuScreen(),
-                          ));
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(
+                    leading: Icon(
                       Icons.edit,
-                      color: Color.fromARGB(255, 126, 143, 130),
+                      color:AppColor.mainText,
                     ),
-                    title: const Text(' Edit Profile',
+                    title: Text(' Edit Profile',
                         style: TextStyle(
-                          color: Color.fromARGB(255, 126, 143, 130),
+                          color:AppColor.mainText,
                         )),
                     onTap: () {
                       Navigator.pop(context);
@@ -187,15 +234,33 @@ class _SecondScreenState extends State<SideDrawer> {
                         },
                       ), (route) => false);
                     },
+                  ),*/
+                  ListTile(
+                    leading:  Icon(
+                      Icons.connect_without_contact_outlined,
+                      color:AppColor.mainText,
+                    ),
+                    title:  Text('Connection',
+                        style: TextStyle(
+                          color:AppColor.mainText,
+                        )),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BottomMenuScreen(pageId: 2),
+                          ));
+                    },
                   ),
                   ListTile(
-                    leading: const Icon(
+                    leading:  Icon(
                       Icons.favorite_border_outlined,
-                      color: Color.fromARGB(255, 126, 143, 130),
+                      color:AppColor.mainText,
                     ),
-                    title: const Text('Shortlisted Profile',
+                    title:  Text('Shortlisted Profile',
                         style: TextStyle(
-                          color: Color.fromARGB(255, 126, 143, 130),
+                          color:AppColor.mainText,
                         )),
                     onTap: () {
                       Navigator.pop(context);
@@ -207,13 +272,13 @@ class _SecondScreenState extends State<SideDrawer> {
                     },
                   ),
                   ListTile(
-                    leading: const Icon(
+                    leading:  Icon(
                       Icons.co_present,
-                      color: Color.fromARGB(255, 126, 143, 130),
+                      color:AppColor.mainText,
                     ),
-                    title: const Text('Viewed Profile',
+                    title: Text('Viewed Profile',
                         style: TextStyle(
-                          color: Color.fromARGB(255, 126, 143, 130),
+                          color:AppColor.mainText,
                         )),
                     onTap: () {
                       Navigator.pop(context);
@@ -225,13 +290,13 @@ class _SecondScreenState extends State<SideDrawer> {
                     },
                   ),
                   ListTile(
-                    leading: const Icon(
+                    leading: Icon(
                       Icons.co_present,
-                      color: Color.fromARGB(255, 126, 143, 130),
+                      color:AppColor.mainText,
                     ),
-                    title: const Text('Viewed Contact',
+                    title: Text('Viewed Contact',
                         style: TextStyle(
-                          color: Color.fromARGB(255, 126, 143, 130),
+                          color:AppColor.mainText,
                         )),
                     onTap: () {
                       Navigator.pop(context);
@@ -243,13 +308,31 @@ class _SecondScreenState extends State<SideDrawer> {
                     },
                   ),
                   ListTile(
-                    leading: const Icon(
-                      Icons.block_outlined,
-                      color: Color.fromARGB(255, 126, 143, 130),
+                    leading: Icon(
+                      Icons.recommend_outlined,
+                      color:AppColor.mainText,
                     ),
-                    title: const Text('Blocked Profile',
+                    title: Text('Recommended Matches',
                         style: TextStyle(
-                          color: Color.fromARGB(255, 126, 143, 130),
+                          color:AppColor.mainText,
+                        )),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+                        builder: (context) {
+                          return MatchListScreen();
+                        },
+                      ), (route) => false);
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(
+                      Icons.block_outlined,
+                      color:AppColor.mainText,
+                    ),
+                    title:  Text('Blocked Profile',
+                        style: TextStyle(
+                          color:AppColor.mainText,
                         )),
                     onTap: () {
                       Navigator.pop(context);
@@ -261,13 +344,34 @@ class _SecondScreenState extends State<SideDrawer> {
                     },
                   ),
                   ListTile(
-                      leading: const Icon(
+                    leading: Icon(
+                      Icons.change_circle_outlined,
+                      color:AppColor.mainText,
+                    ),
+                    title: Text('Change Password',
+                        style: TextStyle(
+                          color:AppColor.mainText,
+                        )),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (context) {
+                        return ChangePasswordScreen();
+                      },));
+                      // Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+                      //   builder: (context) {
+                      //     return ChangePasswordScreen();
+                      //   },
+                      // ), (route) => false);
+                    },
+                  ),
+                  ListTile(
+                      leading: Icon(
                         Icons.logout,
-                        color: Color.fromARGB(255, 126, 143, 130),
+                        color:AppColor.mainText,
                       ),
-                      title: const Text('LogOut',
+                      title: Text('LogOut',
                           style: TextStyle(
-                            color: Color.fromARGB(255, 126, 143, 130),
+                            color:AppColor.mainText,
                           )),
                       onTap: () {
                         _logout(context);

@@ -1,0 +1,463 @@
+import 'dart:convert';
+
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:matrimony/login_screen/login_screen.dart';
+import 'package:matrimony/profile_edit_screen/profile_details.dart';
+import 'package:matrimony/ui_screen/appBar_screen.dart';
+import 'package:matrimony/ui_screen/side_drawer.dart';
+import 'package:matrimony/utils/app_theme.dart';
+import 'package:matrimony/utils/appcolor.dart';
+import 'package:matrimony/utils/shared_pref/pref_keys.dart';
+import 'package:matrimony/webservices/Webservices.dart';
+import 'package:matrimony/wishList_screen/BlockListModel.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class BlockListScreen extends StatefulWidget {
+  BlockListScreen({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<BlockListScreen> createState() => _MyBlocklistPageState();
+}
+
+class _MyBlocklistPageState extends State<BlockListScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
+  List<Block> alGetFavoriteList = [];
+  bool _isLoading = false;
+  var profileImg = "";
+  Map<String, dynamic>? heightList;
+
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      blockedListApi();
+      fetchGlobalValues();
+    });
+  }
+  Future<void> fetchGlobalValues() async {
+    final response = await http.get(Uri.parse(
+        '${Webservices.baseUrl+Webservices.globalValue}'));
+    print("response~~${response}");
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      final Map<String, dynamic> heightMap = responseData['data']['height_list'];
+      heightList = heightMap.map((key, value) => MapEntry(key, value.toString()));
+    } else {
+      throw Exception('Failed to load income options');
+    }
+  }
+  Future<void> blockedListApi() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final userToken = prefs.getString(PrefKeys.ACCESSTOKEN)?? "null";
+    final userType = prefs.getString(PrefKeys.KEYGENDER)!;
+    if (userType == "2") {
+      profileImg = "https://rishtaforyou.com/storage/profiles/default1.png";
+    } else {
+      profileImg = "https://rishtaforyou.com/storage/profiles/default2.png";
+    }
+    setState(() {
+      _isLoading = true;
+    });
+    final url = Uri.parse( '${Webservices.baseUrl+Webservices.blockList}');
+    final response = await http.get(url, headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $userToken',
+    });
+
+    if (response.statusCode == 200) {
+      // final userMap = json.decode(response.body);
+      // final occupationModel = CurrentProfileData.fromJson(userMap);
+
+      var jsonList = jsonDecode(response.body);
+      print("jsonList$jsonList");
+      final localPickData = BlockListModel.fromJson(jsonList);
+      print("localPickData~~~~~~~~***${localPickData}");
+      alGetFavoriteList = localPickData.block ?? [];
+      setState(() {
+        _isLoading = false;
+      });
+    } else if (response.statusCode == 401) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: const Text("Token is Expire!! Please Login Again"),
+        backgroundColor: AppColor.red,
+      ));
+      Navigator.push(context, MaterialPageRoute(
+        builder: (context) {
+          return LoginScreen();
+        },
+      ));
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+      print("alGetFavoriteList~~~${alGetFavoriteList.length}");
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: const Text("Nothing to Add Block "),
+        backgroundColor: AppColor.red,
+      ));
+      print("Nothing Data");
+      throw Exception('Failed to load Block List');
+    }
+  }
+  Future<bool> checkImageExists(String url) async {
+    final response = await http.head(Uri.parse(url));
+    return response.statusCode == 200;
+  }
+  @override
+  Widget build(BuildContext context) {
+    double screenHeight = MediaQuery.of(context).size.height;
+    double screenWidth = MediaQuery.of(context).size.width;
+    bool isPortrait = screenHeight > screenWidth;
+
+    return Scaffold(
+      key: _scaffoldKey,
+      backgroundColor: Color.fromARGB(255, 255, 241, 241),
+      // backgroundColor: Color.fromARGB(255, 255, 241, 241),
+      appBar: CommonAppBar(
+        text: "Blocked Profile",
+        scaffoldKey: _scaffoldKey,
+        key: Key("cv"),
+      ),
+      drawer: SideDrawer(),
+      body: Stack(fit: StackFit.expand, children: [
+        Container(color: AppColor.mainAppColor),
+      /*  Image.asset(
+          "assets/images/bg_white.jpg",
+          fit: BoxFit.fill,
+        ),*/
+        SingleChildScrollView(
+          child: Column(
+            children: [
+              _isLoading
+                  ? Center(
+                child: CircularProgressIndicator(
+                  color: AppColor.lightGreen,
+                ),
+              )
+                  : alGetFavoriteList.isNotEmpty
+                  ? Container(
+                height: MediaQuery.of(context).size.height * 0.9,
+                child: ListView.builder(
+                  itemCount: alGetFavoriteList.length,
+                  itemBuilder: (context, index) {
+                    String? heightKey = alGetFavoriteList[index].height.toString();
+                    String? heightValue = heightList?[heightKey??0];
+                    return InkWell(
+                      onTap: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return ProfileDetailScreen(
+                                  profileId:
+                                  alGetFavoriteList[index]
+                                      .id,
+                                  profileFullName:
+                                  "${alGetFavoriteList[index].firstName} ${alGetFavoriteList[index].lastName}",
+                                );
+                              },
+                            ));
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(3),
+                        margin: EdgeInsets.all(3),
+                        child: Card(
+                          color: Color.fromARGB(255, 245, 245, 245),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            side: BorderSide(
+                                width: 3, color: Colors.transparent),
+                          ),
+                          elevation: 5,
+                          child: Column(
+                            children: [
+                              Container(
+                                height: screenHeight * 0.3,
+                                // width: screenWidth / 0,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(16),
+                                    topRight: Radius.circular(16),
+                                  ),
+                                ),
+                                child: FutureBuilder<bool>(
+                                  future: checkImageExists("${Webservices.imageUrl}${alGetFavoriteList[index].imageName ?? ""}"),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState == ConnectionState.waiting) {
+                                      return Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    } else if (snapshot.hasError || !snapshot.data!) {
+                                      return Container(
+                                        decoration: BoxDecoration(
+                                          image: DecorationImage(
+                                            image: NetworkImage(profileImg),
+                                            fit: BoxFit.fill,
+                                          ),
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(16),
+                                            topRight: Radius.circular(16),
+                                          ),
+                                        ),
+                                      );
+                                    } else {
+                                      return Container(
+                                        decoration: BoxDecoration(
+                                          image: DecorationImage(
+                                            image: NetworkImage("${Webservices.imageUrl}${alGetFavoriteList[index].imageName}"),
+                                            fit: BoxFit.fill,
+                                          ),
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(16),
+                                            topRight: Radius.circular(16),
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.center,
+                                      children: [
+                                        Expanded(
+                                          child: AutoSizeText(
+                                            maxLines: 2,
+                                            minFontSize: 6,
+                                            "${alGetFavoriteList[index].firstName ?? ""}"+" ${alGetFavoriteList[index].lastName ?? ""}",
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              color: AppColor.mainText,
+                                              fontWeight: FontWeight.bold,
+                                              fontFamily:
+                                              FontName.poppinsRegular,
+                                            ),
+                                          ),
+                                        ),
+                                        AutoSizeText(
+                                          "${alGetFavoriteList[index].age} Yrs, "+"${heightValue ??0}",
+                                          // "21 Yrs, 5ft 11 in",
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: AppColor.grey,
+                                            fontFamily:
+                                            FontName.poppinsRegular,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                        height: MediaQuery.of(context)
+                                            .size
+                                            .height *
+                                            0.02),
+                                    AutoSizeText(
+                                      maxLines: 2,
+                                      minFontSize: 6,
+                                      "${alGetFavoriteList[index].occupation ?? ""}"+" - ${alGetFavoriteList[index].education ?? ""}",
+                                      // "Software Professional - Graduate",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: AppColor.grey,
+                                        fontFamily: FontName.poppinsRegular,
+                                      ),
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: AutoSizeText(
+                                            maxLines: 2,
+                                            minFontSize: 6,
+                                            "${alGetFavoriteList[index].city ?? ""}"+", ${alGetFavoriteList[index].state?? ""}"+", ${alGetFavoriteList[index].profileCountry ?? ""}",
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: AppColor.black,
+                                              fontFamily: FontName.poppinsRegular,
+                                            ),),
+                                        ),
+                                        TextButton(
+                                          // style: ButtonStyle(
+                                          // alignment: Alignment.centerLeft,
+                                          // padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                          //   EdgeInsets.zero,
+                                          // ),
+                                          // ),
+                                          onPressed: () {
+                                            Navigator.push(context,
+                                                MaterialPageRoute(
+                                                  builder: (context) {
+                                                    return ProfileDetailScreen(
+                                                      profileId:
+                                                      alGetFavoriteList[index]
+                                                          .id,
+                                                      profileFullName:
+                                                      "${alGetFavoriteList[index].firstName} ${alGetFavoriteList[index].lastName}",
+                                                    );
+                                                  },
+                                                ));
+                                          },
+                                          child: AutoSizeText(
+                                            "View Profile",
+                                            style: TextStyle(
+                                              color: AppColor.mainText,
+                                              fontFamily: FontName.poppinsRegular,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                   /* return Container(
+                      padding: EdgeInsets.all(3),
+                      margin: EdgeInsets.all(3),
+                      // height: MediaQuery.of(context).size.height * 0.4,
+                      child: Card(
+                        color: Color.fromARGB(255, 245, 245, 245),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          side: BorderSide(
+                              width: 3, color: Colors.transparent),
+                        ),
+                        elevation: 5,
+                        // margin: EdgeInsets.all(5),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: Container(
+                                margin: EdgeInsets.all(12),
+                                height: isPortrait
+                                    ? MediaQuery.of(context).size.height *  0.09
+                                    : MediaQuery.of(context).size.height * 0.3,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  image:alGetFavoriteList[index].imageName.isNull ?
+                                  DecorationImage(image: AssetImage("assets/profile_image/girl.png")):
+                                  DecorationImage(
+                                    image: NetworkImage(
+                                        "https://matrimonial.icommunetech.com/public/icommunetech/profiles/images/" +
+                                            "${alGetFavoriteList[index].imageName}"),
+                                    fit: BoxFit.fill,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: Column(
+                                crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                                mainAxisAlignment:
+                                MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Text(
+                                    "${alGetFavoriteList[index].firstName}" +
+                                        " ${alGetFavoriteList[index].lastName}",
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(height: 7),
+                                  Text(
+                                    "${alGetFavoriteList[index].age}" +
+                                        " Yrs",
+                                  ),
+                                  SizedBox(height: 7),
+                                  Text("${alGetFavoriteList[index].city}" +
+                                      ",${alGetFavoriteList[index].state}"),
+                                  SizedBox(height: 7),
+                                  Text(
+                                      "${alGetFavoriteList[index].occupation}"),
+                                  SizedBox(height: 7),
+                                  Text("${alGetFavoriteList[index].incomeFrom}" +
+                                      " to ${alGetFavoriteList[index].incomeTo}"),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: InkWell(
+                                  onTap: () async {
+                                    Navigator.push(context,
+                                        MaterialPageRoute(
+                                          builder: (context) {
+                                            return ProfileDetailScreen(
+                                              profileId:
+                                              alGetFavoriteList[index]
+                                                  .id,
+                                            );
+                                          },
+                                        ));
+                                  },
+                                  child: Column(
+                                    children: const [
+                                      Icon(
+                                        Icons.remove_red_eye_rounded,
+                                        color: Color.fromARGB(
+                                            255, 126, 143, 130),
+                                      ),
+                                      Text(
+                                        "view",
+                                        style: TextStyle(
+                                            color: Color.fromARGB(
+                                                255, 126, 143, 130)),
+                                      )
+                                    ],
+                                  )),
+                            )
+                          ],
+                        ),
+                      ),
+                    );*/
+                  },
+                ),
+              )
+                  : Container(
+                padding: EdgeInsets.only(top: 30),
+                child: Center(
+                  child: Text(
+                    "YOUR BLOCKLIST IS EMPTY",
+                    style: AppTheme.nameText(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ]),
+    );
+  }
+}

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:matrimony/notificationservice/notification_list.dart';
+import 'package:matrimony/utils/app_theme.dart';
+import 'package:matrimony/utils/appcolor.dart';
 
 class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -18,8 +20,8 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      toolbarHeight: MediaQuery.of(context).size.height / 12,
-      backgroundColor: Color.fromARGB(255, 248, 205, 206),
+      toolbarHeight: MediaQuery.of(context).size.height / 8,
+      backgroundColor: AppColor.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           bottom: Radius.circular(10),
@@ -46,7 +48,12 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
       title:  Center(
         child: Text(
          "${text}",
-          style: TextStyle(color: Colors.black),
+            style: TextStyle(
+              fontSize: 16,
+              color: AppColor.black,
+              fontWeight: FontWeight.bold,
+              fontFamily:
+              FontName.poppinsRegular,)
         ),
       ),
     );

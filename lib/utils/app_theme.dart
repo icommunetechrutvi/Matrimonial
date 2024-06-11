@@ -3,13 +3,6 @@ import 'package:matrimony/utils/appcolor.dart';
 import 'package:overlay_support/overlay_support.dart';
 
 class AppTheme {
-  // static Icon commonIcon(Color color, double size) {
-  //   return Icon(
-  //
-  //     color: color,
-  //     size: size,
-  //   );
-  // }
   static TextStyle profileEdit(
       [double? size, Color? color, TextDecoration? decoration]) {
     return TextStyle(
@@ -17,7 +10,7 @@ class AppTheme {
         fontSize: 18,
         fontWeight: FontWeight.bold,
         color: Colors.black,
-        fontFamily: FontName.HelveticaBold);
+        fontFamily: FontName.poppinsRegular);
   }
 
 
@@ -31,13 +24,22 @@ class AppTheme {
     );
   }
   static TextStyle nextBold(
-      [double? size, Color? color, TextDecoration? decoration]) {
+      [double? size, TextDecoration? decoration]) {
     return TextStyle(
         decoration: decoration,
         fontSize: 18,
         fontWeight: FontWeight.bold,
-        color: color,
-        fontFamily: FontName.HelveticaBold);
+        color: AppColor.mainText,
+        fontFamily: FontName.poppinsRegular);
+  }
+  static TextStyle buttonBold(
+      [double? size, TextDecoration? decoration]) {
+    return TextStyle(
+        decoration: decoration,
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: AppColor.white,
+        fontFamily: FontName.poppinsRegular);
   }
   static TextStyle profileText(
       [double? size,  TextDecoration? decoration]) {
@@ -54,7 +56,7 @@ class AppTheme {
         fontSize: 15,
         fontWeight: FontWeight.w700,
         color:Color.fromARGB(255, 137, 137, 137),
-        fontFamily: FontName.HelveticaBold);
+        fontFamily: FontName.poppinsRegular);
   }
 
   static TextStyle profileDetail(
@@ -64,7 +66,7 @@ class AppTheme {
         fontSize: 16,
         fontWeight: FontWeight.w600,
         color:Color.fromARGB(255, 0, 0, 0),
-        fontFamily: FontName.HelveticaBold);
+        fontFamily: FontName.poppinsRegular);
   }
   static TextStyle wishListView(
       [double? size,  TextDecoration? decoration]) {
@@ -74,7 +76,7 @@ class AppTheme {
         fontWeight: FontWeight.w500,
         color: Colors.grey,
         // color:Color.fromARGB(255, 212, 174, 176),
-        fontFamily: FontName.HelveticaBold);
+        fontFamily: FontName.poppinsRegular);
   }
 
   static TextStyle nameText(
@@ -84,7 +86,7 @@ class AppTheme {
         fontSize: 23,
         fontWeight: FontWeight.bold,
         color: Colors.black,
-        fontFamily: FontName.HelveticaBold,);
+        fontFamily: FontName.poppinsRegular,);
   }
   static TextStyle profileEditText(
       [double? size,  TextDecoration? decoration]) {
@@ -106,8 +108,9 @@ class AppTheme {
       [double? size,  TextDecoration? decoration]) {
     return TextStyle(
       decoration: decoration,
-      fontSize: 16,
+      fontSize: 15,
       fontWeight: FontWeight.bold,
+      fontFamily: FontName.poppinsRegular,
       color: Colors.black,);
   }
   static TextStyle tabNameText(
@@ -116,7 +119,17 @@ class AppTheme {
       decoration: decoration,
       fontWeight: FontWeight.bold,
       fontSize: 19,
+      fontFamily: FontName.poppinsRegular,
       color: Colors.black,);
+  }
+
+  static TextStyle matriId(
+      [double? size,  TextDecoration? decoration]) {
+    return TextStyle(
+      decoration: decoration,
+      fontWeight: FontWeight.w900,
+      fontSize: 16,
+      color:Color.fromARGB(255, 94, 40, 67),);
   }
   static BoxDecoration ConDecoration(
       [double? size, Color? color, TextDecoration? decoration]) {
@@ -247,13 +260,5 @@ class AppTheme {
 
 }
 class FontName {
-  static final HelveticaBold = "HelveticaBold";
-  static final HelveticaBoldOblique = "HelveticaBoldOblique";
-
-  //static final helveticaCompressed = "helveticaCompressed";
-  static final helveticaLight = "helveticaLight";
-  static final HelveticaOblique = "HelveticaOblique";
   static final poppinsRegular = "poppinsRegular";
-  static final HelveticaRoundedBold = "HelveticaRoundedBold";
-static final HelveticaCompressed = "HelveticaCompressed";
 }

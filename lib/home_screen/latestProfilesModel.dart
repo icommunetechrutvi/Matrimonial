@@ -1,58 +1,43 @@
-class LoginModel {
-  bool? status;
-  String? message;
-  String? accessToken;
-  String? tokenType;
-  int? expiresIn;
-  Profiles? profiles;
+class LatestProfilesModel {
+  bool? success;
+  List<LatestData>? data;
 
-  LoginModel(
-      {this.status,
-        this.message,
-        this.accessToken,
-        this.tokenType,
-        this.expiresIn,
-        this.profiles});
+  LatestProfilesModel({this.success, this.data});
 
-  LoginModel.fromJson(Map<String, dynamic> json) {
-    status = json['status'];
-    message = json['message'];
-    accessToken = json['access_token'];
-    tokenType = json['token_type'];
-    expiresIn = json['expires_in'];
-    profiles = json['profiles'] != null
-        ? new Profiles.fromJson(json['profiles'])
-        : null;
+  LatestProfilesModel.fromJson(Map<String, dynamic> json) {
+    success = json['success'];
+    if (json['data'] != null) {
+      data = <LatestData>[];
+      json['data'].forEach((v) {
+        data!.add(new LatestData.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
-    data['message'] = this.message;
-    data['access_token'] = this.accessToken;
-    data['token_type'] = this.tokenType;
-    data['expires_in'] = this.expiresIn;
-    if (this.profiles != null) {
-      data['profiles'] = this.profiles!.toJson();
+    data['success'] = this.success;
+    if (this.data != null) {
+      data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
     return data;
   }
 }
 
-class Profiles {
+class LatestData {
   int? id;
   String? password;
   String? profileID;
   String? firstName;
   String? lastName;
   int? gender;
-  String? createdBy;
+  CreatedBy? createdBy;
   String? emailId;
   String? dateOfBirth;
   int? maritalStatus;
   String? address1;
   String? address2;
-  int? countryId;
+  CountryId? countryId;
   String? state;
   String? city;
   String? countryCode;
@@ -60,7 +45,7 @@ class Profiles {
   String? altPhone;
   String? havechildren;
   int? noOfChildren;
-  int? educationId;
+  EducationId? educationId;
   int? incomeFrom;
   int? incomeTo;
   int? height;
@@ -71,8 +56,8 @@ class Profiles {
   int? complexion;
   int? religionId;
   String? subcaste;
-  int? professionId;
-  String? zip;
+  ProfessionId? professionId;
+  Null? zip;
   int? fathersStatus;
   int? mothersStatus;
   int? noOfBrothers;
@@ -81,21 +66,24 @@ class Profiles {
   String? aboutMyFamily;
   String? contactPerson;
   String? convenientTime;
-  String? lastLoggedIn;
+  Null? lastLoggedIn;
   int? isActive;
   int? paidStatus;
   int? photoAvailable;
   int? iBy;
   int? completed;
-  String? rememberToken;
+  Null? rememberToken;
   int? isDelete;
-  String? emailVerifiedAt;
+  Null? emailVerifiedAt;
   String? fcmToken;
+  Null? forgotVerificationCode;
+  Null? customerId;
   String? createdAt;
   String? updatedAt;
-  String? imageName;
+  int? age;
+  List<ProfileImages>? profileImages;
 
-  Profiles(
+  LatestData(
       {this.id,
         this.password,
         this.profileID,
@@ -147,24 +135,31 @@ class Profiles {
         this.isDelete,
         this.emailVerifiedAt,
         this.fcmToken,
+        this.forgotVerificationCode,
+        this.customerId,
         this.createdAt,
         this.updatedAt,
-        this.imageName});
+        this.age,
+        this.profileImages});
 
-  Profiles.fromJson(Map<String, dynamic> json) {
+  LatestData.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     password = json['password'];
     profileID = json['profileID'];
     firstName = json['first_name'];
     lastName = json['last_name'];
     gender = json['gender'];
-    createdBy = json['created_by'];
+    createdBy = json['created_by'] != null
+        ? new CreatedBy.fromJson(json['created_by'])
+        : null;
     emailId = json['email_id'];
     dateOfBirth = json['date_of_birth'];
     maritalStatus = json['marital_status'];
     address1 = json['address1'];
     address2 = json['address2'];
-    countryId = json['country_id'];
+    countryId = json['country_id'] != null
+        ? new CountryId.fromJson(json['country_id'])
+        : null;
     state = json['state'];
     city = json['city'];
     countryCode = json['country_code'];
@@ -172,7 +167,9 @@ class Profiles {
     altPhone = json['alt_phone'];
     havechildren = json['havechildren'];
     noOfChildren = json['no_of_children'];
-    educationId = json['education_id'];
+    educationId = json['education_id'] != null
+        ? new EducationId.fromJson(json['education_id'])
+        : null;
     incomeFrom = json['income_from'];
     incomeTo = json['income_to'];
     height = json['height'];
@@ -183,7 +180,9 @@ class Profiles {
     complexion = json['complexion'];
     religionId = json['religion_id'];
     subcaste = json['subcaste'];
-    professionId = json['profession_id'];
+    professionId = json['profession_id'] != null
+        ? new ProfessionId.fromJson(json['profession_id'])
+        : null;
     zip = json['zip'];
     fathersStatus = json['fathers_status'];
     mothersStatus = json['mothers_status'];
@@ -203,9 +202,17 @@ class Profiles {
     isDelete = json['is_delete'];
     emailVerifiedAt = json['email_verified_at'];
     fcmToken = json['fcm_token'];
+    forgotVerificationCode = json['forgot_verification_code'];
+    customerId = json['customer_id'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
-    imageName = json['image_name'];
+    age = json['age'];
+    if (json['profile_images'] != null) {
+      profileImages = <ProfileImages>[];
+      json['profile_images'].forEach((v) {
+        profileImages!.add(new ProfileImages.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -216,13 +223,17 @@ class Profiles {
     data['first_name'] = this.firstName;
     data['last_name'] = this.lastName;
     data['gender'] = this.gender;
-    data['created_by'] = this.createdBy;
+    if (this.createdBy != null) {
+      data['created_by'] = this.createdBy!.toJson();
+    }
     data['email_id'] = this.emailId;
     data['date_of_birth'] = this.dateOfBirth;
     data['marital_status'] = this.maritalStatus;
     data['address1'] = this.address1;
     data['address2'] = this.address2;
-    data['country_id'] = this.countryId;
+    if (this.countryId != null) {
+      data['country_id'] = this.countryId!.toJson();
+    }
     data['state'] = this.state;
     data['city'] = this.city;
     data['country_code'] = this.countryCode;
@@ -230,7 +241,9 @@ class Profiles {
     data['alt_phone'] = this.altPhone;
     data['havechildren'] = this.havechildren;
     data['no_of_children'] = this.noOfChildren;
-    data['education_id'] = this.educationId;
+    if (this.educationId != null) {
+      data['education_id'] = this.educationId!.toJson();
+    }
     data['income_from'] = this.incomeFrom;
     data['income_to'] = this.incomeTo;
     data['height'] = this.height;
@@ -241,7 +254,9 @@ class Profiles {
     data['complexion'] = this.complexion;
     data['religion_id'] = this.religionId;
     data['subcaste'] = this.subcaste;
-    data['profession_id'] = this.professionId;
+    if (this.professionId != null) {
+      data['profession_id'] = this.professionId!.toJson();
+    }
     data['zip'] = this.zip;
     data['fathers_status'] = this.fathersStatus;
     data['mothers_status'] = this.mothersStatus;
@@ -261,9 +276,116 @@ class Profiles {
     data['is_delete'] = this.isDelete;
     data['email_verified_at'] = this.emailVerifiedAt;
     data['fcm_token'] = this.fcmToken;
+    data['forgot_verification_code'] = this.forgotVerificationCode;
+    data['customer_id'] = this.customerId;
     data['created_at'] = this.createdAt;
     data['updated_at'] = this.updatedAt;
+    data['age'] = this.age;
+    if (this.profileImages != null) {
+      data['profile_images'] =
+          this.profileImages!.map((v) => v.toJson()).toList();
+    }
+    return data;
+  }
+}
+
+class CreatedBy {
+  int? id;
+  String? name;
+
+  CreatedBy({this.id, this.name});
+
+  CreatedBy.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    name = json['name'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['name'] = this.name;
+    return data;
+  }
+}
+
+class CountryId {
+  int? id;
+  String? countryName;
+
+  CountryId({this.id, this.countryName});
+
+  CountryId.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    countryName = json['country_name'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['country_name'] = this.countryName;
+    return data;
+  }
+}
+
+class EducationId {
+  int? id;
+  String? education;
+
+  EducationId({this.id, this.education});
+
+  EducationId.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    education = json['education'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['education'] = this.education;
+    return data;
+  }
+}
+
+class ProfessionId {
+  int? id;
+  String? occupation;
+
+  ProfessionId({this.id, this.occupation});
+
+  ProfessionId.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    occupation = json['occupation'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['occupation'] = this.occupation;
+    return data;
+  }
+}
+
+class ProfileImages {
+  int? id;
+  int? profileId;
+  String? imageName;
+  int? isDefault;
+
+  ProfileImages({this.id, this.profileId, this.imageName, this.isDefault});
+
+  ProfileImages.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    profileId = json['profile_id'];
+    imageName = json['image_name'];
+    isDefault = json['is_default'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['profile_id'] = this.profileId;
     data['image_name'] = this.imageName;
+    data['is_default'] = this.isDefault;
     return data;
   }
 }

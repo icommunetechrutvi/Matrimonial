@@ -5,9 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:insta_image_viewer/insta_image_viewer.dart';
+import 'package:matrimony/login_screen/login_screen.dart';
+import 'package:matrimony/profile_edit_screen/view_model/ImageEditModel.dart';
 import 'package:matrimony/profile_edit_screen/view_model/profile_detail_model.dart';
 import 'package:matrimony/ui_screen/appBar_screen.dart';
 import 'package:matrimony/ui_screen/side_drawer.dart';
+import 'package:matrimony/utils/ProgressHUD.dart';
 import 'package:matrimony/utils/app_theme.dart';
 import 'package:matrimony/utils/appcolor.dart';
 import 'package:matrimony/utils/shared_pref/pref_keys.dart';
@@ -24,11 +28,13 @@ class ImageEditScreen extends StatefulWidget {
 class _MyImageEditPageState extends State<ImageEditScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  List<bool> isImageSelected = List.filled(4, false);
   bool _isLoading = false;
   List<ProfileDetailModel> alGetProfileDetail = [];
   List<ProfileImages> profileImages = [];
   List<File?> images = List.filled(4, null);
+  var loginId;
+  int? selectedRadioValue;
+
 
   @override
   void initState() {
@@ -38,14 +44,15 @@ class _MyImageEditPageState extends State<ImageEditScreen> {
     });
   }
 
-  Future<void> pickImage(int index, ImageSource source) async {
+  Future<void> pickImage(int index, int imageId, ImageSource source) async {
     try {
       final pickedImage = await ImagePicker().pickImage(source: source);
       if (pickedImage != null) {
         setState(() {
           images[index] = File(pickedImage.path);
-          isImageSelected[index] = true;
+          print("images~~${images}");
         });
+        await postProfileImageEdit(images[index]!, imageId);
       } else {
         print('User didn\'t pick any image.');
       }
@@ -56,14 +63,14 @@ class _MyImageEditPageState extends State<ImageEditScreen> {
 
   Future<void> getProfileDetailApi() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final stringValue  = prefs.getString(PrefKeys.KEYPROFILEID)!;
+    loginId = prefs.getString(PrefKeys.KEYPROFILEID)!;
 
-    print("userId~~~**${stringValue}");
+    print("userId~~~**${loginId}");
     setState(() {
       _isLoading = true;
     });
     final url = Uri.parse(
-        '${Webservices.baseUrl+Webservices.profileDetail+stringValue.toString()}');
+        '${Webservices.baseUrl + Webservices.profileDetail + loginId.toString()}');
     print("url!!!${url}");
     final response = await http.get(url);
 
@@ -77,80 +84,192 @@ class _MyImageEditPageState extends State<ImageEditScreen> {
         alGetProfileDetail.add(localPickData);
 
         _isLoading = false;
-        profileImages.addAll(localPickData.data?.profileImages ?? []);
-      print("profileImages!!!${alGetProfileDetail}");
+        for (var pro in alGetProfileDetail[0].data?.profileImages ?? []) {
+          profileImages.add(pro);
+        }
+        // isDefault=profileImages[0].isDefault;
 
+        for (var i = 0; i < profileImages.length; i++) {
+          if(profileImages[i].isDefault==1){
+            selectedRadioValue=profileImages[i].id;
+            print("selectedRadioValue${selectedRadioValue}");
+            prefs.setString(PrefKeys.KEYAVTAR, profileImages[i].imageName.toString());
+          }
+          else{
+          }
+          // selectedRadioValues[i] = profileImages[i].isDefault == "0" ? i.toString() : "yes";
+        }
 
-
-        // for (var pro in alGetProfileDetail[0].data?.profileImages ?? []) {
-        //   profileImages.add(pro);
-        //   print("img####${profileImages[0].imageName}");
-        // }
       });
     } else {
       throw Exception('Failed to load education_list');
     }
   }
 
-  // Future<dynamic> postProfileImageEdit() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   final stringValue = prefs.getString('userId')!;
-  //   // showDialog(
-  //   //     context: context,
-  //   //     builder: (context) {
-  //   //       return Center(
-  //   //         child: CircularProgressIndicator(
-  //   //           color: AppColor.mainAppColor,
-  //   //         ),
-  //   //       );
-  //   //     });
-  //   var url = Uri.parse(
-  //       'https://matrimonial.icommunetech.com/public/api/edit_profile_img/${stringValue}');
-  //
-  //   var jsonData = json.encode({
-  //     'imageId0': '',
-  //     'imageId1': '',
-  //     'imageId2': '',
-  //     'imageId3': '',
-  //   });
-  //   print("formData!!!${jsonData}");
-  //   try {
-  //     var response = await http.post(
-  //       url,
-  //       headers: <String, String>{
-  //         'Content-Type': 'application/json; charset=UTF-8',
-  //       },
-  //       body: (jsonData),
-  //     );
-  //     print('Response status: ${response.statusCode}');
-  //     if (response.statusCode == 200) {
-  //       print('Response DATA#######: ${response.body}');
-  //
-  //       // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-  //       //   content: Text("${alGetProfileDetail[0].message}"),
-  //       //   backgroundColor: AppColor.lightGreen,
-  //       // ));
-  //       Navigator.pushReplacement(context, MaterialPageRoute(
-  //         builder: (context) {
-  //           return SearchScreen();
-  //         },
-  //       ));
-  //       return json.decode(response.body);
-  //     } else {
-  //       throw Exception('Failed to load data');
-  //     }
-  //   } catch (e) {
-  //     // Handle exceptions
-  //     print('Exception: $e');
-  //   }
-  // }
+  Future<dynamic> postProfileImageEdit(File image, int imageId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final userToken = prefs.getString(PrefKeys.ACCESSTOKEN) ?? "null";
+    setState(() {
+      _isLoading = true;
+    });
+
+    final url =
+        Uri.parse('${Webservices.baseUrl + Webservices.updateProfileImg}');
+    print("url~~$url");
+
+    var request = http.MultipartRequest('POST', url);
+    request.headers['Authorization'] = 'Bearer $userToken';
+
+    print("formData!!!${request}");
+
+    // Add the image file to the request
+    String imageName = 'imageId$imageId';
+    request.files.add(
+      await http.MultipartFile.fromPath(imageName, image.path),
+    );
+
+    try {
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      print("streamedResponse~~${streamedResponse.statusCode}");
+      print("response~~$response");
+
+      print('Response status: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        print('Response DATA#######: ${response.body}');
+
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: const Text("Profile Images Successfully Updated"),
+          backgroundColor: AppColor.lightGreen,
+        ));
+        Navigator.pushReplacement(context, MaterialPageRoute(
+          builder: (context) {
+            return ImageEditScreen();
+          },
+        ));
+        _isLoading = false;
+        return json.decode(response.body);
+      } else if (response.statusCode == 401) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: const Text("Token is Expire!! Please Login Again"),
+          backgroundColor: AppColor.red,
+        ));
+        Navigator.push(context, MaterialPageRoute(
+          builder: (context) {
+            return LoginScreen();
+          },
+        ));
+      } else if (response.statusCode == 422) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: const Text("Only image files (jpeg, png, jpg) are allowed."),
+          backgroundColor: AppColor.red,
+        ));
+        _isLoading = false;
+      }
+    } catch (e) {
+      _isLoading = false;
+      print('Exception: $e');
+    }
+  }
+
+  Future<dynamic> postIsDefaultEdits(String selectedRadioValue) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final userToken = prefs.getString(PrefKeys.ACCESSTOKEN) ?? "null";
+    setState(() {
+      _isLoading = true;
+    });
+
+    final url =
+        Uri.parse('${Webservices.baseUrl + Webservices.updateProfileImg}');
+    print("url~~$url");
+
+    // var request = http.MultipartRequest('POST', url);
+    // request.headers['Authorization'] = 'Bearer $userToken';
+    //
+    // print("formData!!!${request}");
+
+    // String isDefault = selectedRadioValues[imageId] == imageId.toString() ? '1' : '0';
+    var jsonData = json.encode({
+      'is_default': '$selectedRadioValue',
+    });
+    try {
+      var response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $userToken',
+        },
+        body: (jsonData),
+      );
+
+      print("streamedResponse~~${response.statusCode}");
+      print("response~~$response");
+
+      print('Response status: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        final userMap = json.decode(response.body);
+        final allData= ImageEditModel.fromJson(userMap);
+        print('Response DATA#######: ${response.body}');
+
+        // List<ProfileImages> profileImages = [];
+        //
+        // for( int i=0; i< allData.allImages!.length; i++){
+        //   if(profileImages[i].isDefault==1){
+        //    prefs.setString(PrefKeys.KEYAVTAR,allData.allImages![0].imageName.toString());
+        //   }
+        // }
+
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: const Text("Profile Images Successfully Updated"),
+          backgroundColor: AppColor.lightGreen,
+        ));
+        Navigator.pushReplacement(context, MaterialPageRoute(
+          builder: (context) {
+            return ImageEditScreen();
+          },
+        ));
+        _isLoading = false;
+        return json.decode(response.body);
+      } else if (response.statusCode == 401) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: const Text("Token is Expire!! Please Login Again"),
+          backgroundColor: AppColor.red,
+        ));
+        Navigator.push(context, MaterialPageRoute(
+          builder: (context) {
+            return LoginScreen();
+          },
+        ));
+      } else if (response.statusCode == 400) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: const Text("The confirm password and new password must match."),
+          backgroundColor: AppColor.red,
+        ));
+        _isLoading = false;
+      }
+    } catch (e) {
+      _isLoading = false;
+      print('Exception: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    return ProgressHUD(
+      child: _uiSetup(context),
+      inAsyncCall: _isLoading,
+      opacity: 0.3,
+      key: Key("new"),
+      valueColor: AlwaysStoppedAnimation(AppColor.mainAppColor),
+    );
+  }
+
+  @override
+  Widget _uiSetup(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
-    bool isPortrait = screenHeight > screenWidth;
-    double width = MediaQuery.of(context).size.width - 16.0;
 
     return Scaffold(
       key: _scaffoldKey,
@@ -165,73 +284,96 @@ class _MyImageEditPageState extends State<ImageEditScreen> {
         children: [
           Image.asset("assets/images/bg_pink.jpg", fit: BoxFit.fill),
           SingleChildScrollView(
-            child: _isLoading
-                ? Center(
-                    child: CircularProgressIndicator(
-                      color: AppColor.lightGreen,
-                    ),
-                    widthFactor: 60,
-                  )
-                : Center(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        for (int i = 0; i < profileImages.length; i++)
-                          Stack(
-                            alignment: Alignment.topRight,
-                            children: [
-                              Card(
-                                margin: EdgeInsets.all(20),
-                                // color: Colors.white,
-                                // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
-                                child: Container(
-                                  padding: EdgeInsets.all(10),
-                                  child: isImageSelected[i]
-                                      ? Image.file(images[i]!,
-                                          fit: BoxFit.contain)
-                                      : profileImages[i].imageName! .endsWith('.mp4') ||
-                                              profileImages[i] .imageName!  .isNull ||   profileImages[i]
-                                                  .imageName!    .endsWith('.txt')
-                                          ? Container(
-                                              padding: EdgeInsets.all(23),
-                                              child: Text("Add Image",
-                                                  style: AppTheme.nameText()),
-                                            )
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                for (int i = 0; i < profileImages.length; i++)
+                  Stack(
+                    alignment: Alignment.topRight,
+                    children: [
+                      Card(
+                        margin: EdgeInsets.all(18),
+                        // color: Colors.white,
+                        // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+                        child: Container(
+                          padding: EdgeInsets.only(
+                              top: 35, left: 12, right: 12, bottom: 12),
+                          child:images[i] != null
+                              ? Image.file(images[i]!, fit: BoxFit.contain)
+                              : profileImages[i].imageName!.isEmpty
+                                  ? Container(
+                                      padding: EdgeInsets.all(23),
+                                      child: Text("Add Image",
+                                          style: AppTheme.nameText()),
+                                    )
+                                  : InstaImageViewer(
+                                      child: profileImages[i].imageName!.isNull
+                                          ? Image.asset(
+                                              "assets/profile_image/girl.png")
                                           : Image.network(
+                                              // width: 200,
+                                              // height: 280,
                                               "https://matrimonial.icommunetech.com/public/icommunetech/profiles/images/${profileImages[i].imageName}",
                                               fit: BoxFit.fill,
                                             ),
-                                ),
-                              ),
-                              InkWell(
-                                onTap: () {
-                                  _showPicker(context, i);
-                                },
-                                child: Container(
-                                  margin: EdgeInsets.all(12),
-                                  padding: EdgeInsets.all(15),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(40),
-                                      color: AppColor.buttonColor),
-                                  child: Icon(
-                                    Icons.edit_outlined,
-                                    color: Colors.green,
-                                  ),
-                                ),
-                              ),
-                            ],
+                                    ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          top: 8.0,
+                          bottom: 0,
+                          right: 8.0,
+                        ),
+                        child: RadioListTile(
+                          activeColor: AppColor.radioButton,
+                          title:  Text("Profile Photo", style: TextStyle(fontSize: 22)),
+                          value: profileImages[i].id,
+                          // value:selectedRadioValue,
+                          // value: (i+1).toString(),
+                          // groupValue: selectedRadioValues[i],
+                          // groupValue: i,
+                          groupValue: selectedRadioValue,
+                          onChanged: (value) {
+                            setState(() { selectedRadioValue = value;
+                            });
+                            postIsDefaultEdits(value.toString());
+                            print( "selectedRadioValues~~${selectedRadioValue}");
+
+                          },
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          _showPicker(context, profileImages[i].id!.toInt(), i);
+                        },
+                        child: Container(
+                          margin: EdgeInsets.all(12),
+                          padding: EdgeInsets.all(15),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(40),
+                              color: AppColor.buttonColor),
+                          child: Icon(
+                            Icons.edit_outlined,
+                            color: Colors.green,
                           ),
-                      ],
-                    ),
+                        ),
+                      ),
+                    ],
                   ),
+                SizedBox(
+                  height: 20,
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  void _showPicker(BuildContext context, int index) {
+  void _showPicker(BuildContext context, int imageId, int index) {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -242,7 +384,7 @@ class _MyImageEditPageState extends State<ImageEditScreen> {
                 leading: const Icon(Icons.photo_library),
                 title: const Text('Gallery'),
                 onTap: () {
-                  pickImage(index, ImageSource.gallery);
+                  pickImage(index, imageId, ImageSource.gallery);
                   Navigator.of(context).pop();
                 },
               ),
@@ -250,7 +392,7 @@ class _MyImageEditPageState extends State<ImageEditScreen> {
                 leading: const Icon(Icons.photo_camera),
                 title: const Text('Camera'),
                 onTap: () {
-                  pickImage(index, ImageSource.camera);
+                  pickImage(index, imageId, ImageSource.camera);
                   Navigator.of(context).pop();
                 },
               ),

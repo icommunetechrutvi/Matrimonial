@@ -34,7 +34,7 @@ class ProfileModel {
   String? lastPageUrl;
   List<Links>? links;
   String? path;
-  int? perPage;
+  // String? perPage;
   int? to;
   int? total;
 
@@ -47,7 +47,7 @@ class ProfileModel {
         this.lastPageUrl,
         this.links,
         this.path,
-        this.perPage,
+        // this.perPage,
         this.to,
         this.total});
 
@@ -70,7 +70,7 @@ class ProfileModel {
       });
     }
     path = json['path'];
-    perPage = json['per_page'];
+    // perPage = json['per_page'];
     to = json['to'];
     total = json['total'];
   }
@@ -89,7 +89,7 @@ class ProfileModel {
       data['links'] = this.links!.map((v) => v.toJson()).toList();
     }
     data['path'] = this.path;
-    data['per_page'] = this.perPage;
+    // data['per_page'] = this.perPage;
     data['to'] = this.to;
     data['total'] = this.total;
     return data;

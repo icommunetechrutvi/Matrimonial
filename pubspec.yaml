@@ -49,6 +49,13 @@ dependencies:
   firebase_core: ^1.12.0      #firebase Notification
   permission_handler: ^10.4.3    #Notification Permission
   timeago: ^3.6.1
+  cached_network_image: ^3.2.0  #side Drawer.....
+  insta_image_viewer: ^1.0.1   # Edit Image Page CLick To Image display
+
+  auto_size_text: ^3.0.0  # font size
+
+
+#  flutter_easyloading: ^3.0.3
 
 
   overlay_support: ^1.2.1   #splash_scrren
@@ -90,6 +97,8 @@ flutter:
   assets:
     - assets/images/
     - assets/card_image/
+    - assets/profile_image/
+    - assets/icon/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -103,6 +112,10 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
+  fonts:
+    - family: poppinsRegular
+      fonts:
+        - asset: fonts/Poppins-Regular.ttf
   # fonts:
   #   - family: Schyler
   #     fonts:

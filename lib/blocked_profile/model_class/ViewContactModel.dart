@@ -30,6 +30,8 @@ class Iviewcontact {
   int? id;
   String? city;
   String? state;
+  String? profileCountry;
+  String? education;
   String? lastName;
   String? dateOfBirth;
   int? incomeTo;
@@ -49,6 +51,8 @@ class Iviewcontact {
         this.id,
         this.city,
         this.state,
+        this.profileCountry,
+        this.education,
         this.lastName,
         this.dateOfBirth,
         this.incomeTo,
@@ -68,6 +72,8 @@ class Iviewcontact {
     id = json['id'];
     city = json['city'];
     state = json['state'];
+    profileCountry = json['profilecountry'];
+    education = json['education'];
     lastName = json['last_name'];
     dateOfBirth = json['date_of_birth'];
     incomeTo = json['income_to'];
@@ -89,6 +95,8 @@ class Iviewcontact {
     data['id'] = this.id;
     data['city'] = this.city;
     data['state'] = this.state;
+    data['profilecountry'] = this.profileCountry;
+    data['education'] = this.education;
     data['last_name'] = this.lastName;
     data['date_of_birth'] = this.dateOfBirth;
     data['income_to'] = this.incomeTo;

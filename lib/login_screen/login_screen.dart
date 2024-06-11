@@ -87,18 +87,20 @@ class _LoginPageState extends State<LoginScreen> {
             //   backgroundColor: AppColor.lightGreen,
             // ));
             _isLoading = false;
-            prefs.setString('accessToken', user.accessToken.toString());
+            // prefs.setString('accessToken', user.accessToken.toString());
             prefs.setString('userId', user.profiles!.id.toString());
 
             prefs.setString(PrefKeys.KEYNAME, user.profiles!.firstName.toString());
+          prefs.setString(PrefKeys.KEYLNAME, user.profiles!.lastName.toString() ?? "test");
             prefs.setString(PrefKeys.KEYEMAIL, user.profiles!.emailId.toString());
             prefs.setString(PrefKeys.KEYAVTAR, user.profiles!.imageName.toString());
             prefs.setString(PrefKeys.KEYGENDER, user.profiles!.gender.toString());
             prefs.setString(PrefKeys.KEYPROFILEID, user.profiles!.id.toString());
+            prefs.setString(PrefKeys.ACCESSTOKEN, user.accessToken.toString());
 
             Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
               builder: (context) {
-                return BottomMenuScreen();
+                return BottomMenuScreen(pageId: 1,);
               },
             ), (route) => false);
             // Navigator.of(context).pushReplacement(MaterialPageRoute(
@@ -128,7 +130,6 @@ class _LoginPageState extends State<LoginScreen> {
     final token = await _fcm.getToken();
     deviceTokenToSendPushNotification = token.toString();
     print("Token Value!!!!!!!! $deviceTokenToSendPushNotification");
-    // FirebaseMessaging.onBackgroundMessage((message) =>handleMsg(message) );
   }
 
   @override
@@ -138,24 +139,26 @@ class _LoginPageState extends State<LoginScreen> {
         key: _formKey,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         child: Container(
-          decoration: const BoxDecoration(
+          color: AppColor.mainAppColor,
+         /* decoration: const BoxDecoration(
             image: DecorationImage(
                 image: AssetImage(
                   "assets/images/bg_pink.jpg",
                 ),
                 fit: BoxFit.fill),
-          ),
+          ),*/
           child: Center(
             child: Card(
               elevation: 8,
               child: Container(
-                decoration: const BoxDecoration(
+                color:AppColor.white,
+                /*decoration: const BoxDecoration(
                   image: DecorationImage(
                       image: AssetImage(
                         "assets/images/bg_white.jpg",
                       ),
                       fit: BoxFit.fill),
-                ),
+                ),*/
                 padding: const EdgeInsets.all(32.0),
                 constraints: const BoxConstraints(maxWidth: 350),
                 child: SingleChildScrollView(
@@ -265,13 +268,13 @@ class _LoginPageState extends State<LoginScreen> {
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(5)),
                               backgroundColor:
-                                  Color.fromARGB(255, 126, 143, 130)),
+                                  AppColor.mainText),
                           child: Padding(
                             padding: EdgeInsets.all(10.0),
                             child: Text(
                               // 'Sign in',
                               'Login',
-                              style: AppTheme.nextBold(),
+                              style: AppTheme.buttonBold(),
                             ),
                           ),
                           onPressed: _submitForm,

@@ -1,29 +1,27 @@
-class WhoViewContactModel {
-  List<WhoviewContact>? whoviewContact;
+class ConnectionListModel {
+  List<ConnectionData>? connection;
 
-  WhoViewContactModel({this.whoviewContact});
+  ConnectionListModel({this.connection});
 
-  WhoViewContactModel.fromJson(Map<String, dynamic> json) {
-    if (json['whoviewContact'] != null) {
-      whoviewContact = <WhoviewContact>[];
-      json['whoviewContact'].forEach((v) {
-        whoviewContact!.add(new WhoviewContact.fromJson(v));
+  ConnectionListModel.fromJson(Map<String, dynamic> json) {
+    if (json['connection'] != null) {
+      connection = <ConnectionData>[];
+      json['connection'].forEach((v) {
+        connection!.add(new ConnectionData.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.whoviewContact != null) {
-      data['whoviewContact'] =
-          this.whoviewContact!.map((v) => v.toJson()).toList();
+    if (this.connection != null) {
+      data['connection'] = this.connection!.map((v) => v.toJson()).toList();
     }
     return data;
   }
 }
 
-class WhoviewContact {
-  int? viewprofile;
+class ConnectionData {
   String? occupation;
   String? imageName;
   int? isDefault;
@@ -33,19 +31,18 @@ class WhoviewContact {
   String? state;
   String? lastName;
   String? dateOfBirth;
-  String? education;
   int? incomeTo;
   int? incomeFrom;
   int? height;
   int? religionId;
-  String? createdAt;
-  String? updatedAt;
-  int? age;
+  String? status;
   String? profileCountry;
+  String? education;
+  int? connectionId;
+  int? age;
 
-  WhoviewContact(
-      {this.viewprofile,
-        this.occupation,
+  ConnectionData(
+      {this.occupation,
         this.imageName,
         this.isDefault,
         this.firstName,
@@ -54,18 +51,17 @@ class WhoviewContact {
         this.state,
         this.lastName,
         this.dateOfBirth,
-        this.education,
         this.incomeTo,
         this.incomeFrom,
         this.height,
         this.religionId,
-        this.createdAt,
-        this.updatedAt,
-        this.age,
-        this.profileCountry});
+        this.status,
+        this.profileCountry,
+        this.education,
+        this.connectionId,
+        this.age});
 
-  WhoviewContact.fromJson(Map<String, dynamic> json) {
-    viewprofile = json['viewprofile'];
+  ConnectionData.fromJson(Map<String, dynamic> json) {
     occupation = json['occupation'];
     imageName = json['image_name'];
     isDefault = json['is_default'];
@@ -75,20 +71,19 @@ class WhoviewContact {
     state = json['state'];
     lastName = json['last_name'];
     dateOfBirth = json['date_of_birth'];
-    education = json['education'];
     incomeTo = json['income_to'];
     incomeFrom = json['income_from'];
     height = json['height'];
     religionId = json['religion_id'];
-    createdAt = json['created_at'];
-    updatedAt = json['updated_at'];
-    age = json['age'];
+    status = json['status'];
     profileCountry = json['profilecountry'];
+    education = json['education'];
+    connectionId = json['connection_id'];
+    age = json['age'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['viewprofile'] = this.viewprofile;
     data['occupation'] = this.occupation;
     data['image_name'] = this.imageName;
     data['is_default'] = this.isDefault;
@@ -98,15 +93,15 @@ class WhoviewContact {
     data['state'] = this.state;
     data['last_name'] = this.lastName;
     data['date_of_birth'] = this.dateOfBirth;
-    data['education'] = this.education;
     data['income_to'] = this.incomeTo;
     data['income_from'] = this.incomeFrom;
     data['height'] = this.height;
     data['religion_id'] = this.religionId;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
-    data['age'] = this.age;
+    data['status'] = this.status;
     data['profilecountry'] = this.profileCountry;
+    data['education'] = this.education;
+    data['connection_id'] = this.connectionId;
+    data['age'] = this.age;
     return data;
   }
 }

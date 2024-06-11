@@ -30,6 +30,8 @@ class LocalNotificationService {
             MaterialPageRoute(
               builder: (context) => ProfileDetailScreen(
                    profileId: payload,
+                profileFullName:
+                "",
               ),
             ),
           );

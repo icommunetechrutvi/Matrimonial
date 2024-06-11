@@ -67,20 +67,24 @@ class ProfileData {
   String? aboutMyFamily;
   String? contactPerson;
   String? convenientTime;
-  Null? lastLoggedIn;
+  String? lastLoggedIn;
   int? isActive;
   int? paidStatus;
   int? photoAvailable;
   int? iBy;
   int? completed;
-  Null? rememberToken;
+  String? rememberToken;
   int? isDelete;
-  Null? emailVerifiedAt;
+  String? emailVerifiedAt;
   String? fcmToken;
   String? createdAt;
   String? updatedAt;
   String? favorite;
+  String? block;
+  String? viewContact;
+  String? connectionSent;
   int? age;
+  // List<SimilarProfiles>? similarProfiles;
   // List<SimilarProfiles>? similarProfiles;
   List<ProfileImages>? profileImages;
 
@@ -139,6 +143,9 @@ class ProfileData {
         this.createdAt,
         this.updatedAt,
         this.favorite,
+        this.block,
+        this.viewContact,
+        this.connectionSent,
         this.age,
         // this.similarProfiles,
         this.profileImages});
@@ -206,6 +213,9 @@ class ProfileData {
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     favorite = json['favorite'];
+    block = json['block'];
+    viewContact = json['viewContact'];
+    connectionSent = json['connection_sent'];
     age = json['age'];
     // if (json['similar_profiles'] != null) {
     //   similarProfiles = <SimilarProfiles>[];
@@ -285,6 +295,9 @@ class ProfileData {
     data['created_at'] = this.createdAt;
     data['updated_at'] = this.updatedAt;
     data['favorite'] = this.favorite;
+    data['block'] = this.block;
+    data['viewContact'] = this.viewContact;
+    data['connection_sent'] = this.connectionSent;
     data['age'] = this.age;
     // if (this.similarProfiles != null) {
     //   data['similar_profiles'] =

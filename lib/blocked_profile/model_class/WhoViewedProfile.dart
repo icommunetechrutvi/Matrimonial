@@ -33,6 +33,8 @@ class WhoViewProfileData {
   String? state;
   String? lastName;
   String? dateOfBirth;
+  String? education;
+  String? profileCountry;
   int? incomeTo;
   int? incomeFrom;
   int? height;
@@ -52,6 +54,8 @@ class WhoViewProfileData {
         this.state,
         this.lastName,
         this.dateOfBirth,
+        this.education,
+        this.profileCountry,
         this.incomeTo,
         this.incomeFrom,
         this.height,
@@ -71,6 +75,8 @@ class WhoViewProfileData {
     state = json['state'];
     lastName = json['last_name'];
     dateOfBirth = json['date_of_birth'];
+    profileCountry = json['profilecountry'];
+    education = json['education'];
     incomeTo = json['income_to'];
     incomeFrom = json['income_from'];
     height = json['height'];
@@ -92,6 +98,8 @@ class WhoViewProfileData {
     data['state'] = this.state;
     data['last_name'] = this.lastName;
     data['date_of_birth'] = this.dateOfBirth;
+    data['profilecountry'] = this.profileCountry;
+    data['education'] = this.education;
     data['income_to'] = this.incomeTo;
     data['income_from'] = this.incomeFrom;
     data['height'] = this.height;

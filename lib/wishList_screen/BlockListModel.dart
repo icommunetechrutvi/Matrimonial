@@ -1,29 +1,27 @@
-class WhoViewContactModel {
-  List<WhoviewContact>? whoviewContact;
+class BlockListModel {
+  List<Block>? block;
 
-  WhoViewContactModel({this.whoviewContact});
+  BlockListModel({this.block});
 
-  WhoViewContactModel.fromJson(Map<String, dynamic> json) {
-    if (json['whoviewContact'] != null) {
-      whoviewContact = <WhoviewContact>[];
-      json['whoviewContact'].forEach((v) {
-        whoviewContact!.add(new WhoviewContact.fromJson(v));
+  BlockListModel.fromJson(Map<String, dynamic> json) {
+    if (json['block'] != null) {
+      block = <Block>[];
+      json['block'].forEach((v) {
+        block!.add(new Block.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.whoviewContact != null) {
-      data['whoviewContact'] =
-          this.whoviewContact!.map((v) => v.toJson()).toList();
+    if (this.block != null) {
+      data['block'] = this.block!.map((v) => v.toJson()).toList();
     }
     return data;
   }
 }
 
-class WhoviewContact {
-  int? viewprofile;
+class Block {
   String? occupation;
   String? imageName;
   int? isDefault;
@@ -31,41 +29,35 @@ class WhoviewContact {
   int? id;
   String? city;
   String? state;
+  String? profileCountry;
   String? lastName;
-  String? dateOfBirth;
   String? education;
+  String? dateOfBirth;
   int? incomeTo;
   int? incomeFrom;
   int? height;
   int? religionId;
-  String? createdAt;
-  String? updatedAt;
   int? age;
-  String? profileCountry;
 
-  WhoviewContact(
-      {this.viewprofile,
-        this.occupation,
+  Block(
+      {this.occupation,
         this.imageName,
         this.isDefault,
         this.firstName,
         this.id,
         this.city,
         this.state,
+        this.profileCountry,
         this.lastName,
-        this.dateOfBirth,
         this.education,
+        this.dateOfBirth,
         this.incomeTo,
         this.incomeFrom,
         this.height,
         this.religionId,
-        this.createdAt,
-        this.updatedAt,
-        this.age,
-        this.profileCountry});
+        this.age});
 
-  WhoviewContact.fromJson(Map<String, dynamic> json) {
-    viewprofile = json['viewprofile'];
+  Block.fromJson(Map<String, dynamic> json) {
     occupation = json['occupation'];
     imageName = json['image_name'];
     isDefault = json['is_default'];
@@ -73,22 +65,19 @@ class WhoviewContact {
     id = json['id'];
     city = json['city'];
     state = json['state'];
+    profileCountry = json['profilecountry'];
     lastName = json['last_name'];
-    dateOfBirth = json['date_of_birth'];
     education = json['education'];
+    dateOfBirth = json['date_of_birth'];
     incomeTo = json['income_to'];
     incomeFrom = json['income_from'];
     height = json['height'];
     religionId = json['religion_id'];
-    createdAt = json['created_at'];
-    updatedAt = json['updated_at'];
     age = json['age'];
-    profileCountry = json['profilecountry'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['viewprofile'] = this.viewprofile;
     data['occupation'] = this.occupation;
     data['image_name'] = this.imageName;
     data['is_default'] = this.isDefault;
@@ -96,17 +85,15 @@ class WhoviewContact {
     data['id'] = this.id;
     data['city'] = this.city;
     data['state'] = this.state;
+    data['profilecountry'] = this.profileCountry;
     data['last_name'] = this.lastName;
-    data['date_of_birth'] = this.dateOfBirth;
     data['education'] = this.education;
+    data['date_of_birth'] = this.dateOfBirth;
     data['income_to'] = this.incomeTo;
     data['income_from'] = this.incomeFrom;
     data['height'] = this.height;
     data['religion_id'] = this.religionId;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
     data['age'] = this.age;
-    data['profilecountry'] = this.profileCountry;
     return data;
   }
 }
