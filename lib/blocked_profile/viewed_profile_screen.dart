@@ -31,7 +31,7 @@ class _MyViewedProfileScreenPageState extends State<ViewedProfileScreen>
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   late final TabController _tabController;
-  final _selectedColor = AppColor.white;
+  final _selectedColor = AppColor.mainText;
   List<ViewProfileData> alGetIViewedProfileList = [];
   List<WhoViewProfileData> alGetWhoViewedProfileList = [];
 
@@ -236,7 +236,7 @@ class _MyViewedProfileScreenPageState extends State<ViewedProfileScreen>
                 padding: const EdgeInsets.only(
                     top: 3.0, right: 2.0, left: 6.0, bottom: 3),
                 decoration: BoxDecoration(
-                  color: _selectedColor,
+                  color: AppColor.white,
                   borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(8.0),
                       topRight: Radius.circular(8.0)),
@@ -251,7 +251,7 @@ class _MyViewedProfileScreenPageState extends State<ViewedProfileScreen>
                       ),
                       color: AppColor.mainAppColor),
                   labelColor:_selectedColor,
-                  unselectedLabelColor: AppColor.mainAppColor,
+                  unselectedLabelColor:AppColor.grey,
                   controller: _tabController,
                   tabs: <Widget>[
                     Tab(

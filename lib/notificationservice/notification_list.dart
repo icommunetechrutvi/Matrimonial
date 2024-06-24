@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:matrimony/notificationservice/notification_model.dart';
 import 'package:matrimony/profile_edit_screen/profile_details.dart';
 import 'package:matrimony/ui_screen/side_drawer.dart';
+import 'package:matrimony/utils/app_theme.dart';
 import 'package:matrimony/utils/appcolor.dart';
 import 'package:matrimony/utils/shared_pref/pref_keys.dart';
 import 'package:matrimony/webservices/Webservices.dart';
@@ -76,10 +77,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
         appBar: AppBar(
           title: Text(
             "Notification List",
-            style: TextStyle(color: Colors.black),
+            style: TextStyle(color: Colors.black,fontFamily: FontName.poppinsRegular),
           ),
           centerTitle: true,
-          backgroundColor: Color.fromARGB(255, 248, 205, 206),
+          backgroundColor: AppColor.white,
           elevation: 5,
           iconTheme: IconThemeData(color: Colors.black),
         ),
@@ -87,10 +88,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
         body: Stack(
           fit: StackFit.expand,
           children: [
-            Image.asset(
-              "assets/images/bg_pink.jpg",
-              fit: BoxFit.fill,
-            ),
+            Container(color: AppColor.mainAppColor,),
+            // Image.asset(
+            //   "assets/images/bg_pink.jpg",
+            //   fit: BoxFit.fill,
+            // ),
             SingleChildScrollView(
               child: Column(
                 children: [

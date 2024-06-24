@@ -27,7 +27,7 @@ class AppTheme {
       [double? size, TextDecoration? decoration]) {
     return TextStyle(
         decoration: decoration,
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: FontWeight.bold,
         color: AppColor.mainText,
         fontFamily: FontName.poppinsRegular);
@@ -47,6 +47,7 @@ class AppTheme {
         decoration: decoration,
         fontSize: 18,
         fontWeight: FontWeight.bold,
+        fontFamily: FontName.poppinsRegular,
         color: Colors.black,);
   }
   static TextStyle profileTexts(
@@ -108,10 +109,10 @@ class AppTheme {
       [double? size,  TextDecoration? decoration]) {
     return TextStyle(
       decoration: decoration,
-      fontSize: 15,
-      fontWeight: FontWeight.bold,
+      fontSize: 16,
+      fontWeight: FontWeight.w800,
       fontFamily: FontName.poppinsRegular,
-      color: Colors.black,);
+      );
   }
   static TextStyle tabNameText(
       [double? size,  TextDecoration? decoration]) {
@@ -128,8 +129,9 @@ class AppTheme {
     return TextStyle(
       decoration: decoration,
       fontWeight: FontWeight.w900,
-      fontSize: 16,
-      color:Color.fromARGB(255, 94, 40, 67),);
+      fontSize: 14,
+      fontFamily: FontName.poppinsRegular,
+      color: AppColor.black);
   }
   static BoxDecoration ConDecoration(
       [double? size, Color? color, TextDecoration? decoration]) {
@@ -142,10 +144,10 @@ class AppTheme {
       borderRadius: const BorderRadius.all(
         Radius.circular(10),
       ),
-      boxShadow: const [
+      boxShadow: [
         BoxShadow(
           blurRadius: 5,
-          color: Colors.black,
+          color: AppColor.grey,
           offset: Offset(1, 2),
         )
       ],);

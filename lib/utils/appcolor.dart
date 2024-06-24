@@ -12,6 +12,7 @@ class AppColor {
   static Color grey=const Color.fromARGB(255, 103, 103, 103);
   static Color profileDetailLine=const Color.fromARGB(255, 246, 246, 246);
   static Color profileText=const Color.fromARGB(255, 110, 110, 110);
+  static Color profileEditTabText=const Color.fromARGB(255, 154, 154, 154);
 
 
 

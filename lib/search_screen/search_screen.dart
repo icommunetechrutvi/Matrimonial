@@ -49,6 +49,21 @@ class _SearchScreenNewState extends State<SearchScreen> {
   bool _hasMoreData = true;
 
 
+  String? _selectedName;
+  String? _selectedCountry;
+  String? _selectedState;
+  String? _selectedMaritalStatus="1";
+  String? _selectedAge;
+  String? _selectedAgeS;
+  String? _selectedDiet ;
+  String? _selectedBodyType ;
+  String? _selectedComplexion ;
+  String? _selectedReligion ;
+  String? _selectedEducation ;
+  String? _selectedProfession ;
+  String? _selectedIncome ;
+  String? _selectedPhoto;
+  String? gender;
 
   @override
   void initState() {
@@ -58,7 +73,6 @@ class _SearchScreenNewState extends State<SearchScreen> {
       _scrollController.addListener(() {
         if (_scrollController.position.pixels ==
             _scrollController.position.maxScrollExtent && !_isLoading && _hasMoreData) {
-          // User has reached the end of the list, load next page
           _loadNextPage();
         }
       });
@@ -69,7 +83,7 @@ class _SearchScreenNewState extends State<SearchScreen> {
       }
       else
       {
-        postData();
+        // postData();
         print("profileViewApi()");
       }
       // profileViewApi();
@@ -104,6 +118,148 @@ class _SearchScreenNewState extends State<SearchScreen> {
   }
 
   Future<void> openBottomSheet() async {
+    double screenHeight = MediaQuery
+        .of(context)
+        .size
+        .height;
+    var responseData = await showModalBottomSheet(
+      isScrollControlled: true,
+      useSafeArea: true,
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: screenHeight * 0.7,
+          child: BottomScreen(
+            selectedName: _selectedName,
+            selectedCountry: _selectedCountry,
+            selectedState: _selectedState,
+            selectedGender: gender,
+            selectedPhoto: _selectedPhoto,
+            selectedMaritalStatus: _selectedMaritalStatus?? "",
+            selectedDiet: _selectedDiet ?? "0",
+            selectedBodyType: _selectedBodyType?? "",
+            selectedComplexion: _selectedComplexion?? "",
+            selectedReligion: _selectedReligion,
+            selectedEducation: _selectedEducation??"",
+            selectedProfession: _selectedProfession,
+            selectedIncome: _selectedIncome,
+            selectedAge: _selectedAge,
+            selectedAgeS: _selectedAgeS,
+          ),
+        );
+      },
+    );
+    if (responseData != null) {
+      print("ALLDATA~~~${responseData}");
+      setState(() {
+        _isLoading = true;
+        _selectedName = responseData['keyword'];
+        _selectedCountry = responseData['country_id'];
+        _selectedState = responseData['state'];
+        gender = responseData['gender'];
+        _selectedPhoto = responseData['photo_available'];
+        _selectedMaritalStatus = responseData['marital_status'];
+        _selectedDiet = responseData['diet'];
+        _selectedBodyType = responseData['body_type'];
+        _selectedComplexion = responseData['complexion'];
+        _selectedReligion = responseData['religion_id'];
+        _selectedEducation = responseData['education_id'];
+        _selectedProfession = responseData['profession_id'];
+        _selectedIncome = responseData['income'];
+        _selectedAge = responseData['start_age'];
+        _selectedAgeS = responseData['end_age'];
+        alGetProfileDetail.clear();
+      });
+      print('Response Data from bottom sheet!!!: $responseData');
+      fetchProfileData();
+     /* try {
+      *//*  ProfileListModel profileData = ProfileListModel.fromJson(responseData);
+        print('Profile Datas###: ${profileData.status}');
+        print('Profile Datas###: ${profileData.message}');
+        if (profileData.data?.data != null) {
+          for (var prod in profileData.data?.data ?? []) {
+            print("prod${prod}");
+            alGetProfileDetail.add(prod);
+          }
+        }
+
+        setState(() {
+          _isLoading = false;
+        });
+
+        final profileImages = CurrentProfileData();
+        for (var img in profileImages.profileImages ?? []) {
+          profileImage.add(img);
+        }
+
+        print('List after adding data: $alGetProfileDetail');*//*
+      } catch (e) {
+        print('Error parsing profile data: $e');
+      }*/
+    } else {
+      print('No data received from bottom sheet');
+    }
+
+   /* print('Response Data from bottom sheet!!!: $responseData');
+    ProfileListModel profileData = ProfileListModel.fromJson(responseData);
+    print('Profile Datas###: ${profileData.status}');
+    print('Profile Datas###: ${profileData.message}');
+    for (var prod in profileData.data?.data ?? []) {
+      print("prod${prod}");
+      alGetProfileDetail.add(prod);
+      setState(() {
+        _isLoading = false;
+      });
+      final profileImages = CurrentProfileData();
+      for (var img in profileImages.profileImages ?? []) {
+        profileImage.add(img);
+      }
+    }
+    print('List after adding data: $alGetProfileDetail');
+*/
+
+  }
+
+  void fetchProfileData() async {
+    try {
+      Map<String, String?> filterParams = {
+        'keyword': _selectedName,
+        'country_id': _selectedCountry,
+        'state': _selectedState,
+        'gender': gender,
+        'photo_available': _selectedPhoto,
+        'marital_status': _selectedMaritalStatus,
+        'diet': _selectedDiet ?? "0",
+        'body_type': _selectedBodyType,
+        'complexion': _selectedComplexion,
+        'religion_id': _selectedReligion,
+        'education_id': _selectedEducation,
+        'profession_id': _selectedProfession,
+        'income': _selectedIncome,
+        'start_age': _selectedAge?.toString(),
+        'end_age': _selectedAgeS?.toString(),
+      };
+      filterParams.removeWhere((key, value) => value == null);
+
+      ProfileListModel profileData = await postData(filterParams);
+
+
+      setState(() {
+        _isLoading = false;
+        alGetProfileDetail = profileData.data?.data ?? [];
+        // profileImage = profileData.profileImages ?? [];
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print('Error fetching profile data: $e');
+    }
+  }
+
+
+
+  /* Future<void> openBottomSheet() async {
     double screenHeight = MediaQuery.of(context).size.height;
     var responseData = await showModalBottomSheet(
       isScrollControlled: true,
@@ -112,44 +268,107 @@ class _SearchScreenNewState extends State<SearchScreen> {
       builder: (BuildContext context) {
         return Container(
           height: screenHeight * 0.7,
-          child: BottomScreen(),
+          child: BottomScreen(
+            selectedName: _selectedName,
+            selectedCountry: _selectedCountry,
+            selectedState: _selectedState,
+            selectedGender: _selectedGender,
+            selectedPhoto: _selectedPhoto,
+            selectedMaritalStatus: _selectedMaritalStatus,
+            selectedDiet: _selectedDiet,
+            selectedBodyType: _selectedBodyType,
+            selectedComplexion: _selectedComplexion,
+            selectedReligion: _selectedReligion,
+            selectedEducation: _selectedEducation,
+            selectedProfession: _selectedProfession,
+            selectedIncome: _selectedIncome,
+            selectedAge: _selectedAge,
+            selectedAgeS: _selectedAgeS,
+          ),
         );
       },
     );
     if (responseData != null) {
-      alGetProfileDetail.clear();
-      setState(() {
-        _isLoading = true;
+      var url = Uri.parse(
+          '${Webservices.baseUrl+Webservices.profileList}');
+      var jsonData = json.encode({
+        'keyword': _selectedName,
+        // 'country_id': '${_selectedCountry!.id.isNull ?" ":_selectedCountry?.id.toString()}',
+        'state': _selectedState,
+        'gender': _selectedGender,
+        'religion_id': _selectedReligion,
+        'photo_available': _selectedPhoto,
+        'marital_status[]': _selectedMaritalStatus,
+        'diet[]': _selectedDiet,
+        'body_type[]':_selectedBodyType,
+        'complexion[]': _selectedComplexion,
+        'education_id[]': _selectedEducation,
+        'profession_id[]': _selectedProfession,
+        'income': _selectedIncome,
+        'start_age': _selectedAge,
+        'end_age':_selectedAgeS,
+
+        // 'height': '${_heightRange?.start.toInt().toString()}-${_heightRange?.end.toInt().toString()}',
+        // 'marital_status[]':'',
       });
-      print('Response Data from bottom sheet: $responseData');
-      ProfileListModel profileData = ProfileListModel.fromJson(responseData);
-      print('Profile Data: $profileData');
-      for (var prod in profileData.data!.data ?? []) {
-        print("prod${prod}");
-        alGetProfileDetail.add(prod);
-        _isLoading = false;
-        final profileImages = CurrentProfileData();
-        for (var img in profileImages.profileImages ?? []) {
-          profileImage.add(img);
+      print("formData!!!${jsonData}");
+      try {
+        var response = await http.post(
+          url,
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: (jsonData),
+        );
+        print('Response status: ${response.statusCode}');
+        if (response.statusCode == 200) {
+          return json.decode(response.body);
+        } else {
+          throw Exception('Failed to load data');
         }
+      } catch (e) {
+        // Handle exceptions
+        print('Exception: $e');
       }
-      print('List after adding data: $alGetProfileDetail');
+      print("ALLDATA~~~${responseData}");
+     *//* setState(() {
+        _isLoading = true;
+        _selectedName = responseData['keyword'];
+        _selectedCountry = responseData['country_id'];
+        _selectedState = responseData['state'];
+        _selectedGender = responseData['gender'];
+        _selectedPhoto = responseData['photo_available'];
+        _selectedMaritalStatus = responseData['marital_status[]'];
+        _selectedDiet = responseData['diet[]'];
+        _selectedBodyType = responseData['body_type[]'];
+        _selectedComplexion = responseData['complexion[]'];
+        _selectedReligion = responseData['religion_id'];
+        _selectedEducation = responseData['education_id[]'];
+        _selectedProfession = responseData['profession_id[]'];
+        _selectedIncome = responseData['income'];
+        _selectedAge = responseData['start_age'];
+        _selectedAgeS = responseData['end_age'];
+        alGetProfileDetail.clear();
+      });*//*
+      print('Response Data from bottom sheet!!!: $responseData');
+
+
     } else {
       print('No data received from bottom sheet');
     }
-  }
+  }*/
 
   Future<void> profileViewApi() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final userName  = prefs.getString(PrefKeys.KEYGENDER)!;
 
-    final gender;
+
    if(userName =="2"){
-     gender=1;
+     gender=1.toString();
      profileImg="https://rishtaforyou.com/storage/profiles/default1.png";
    }
    else{
-     gender=2;
+     gender=2.toString();
      profileImg="https://rishtaforyou.com/storage/profiles/default2.png";
    }
     setState(() {
@@ -161,34 +380,55 @@ class _SearchScreenNewState extends State<SearchScreen> {
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      setState(() {
-
         var jsonList = jsonDecode(response.body) as Map<String, dynamic>;
-        print("jsonList$jsonList");
-        final localPickData = ProfileListModel.fromJson(jsonList);
-        print("localPickData${localPickData}");
-        for (var prod in localPickData.data!.data ?? []) {
-          print("prod${prod}");
-          alGetProfileDetail.add(prod);
-          _isLoading = false;
-          final profileImages = CurrentProfileData();
-          for (var img in profileImages.profileImages ?? []) {
-            profileImage.add(img);
-          }
+        final userMap = json.decode(response.body);
+        bool status = userMap["status"];
+        if(status==true) {
+          print("jsonList$jsonList");
+          final localPickData = ProfileListModel.fromJson(jsonList);
+          print("localPickData${localPickData}");
+          setState(() {
+            if (localPickData.data!.data != null) {
+              for (var prod in localPickData.data!.data ?? []) {
+                print("prod${prod}");
+                alGetProfileDetail.add(prod);
+                _isLoading = false;
+                final profileImages = CurrentProfileData();
+                for (var img in profileImages.profileImages ?? []) {
+                  profileImage.add(img);
+                }
+              }
+            } else {
+              setState(() {
+                _hasMoreData = false;
+              });
+            }
+          });
+          print("UserData@@${profileImage}");
         }
-        print("UserData@@${profileImage}");
-      });
+        else{
+          setState(() {
+            _isLoading = false;
+          });
+        }
     } else {
-      throw Exception('Failed to load education_list');
+      setState(() {
+        _isLoading = false;
+      });
+      throw Exception('Failed to load data');
     }
   }
 
-  Future<dynamic> postData() async {
+  Future<dynamic> postData(Map<String, String?> parameters) async {
     var url = Uri.parse(
         '${Webservices.baseUrl+Webservices.profileList}');
-
-    var jsonData = json.encode({
-      'keyword': '${searchTextController.text.isNull ? "" :searchTextController.text}',
+    var jsonData = json.encode(parameters);
+  /*  var jsonData = json.encode({
+      'keyword': '${searchTextController.text.isNull ? _selectedName :searchTextController.text}',
+      'gender': widget.selectedGender ?? _selectedGender,
+      'marital_status[]': widget.selectedMaritalStatus ?? "",
+      'start_age': widget.selectedAge ?? "",
+      'end_age': widget.selectedAgeS ?? ""
       // 'country_id': '${countryId.isNull ?"":countryId}',
       // 'state': '${_selectedState?.state=="" ? _selectedState?.state: " "   }',
       // 'gender': '${genderKey.isNull ?'1':genderKey}',
@@ -204,7 +444,7 @@ class _SearchScreenNewState extends State<SearchScreen> {
       // 'start_age': '${_selectedAge.isNull ?"":_selectedAge}',
       // 'end_age': '${_selectedAgeS.isNull?"":_selectedAgeS}',
       // // 'marital_status[]':'',
-    });
+    });*/
     print("formData!!!${jsonData}");
     try {
       var response = await http.post(
@@ -222,13 +462,15 @@ class _SearchScreenNewState extends State<SearchScreen> {
         });
         var jsonList = jsonDecode(response.body) as Map<String, dynamic>;
         print("jsonList$jsonList");
-        print('Response Data from bottom sheet: $response');
+        print('Response Data from bottom sheet:^^^^^ $response');
         ProfileListModel profileData = ProfileListModel.fromJson(jsonList);
         print('Profile Data: $profileData');
         for (var prod in profileData.data!.data ?? []) {
           print("prod${prod}");
           alGetProfileDetail.add(prod);
+          setState(() {
           _isLoading = false;
+          });
           final profileImages = CurrentProfileData();
           for (var img in profileImages.profileImages ?? []) {
             profileImage.add(img);
@@ -322,7 +564,7 @@ class _SearchScreenNewState extends State<SearchScreen> {
                                 border: InputBorder.none,
                               ),
                               onChanged: (value) {
-                                postData();
+                                // postData();
                                 print("scjndcjdcj");
                               },
                             ),
@@ -371,40 +613,45 @@ class _SearchScreenNewState extends State<SearchScreen> {
                     ],
                   ),
                 ),
-                Expanded(
-                  child: RefreshIndicator(
+                   alGetProfileDetail.isNotEmpty ?
+                   Expanded(
+                 /* child: RefreshIndicator(
+                    color: AppColor.mainText,
                     onRefresh: () async {
                       await Future.delayed(Duration(seconds: 1));
-                    },
-                    child: _isLoading
+                      return profileViewApi();
+                    },*/
+                    child: _isLoading  && currentPage == 1
                         ? Center(
                             child: CircularProgressIndicator(
-                              color: AppColor.mainAppColor,
-                              // backgroundColor: AppColor.pink,
+                              color: AppColor.mainText,
                             ),
                           )
                         : ListView.builder(
                       controller: _scrollController,
-                      itemCount: alGetProfileDetail.length,
+                      itemCount: alGetProfileDetail.length+ (_hasMoreData ? 1 : 0),
                       itemBuilder: (context, index) {
                         if (index < alGetProfileDetail.length) {
                           String? heightKey = alGetProfileDetail[index].height.toString();
                           String? heightValue = heightList?[heightKey??0];
                           return InkWell(
                             onTap: () {
-                              Navigator.push(context,
-                                  MaterialPageRoute(
-                                    builder: (context) {
-                                      return ProfileDetailScreen(
-                                        profileId:
-                                        alGetProfileDetail[index]
-                                            .id,
-                                        profileFullName:
-                                        "${alGetProfileDetail[index].firstName} ${alGetProfileDetail[index].lastName}",
-                                        // profileFullName: "${alGetProfileDetail[index].firstName} ${alGetProfileDetail[index].lastName}",
-                                      );
-                                    },
-                                  ));
+                              // if(alGetProfileDetail[index].photoAvailable ==0) {
+                                Navigator.push(context,
+                                    MaterialPageRoute(
+                                      builder: (context) {
+                                        return ProfileDetailScreen(
+                                          profileId:
+                                          alGetProfileDetail[index]
+                                              .id,
+                                          profileFullName:
+                                          "${alGetProfileDetail[index]
+                                              .firstName} ${alGetProfileDetail[index].lastName}",
+                                          // profileFullName: "${alGetProfileDetail[index].firstName} ${alGetProfileDetail[index].lastName}",
+                                        );
+                                      },
+                                    ));
+                              // }else{}
                             },
                             child: Container(
                               padding: EdgeInsets.all(5),
@@ -585,8 +832,8 @@ class _SearchScreenNewState extends State<SearchScreen> {
                         }
                       },
                     ),
-                  ),
-                ),
+                  // ),
+                ):_emptyView(),
                 SizedBox(
                   height: 10,
                 ),
@@ -595,6 +842,39 @@ class _SearchScreenNewState extends State<SearchScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  _emptyView() {
+    return Container(
+      child: Center(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Image.asset(
+             "assets/icon/ic_empty_note.png",
+              height: 80,
+              width: 110,
+              color: AppColor.mainText,
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Text(
+              "Empty List!",
+              style:TextStyle(color: AppColor.mainText,fontFamily: FontName.poppinsRegular,fontSize: 22,fontWeight: FontWeight.w900),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Text(
+              "No Profiles Found",
+              style: TextStyle(fontWeight: FontWeight.w600,fontSize: 15,fontFamily: FontName.poppinsRegular,color: AppColor.grey),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

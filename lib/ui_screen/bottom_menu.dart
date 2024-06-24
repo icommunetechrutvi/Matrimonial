@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:matrimony/blocked_profile/connection_screen.dart';
 import 'package:matrimony/blocked_profile/extra.dart';
 import 'package:matrimony/home_screen/home_screen.dart';
+import 'package:matrimony/profile_edit_screen/my_profile.dart';
 import 'package:matrimony/profile_edit_screen/profile_details.dart';
 import 'package:matrimony/search_screen/search_screen.dart';
 import 'package:matrimony/utils/appcolor.dart';
@@ -30,17 +31,19 @@ class _MyBottomMenuPageState extends State<BottomMenuScreen> {
 
   int maxCount = 4;
 
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
+
   @override
   void initState() {
     super.initState();
     setState(() {
       _pageController = PageController(initialPage: widget.pageId);
       getValue();
+      bottomBarPages = [
+        HomeScreen(),
+        SearchScreen(selectedAge: "",selectedAgeS: "",selectedGender: "",selectedMaritalStatus:""),
+        ConnectionListScreen(),
+        ProfileDetailScreen(profileId: loginId,profileFullName: "${loginFName} ${loginLName}"),
+      ];
     });
   }
   Future<void> getValue() async {
@@ -54,13 +57,18 @@ class _MyBottomMenuPageState extends State<BottomMenuScreen> {
         HomeScreen(),
         SearchScreen(selectedAge: "",selectedAgeS: "",selectedGender: "",selectedMaritalStatus:""),
         ConnectionListScreen(),
-        ProfileDetailScreen(profileId: loginId,profileFullName: "${loginFName} ${loginLName}"),
+        // ProfileDetailScreen(profileId: loginId,profileFullName: "${loginFName} ${loginLName}"),
+        MyProfileScreen(profileId: loginId,profileFullName: "${loginFName} ${loginLName}"),
       ];
     });
     // _isLoading = false;
   }
 
-
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
   // /// widget list
   // final List<Widget> bottomBarPages = [
   //   HomeScreen(),

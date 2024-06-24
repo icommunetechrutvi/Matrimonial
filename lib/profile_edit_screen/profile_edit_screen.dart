@@ -13,7 +13,9 @@ import 'package:matrimony/profile_edit_screen/view_model/UserProfileEditModel.da
 import 'package:matrimony/profile_edit_screen/view_model/profile_detail_model.dart';
 import 'package:matrimony/search_screen/search_screen.dart';
 import 'package:matrimony/ui_screen/appBar_screen.dart';
+import 'package:matrimony/ui_screen/bottom_menu.dart';
 import 'package:matrimony/ui_screen/side_drawer.dart';
+import 'package:matrimony/utils/ProgressHUD.dart';
 import 'package:matrimony/utils/app_theme.dart';
 import 'package:matrimony/utils/appcolor.dart';
 import 'package:matrimony/utils/shared_pref/pref_keys.dart';
@@ -27,7 +29,7 @@ class ProfileEditScreen extends StatefulWidget {
   State<ProfileEditScreen> createState() => _MyProfileEditPageState();
 }
 
-class _MyProfileEditPageState extends State<ProfileEditScreen> {
+class _MyProfileEditPageState extends State<ProfileEditScreen>  with TickerProviderStateMixin  {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   bool _isLoading = false;
   var isExpanded1 = false;
@@ -123,6 +125,9 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
 
   late int selectedIndex = 1;
   late int selectedBodyTypeIndex = 1;
+  final _selectedColor = AppColor.mainText;
+  late final TabController _tabController;
+
 
   @override
   void initState() {
@@ -133,6 +138,7 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
       getProfileDetailApi();
       fetchEducation();
       fetchOccupation();
+      _tabController = TabController(length: 3, vsync: this);
       // fetchState(alGetProfileDetail[0].data!.countryId!.id);
     });
   }
@@ -359,20 +365,21 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
       );
       print('Response status: ${response.statusCode}');
       if (response.statusCode == 200) {
+
         var jsonList = jsonDecode(response.body) as Map<String, dynamic>;
         final user= UserProfileEditModel.fromJson(jsonList);
         prefs.setString(PrefKeys.KEYNAME,user.profile!.firstName ?? "kmkjlmnkjn");
         prefs.setString(PrefKeys.KEYEMAIL,user.profile!.emailId ?? "kmkjlmnkjn");
-        await Future.delayed(Duration(seconds: 1));
+
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text("${user.message}"),
           backgroundColor: AppColor.lightGreen,
         ));
-        Navigator.pushReplacement(context, MaterialPageRoute(
-          builder: (context) {
-            return SearchScreen(selectedMaritalStatus: "",selectedGender: "",selectedAge: "",selectedAgeS: "",);
-          },
-        ));
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BottomMenuScreen(pageId: 1),
+            ));
         setState(() {
           _isLoading = false;
         });
@@ -522,11 +529,22 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
 
   @override
   void dispose() {
+    _tabController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    return ProgressHUD(
+      child: _uiSetUp(context),
+      inAsyncCall: _isLoading,
+      opacity: 0.1, key: Key("new"), valueColor: AlwaysStoppedAnimation( AppColor.grey),
+    );
+  }
+
+
+  // @override
+  Widget _uiSetUp(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
     bool isPortrait = screenHeight > screenWidth;
@@ -544,7 +562,7 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
       appBar:AppBar(
         backgroundColor: AppColor.white,
         title: Text(
-          "Profile Edit",
+          "Edit Profile",
           style: TextStyle(
             fontSize: 16,
             color: AppColor.black,
@@ -562,13 +580,91 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
         ),
       ),
 
-      body: Stack(fit: StackFit.expand, children: [
+      body: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+
         Container(color: AppColor.mainAppColor),
-       /* Image.asset(
-          "assets/images/bg_pink.jpg",
-          fit: BoxFit.fill,
-        ),*/
-        SingleChildScrollView(
+        Column(
+          children: [ Container(
+            margin: EdgeInsets.only(top:12.0),
+            height: kToolbarHeight + 2.0,
+            // padding: const EdgeInsets.only(
+            //     top: 13.0, right: 2.0, left: 6.0, bottom: 3),
+            decoration: BoxDecoration(
+              color: AppColor.white,
+            ),
+            child: TabBar(
+              onTap: (value) {
+                // iViewedContactSentListApi();
+                // iViewedContactReceivedListApi();
+              },
+              indicatorColor: AppColor.mainText,
+              labelColor:_selectedColor,
+              unselectedLabelColor:AppColor.profileEditTabText,
+              controller: _tabController,
+              tabs: <Widget>[
+                Tab(
+                  child: Text(
+                    "Profile Detail",
+                    style: AppTheme.tabText(),
+                    // style: AppTheme.wishListView(),
+                  ),
+                ),
+                Tab(
+                  child: Text(
+                    "Family Detail",
+                    style: AppTheme.tabText(),
+                  ),
+                ),
+                Tab(
+                  child: Text(
+                    "Personal Detail",
+                    style: AppTheme.tabText(),
+                  ),
+                ),
+              ],
+            ),
+          ),],
+        ),
+        Expanded(
+          flex: 8,
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              SingleChildScrollView(child: ProfileDetailPage()),
+              SingleChildScrollView(child: familyDetailPage()),
+              SingleChildScrollView(child: personalDetailPage()),
+            ],
+          ),
+        ),
+        Container(
+          color: AppColor.white,
+          padding:  EdgeInsets.all(15),
+          // margin: EdgeInsets.all(12),
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.all(10),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5)),
+                backgroundColor:AppColor.mainText ),
+            child: Text(
+              'Update',
+              style: AppTheme.buttonBold(),
+            ),
+            onPressed: () async {
+              await postProfileEdit();
+            },
+          ),
+        ),
+
+
+
+
+
+      
+      
+    ///first time code for not tab...
+      
+     /*   SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
             child: Column(
@@ -596,12 +692,12 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
                       children: [
                         Container(
                           color:AppColor.mainAppColor,
-                         /* decoration: const BoxDecoration(
+                          decoration: const BoxDecoration(
                             image: DecorationImage(
                               image: AssetImage("assets/images/bg_pink.jpg"),
                               fit: BoxFit.cover,
                             ),
-                          ),*/
+                          ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -796,12 +892,12 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
                     children: [
                       Container(
                         color:AppColor.mainAppColor,
-                        /*decoration: BoxDecoration(
+                        decoration: BoxDecoration(
                           image: DecorationImage(
                             image: AssetImage("assets/images/bg_pink.jpg"),
                             fit: BoxFit.cover,
                           ),
-                        ),*/
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -1361,12 +1457,12 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
                       children: [
                         Container(
                           color:AppColor.mainAppColor,
-                         /* decoration: BoxDecoration(
+                          decoration: BoxDecoration(
                             image: DecorationImage(
                               image: AssetImage("assets/images/bg_pink.jpg"),
                               fit: BoxFit.cover,
                             ),
-                          ),*/
+                          ),
                           child: Column(
                             children: [
                               Row(
@@ -1506,6 +1602,7 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
                         )
                       ]),
                 ),
+
                 ElevatedButton(
                   onPressed: () async {
                     await postProfileEdit();
@@ -1526,15 +1623,871 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
         if (_isLoading)
           Center(
             child: CircularProgressIndicator(color: AppColor.lightGreen),
-          ),
+          ),*/
       ]),
+    );
+  }
+  Widget ProfileDetailPage(){
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // if (_isLoading)
+        //   Center(
+        //     child: CircularProgressIndicator(color: AppColor.lightGreen),
+        //   ),
+        _gap(),
+        buildRow(
+          'First Name',
+          'Last Name',
+          fNameController,
+          lNameController!,
+        ),
+        buildTitle("Date of Birth"),
+        Padding(
+          padding: const EdgeInsets.only(
+              right: 12.0,
+              left: 12.0,
+              top: 5.0,
+              bottom: 12),
+          child: Container(
+            decoration: AppTheme.ConDecoration(),
+            child: TextField(
+              controller: bDateController,
+              decoration: InputDecoration(
+                hintText: "yyyy/mm/dd",
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.symmetric(
+                    horizontal: 15, vertical: 12),
+                suffixIcon: GestureDetector(
+                  onTap: () async {
+                    final DateTime? picked =
+                    await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(1920),
+                      lastDate: DateTime.now(),
+                    );
+                    if (picked != null) {
+                      final newDate =
+                          "${picked.year}-${picked.month}-${picked.day}";
+                      print("newDate~~${newDate}");
+                      if (newDate.isNotEmpty) {
+                        bDateController.text = newDate;
+                      }
+                    }
+                  },
+                  child: Icon(
+                    Icons.calendar_month_sharp,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        // _drivire(),
+        buildTitle("Email Id"),
+        buildTextField(emailController, 'Email Id'),
+        // _drivire(),
+        buildTitle("Address"),
+        buildTextField(addressController, 'Address'),
+        // _drivire(),
+        buildTitle("City"),
+        buildTextField(cityController, 'City'),
+        // _drivire(),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment:
+                  CrossAxisAlignment.start,
+                  children: [
+                    buildTitle("Country"),
+                    Container(
+                      margin: EdgeInsets.all(2),
+                      child: DropdownSearch<CountryData>(
+                        popupProps: PopupProps.menu(
+                          constraints: BoxConstraints.loose(Size.fromHeight(250)),
+                          showSearchBox: true,
+                          searchFieldProps: TextFieldProps(
+                            decoration: InputDecoration(
+                              hintText: "Search",
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
+                            ),
+                          ),
+                        ),
+                        items: countryList,
+                        itemAsString: (CountryData item) =>
+                            item.countryName.toString(),
+                        selectedItem: _selectedCountry,
+                        onChanged:(CountryData? selectedCountry) {
+                          setState(() {
+                            _selectedCountry = selectedCountry;
+                            print("_selectedCountry${_selectedCountry!.id}");
+                            fetchState(_selectedCountry!.id);
+                          });
+                        },
+                        dropdownDecoratorProps:  DropDownDecoratorProps(
+                          dropdownSearchDecoration: InputDecoration(
+                            hintText: 'Please Select',
+                            suffixIcon: Icon(
+                                Icons.keyboard_arrow_down,
+                                color: Colors.black),
+                            border: OutlineInputBorder(
+                              borderRadius:  BorderRadius.circular(10,),
+                            ),
+                            fillColor: AppTheme.ConDecoration().color,filled: true,),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment:
+                  CrossAxisAlignment.start,
+                  children: [
+                    buildTitle("State"),
+                    Container(
+                      margin: EdgeInsets.all(2),
+                      child: DropdownSearch<StateData>(
+                        popupProps: PopupProps.menu(
+                          constraints: BoxConstraints.loose(Size.fromHeight(250)),
+                          showSelectedItems: false,
+                          showSearchBox: true,
+                          searchFieldProps: TextFieldProps(
+                            decoration: InputDecoration(
+                              hintText: "Search",
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
+                            ),
+                          ),
+                        ),
+                        items: stateList,
+                        itemAsString: (StateData item) =>
+                            item.state.toString(),
+                        selectedItem: _selectState,
+                        onChanged:(StateData? selectedCountry) {
+                          setState(() {
+                            _selectState = selectedCountry;
+                            print("_selectState~~${_selectState!.state}");
+                          });
+                        },
+                        dropdownDecoratorProps:  DropDownDecoratorProps(
+                          dropdownSearchDecoration: InputDecoration(
+                            hintText: 'Please Select',
+                            suffixIcon: Icon(
+                                Icons.keyboard_arrow_down,
+                                color: Colors.black),
+                            border: OutlineInputBorder(
+                              borderRadius:  BorderRadius.circular(10,),
+                            ),
+                            fillColor: AppTheme.ConDecoration().color,filled: true,),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        _gap(),
+        buildRow(
+          'Mobile No',
+          'Alt Phone',
+          mobileController,
+          altMobileController!,
+        ),
+        _gap(),
+      ],
+    );
+    }
+
+
+  Widget familyDetailPage() {
+    return  Column(
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+                children: [
+                  _gap(),
+                  buildTitle("Fathers Status"),
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 5),
+                    margin: EdgeInsets.all(12),
+                    decoration: AppTheme.ConDecoration(),
+                    child: DropdownButton<String>(
+                      borderRadius:
+                      BorderRadius.circular(12),
+                      isExpanded: true,
+                      value: _selectFatherStatus,
+                      hint: Text('Please Select'),
+                      underline: Column(),
+                      icon: const Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Colors.black),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectFatherStatus = newValue;
+                        });
+                        if (newValue != null) {
+                          int index = fatherStatusList
+                              .indexOf(newValue);
+                          if (index != -1 &&
+                              index <
+                                  fatherStatusKeys
+                                      .length) {
+                            selectedFatherKey =
+                            fatherStatusKeys[index];
+                            print(
+                                "Selected key: $selectedFatherKey");
+                          }
+                        }
+                      },
+                      items: fatherStatusList
+                          .map<DropdownMenuItem<String>>(
+                              (String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+                children: [
+                  _gap(),
+                  buildTitle("Mothers Status"),
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 5),
+                    margin: EdgeInsets.all(12),
+                    decoration: AppTheme.ConDecoration(),
+                    child: DropdownButton<String>(
+                      borderRadius:
+                      BorderRadius.circular(12),
+                      isExpanded: true,
+                      value: _selectMotherStatus,
+                      hint: Text('Please Select'),
+                      underline: Column(),
+                      icon: const Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Colors.black),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectMotherStatus = newValue;
+                        });
+                        if (newValue != null) {
+                          int index = motherStatusList
+                              .indexOf(newValue);
+                          if (index != -1 &&
+                              index <
+                                  motherStatusKeys
+                                      .length) {
+                            selectedMotherKey =
+                            motherStatusKeys[index];
+                            print(
+                                "Selected key: $selectedMotherKey");
+                          }
+                        }
+                      },
+                      items: motherStatusList
+                          .map<DropdownMenuItem<String>>(
+                              (String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        _gap(),
+        buildRow(
+          'No Of Brothers',
+          'No Of Sisters',
+          noOfBrothersController,
+          noOfSisterController,
+        ),
+        _gap(),
+        buildRow(
+          'Contact Person',
+          'Convenient Time',
+          contactPersonController,
+          timeController,
+        ),
+        _gap(),
+        buildRow(
+          'Native Place',
+          'About My Family',
+          nativePlaceController,
+          aboutFamilyController,
+        ),
+      ],
+    );
+  }
+
+  Widget personalDetailPage() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+                children: [
+                  _gap(),
+                  buildTitle("Height"),
+                  Container(
+                    padding:
+                    EdgeInsets.symmetric(horizontal: 5),
+                    margin: EdgeInsets.all(12),
+                    decoration: AppTheme.ConDecoration(),
+                    child: DropdownButton<String>(
+                      borderRadius:
+                      BorderRadius.circular(12),
+                      menuMaxHeight: 300,
+                      isExpanded: true,
+                      value: _selectedHeight,
+                      hint: Text('Please Select'),
+                      underline: Column(),
+                      icon: const Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Colors.black),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectedHeight = newValue;
+                        });
+                        if (newValue != null) {
+                          int index =
+                          heightList.indexOf(newValue);
+                          if (index != -1 &&
+                              index < heightKeys.length) {
+                            selectedKey = heightKeys[index];
+                            print( "Selected key: $selectedKey");
+                            print( "Selected key: ${alGetProfileDetail[0].data!.height}");
+                          }
+                        }
+                      },
+                      items: heightList
+                          .map<DropdownMenuItem<String>>(
+                              (String list) {
+                            return DropdownMenuItem<String>(
+                              value: list,
+                              child: Text(list),
+                            );
+                          }).toList(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+                children: [
+                  _gap(),
+                  buildTitle("Weight"),
+                  _gap(),
+                  buildTextField(
+                      weightController, "Weight"),
+                ],
+              ),
+            ),
+          ],
+        ),
+        _gap(),
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+                children: [
+                  buildTitle("Complexion"),
+                  Container(
+                    padding:
+                    EdgeInsets.symmetric(horizontal: 5),
+                    margin: EdgeInsets.all(12),
+                    decoration: AppTheme.ConDecoration(),
+                    child: DropdownButton<String>(
+                      borderRadius:
+                      BorderRadius.circular(12),
+                      isExpanded: true,
+                      // value: selectedIndex != -1 ?
+                      // complexionList[selectedIndex] : null,
+                      value: selectedIndex != -1 && selectedIndex < complexionList.length
+                          ? complexionList[selectedIndex]
+                          : null,
+                      hint: Text('Please Select'),
+                      underline: Column(),
+                      icon: const Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Colors.black),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectedComplexion = newValue;
+                          complexionKey = complexionList
+                              .indexOf(newValue!);
+                          print(
+                              "_selectedComplexion~~$complexionKey");
+                        });
+                      },
+                      items: complexionList
+                          .map<DropdownMenuItem<String>>(
+                              (String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+                children: [
+                  buildTitle("Body Type"),
+                  Container(
+                    padding:
+                    EdgeInsets.symmetric(horizontal: 5),
+                    margin: EdgeInsets.all(12),
+                    decoration: AppTheme.ConDecoration(),
+                    child: DropdownButton<String>(
+                      borderRadius:
+                      BorderRadius.circular(12),
+                      isExpanded: true,
+                      // value: selectedIndex != -1 && selectedIndex < complexionList.length
+                      //     ? complexionList[selectedIndex]
+                      //     : null,
+                      value: selectedBodyTypeIndex != -1 &&selectedBodyTypeIndex<bodyTypeList.length ?  bodyTypeList[ selectedBodyTypeIndex]: null,
+                      hint: Text('Please Select'),
+                      underline: Column(),
+                      icon: const Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Colors.black),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectedBodyType = newValue;
+                          bodyTypeKey = bodyTypeList
+                              .indexOf(newValue!);
+                        });
+                      },
+                      items: bodyTypeList
+                          .map<DropdownMenuItem<String>>(
+                              (String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        _gap(),
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+                children: [
+                  buildTitle("Diet"),
+                  Container(
+                    padding:
+                    EdgeInsets.symmetric(horizontal: 5),
+                    margin: EdgeInsets.all(12),
+                    decoration: AppTheme.ConDecoration(),
+                    child: DropdownButton<String>(
+                      borderRadius:
+                      BorderRadius.circular(12),
+                      isExpanded: true,
+                      value: _selectDiet,
+                      hint: Text('Please Select'),
+                      underline: Column(),
+                      icon: const Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Colors.black),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectDiet = newValue;
+                        });
+                        if (newValue != null) {
+                          int index =
+                          dietList.indexOf(newValue);
+                          if (index != -1 &&
+                              index < dietKeys.length) {
+                            selectedDietKey =
+                            dietKeys[index];
+                            print(
+                                "Selected key: $selectedDietKey");
+                          }
+                        }
+                      },
+                      items: dietList
+                          .map<DropdownMenuItem<String>>(
+                              (String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+                children: [
+                  buildTitle("Blood Group"),
+                  Container(
+                    padding:
+                    EdgeInsets.symmetric(horizontal: 5),
+                    margin: EdgeInsets.all(12),
+                    decoration: AppTheme.ConDecoration(),
+                    child: DropdownButton<String>(
+                      borderRadius:
+                      BorderRadius.circular(12),
+                      isExpanded: true,
+                      value: _selectBloodG,
+                      hint: Text('Please Select'),
+                      underline: Column(),
+                      icon: const Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Colors.black),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectBloodG = newValue;
+                        });
+                        if (newValue != null) {
+                          int index =
+                          bloodGList.indexOf(newValue);
+                          if (index != -1 &&
+                              index < bloodKeys.length) {
+                            selectedBloodKey =
+                            bloodKeys[index];
+                            print( "Selected key: $selectedBloodKey");
+                          }
+                        }
+                      },
+                      items: bloodGList
+                          .map<DropdownMenuItem<String>>(
+                              (String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        _gap(),
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+                children: [
+                  buildTitle("Income"),
+                  Container(
+                    padding:
+                    EdgeInsets.symmetric(horizontal: 5),
+                    margin: EdgeInsets.all(12),
+                    decoration: AppTheme.ConDecoration(),
+                    child: DropdownButton<String>(
+                      borderRadius:
+                      BorderRadius.circular(12),
+                      isExpanded: true,
+                      value: _selectIncome,
+                      hint: Text('Please Select'),
+                      underline: Column(),
+                      icon: const Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Colors.black),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectIncome = newValue;
+                        });
+                        if (newValue != null) {
+                          int index =
+                          incomeList.indexOf(newValue);
+                          if (index != -1 &&
+                              index < incomeKeys.length) {
+                            String key = incomeKeys[index];
+                            List<String> keyParts =
+                            key.split("-");
+                            if (keyParts.length == 2) {
+                              selectedIncomeFromKey =
+                              keyParts[0];
+                              selectedIncomeToKey =
+                              keyParts[1];
+                              print(
+                                  "Selected key: $selectedIncomeFromKey-$selectedIncomeToKey");
+                            }
+                            // selectedIncomeFromKey = incomeKeys[index];
+                            // selectedIncomeToKey=incomeKeys[index];
+                            // print("Selected key: $selectedIncomeFromKey");
+                          }
+                        }
+                      },
+                      items: incomeList
+                          .map<DropdownMenuItem<String>>(
+                              (String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+                children: [
+                  buildTitle("Education"),
+                  Container(
+                    padding:
+                    EdgeInsets.symmetric(horizontal: 5),
+                    margin: EdgeInsets.all(12),
+                    decoration: AppTheme.ConDecoration(),
+                    child: DropdownButton<EducationsData>(
+                      borderRadius: BorderRadius.circular(12),
+                      isExpanded: true,
+                      value: _selectedEducation,
+                      hint: Text('Please Select'),
+                      underline: Container(),
+                      icon: const Icon( Icons.keyboard_arrow_down,
+                          color: Colors.black),
+                      onChanged:    (EducationsData? newValue) {
+                        setState(() {
+                          _selectedEducation = newValue;
+                        });
+                      },
+                      items: _education.map<
+                          DropdownMenuItem<
+                              EducationsData>>(
+                              (EducationsData value) {
+                            return DropdownMenuItem<
+                                EducationsData>(
+                              value: value,
+                              child: Text("${value.education}"),
+                            );
+                          }).toList(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        _gap(),
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+                children: [
+                  buildTitle("Profession"),
+                  Container(
+                    padding:
+                    EdgeInsets.symmetric(horizontal: 5),
+                    margin: EdgeInsets.all(12),
+                    decoration: AppTheme.ConDecoration(),
+                    child: DropdownButton<OccupationData>(
+                      borderRadius:
+                      BorderRadius.circular(12),
+                      isExpanded: true,
+                      value: _selectedOccupation,
+                      hint: Text('Please Select'),
+                      underline: Column(),
+                      icon: const Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Colors.black),
+                      onChanged:
+                          (OccupationData? newValue) {
+                        setState(() {
+                          _selectedOccupation = newValue;
+                        });
+                      },
+                      items: _occupation.map<
+                          DropdownMenuItem<
+                              OccupationData>>(
+                              (OccupationData value) {
+                            return DropdownMenuItem<
+                                OccupationData>(
+                              value: value,
+                              child:
+                              Text("${value.occupation}"),
+                            );
+                          }).toList(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+                children: [
+                  buildTitle("Marital Status"),
+                  Container(
+                    padding:
+                    EdgeInsets.symmetric(horizontal: 5),
+                    margin: EdgeInsets.all(12),
+                    decoration: AppTheme.ConDecoration(),
+                    child: DropdownButton<String>(
+                      borderRadius:
+                      BorderRadius.circular(12),
+                      isExpanded: true,
+                      value: _selectMaritalStatus,
+                      hint: Text('Please Select'),
+                      underline: Column(),
+                      icon: const Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Colors.black),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectMaritalStatus = newValue;
+                        });
+                        if (newValue != null) {
+                          int index = maritalStatusList
+                              .indexOf(newValue);
+                          if (index != -1 &&
+                              index <
+                                  maritalStatusKeys
+                                      .length) {
+                            selectedMaritalKey =
+                            maritalStatusKeys[index];
+                            print(
+                                "Selected key: $selectedMaritalKey");
+                          }
+                        }
+                      },
+                      items: maritalStatusList
+                          .map<DropdownMenuItem<String>>(
+                              (String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        _gap(),
+        if (_selectMaritalStatus != "Never Married")
+          buildTitle("Have Children"),
+        if (_selectMaritalStatus != "Never Married")
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              Expanded(
+                flex: 1,
+                child: ListTile(
+                  title: Text('Yes',
+                      style: AppTheme.profileDetail()),
+                  leading: Radio<String>(
+                    fillColor:
+                    MaterialStateColor.resolveWith(
+                            (states) => Color(0XFFB63728)),
+                    value: "Yes",
+                    groupValue: _selectedChildren,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedChildren =
+                            value.toString();
+                        print(
+                            "_selectedPhoto~~${_selectedChildren}");
+                      });
+                    },
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: ListTile(
+                  title: Text('No',
+                      style: AppTheme.profileDetail()),
+                  leading: Radio<String>(
+                    fillColor:
+                    MaterialStateColor.resolveWith(
+                            (states) => Color(0XFFB63728)),
+                    value: "No",
+                    groupValue: _selectedChildren,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedChildren =
+                            value.toString();
+                        print(
+                            "_selectedPhoto~~${_selectedChildren}");
+                      });
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+        if (_selectedChildren == "Yes" && _selectMaritalStatus != "Never Married")
+          buildTitle("No Of Children"),
+        if (_selectedChildren == "Yes" && _selectMaritalStatus != "Never Married")
+          buildTextField(
+              noOfChildrenController, 'No Of Children'),
+      ],
     );
   }
 
   Widget buildTitle(String title) {
     return Padding(
       padding: EdgeInsets.only(
-        left: 18,
+        left: 17,
       ),
       child: Text(title, style: AppTheme.nextBold()),
     );
@@ -1596,3 +2549,5 @@ class _MyProfileEditPageState extends State<ProfileEditScreen> {
 
   Widget _drivire() => Divider();
 }
+
+

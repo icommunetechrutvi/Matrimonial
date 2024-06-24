@@ -273,16 +273,32 @@ class _MyImageEditPageState extends State<ImageEditScreen> {
 
     return Scaffold(
       key: _scaffoldKey,
-      appBar: CommonAppBar(
-        text: "Edit Photos",
-        scaffoldKey: _scaffoldKey,
-        key: Key("cv"),
+      appBar:AppBar(
+        backgroundColor: AppColor.white,
+        title: Text(
+          "Edit Photo",
+          style: TextStyle(
+            fontSize: 16,
+            color: AppColor.black,
+            fontWeight: FontWeight.bold,
+            fontFamily: FontName.poppinsRegular,
+          ),
+        ),
+        leading:IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Image(
+              image: AssetImage("assets/icon/back_app_bar.png"),
+              height: screenHeight * 0.02),
+        ),
       ),
       drawer: SideDrawer(),
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Image.asset("assets/images/bg_pink.jpg", fit: BoxFit.fill),
+          Container(color: AppColor.mainAppColor,),
+          // Image.asset("assets/images/bg_pink.jpg", fit: BoxFit.fill),
           SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -297,6 +313,7 @@ class _MyImageEditPageState extends State<ImageEditScreen> {
                         // color: Colors.white,
                         // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
                         child: Container(
+                          color: AppColor.white,
                           padding: EdgeInsets.only(
                               top: 35, left: 12, right: 12, bottom: 12),
                           child:images[i] != null
@@ -312,8 +329,7 @@ class _MyImageEditPageState extends State<ImageEditScreen> {
                                           ? Image.asset(
                                               "assets/profile_image/girl.png")
                                           : Image.network(
-                                              // width: 200,
-                                              // height: 280,
+                                        width: screenWidth*1,
                                               "https://matrimonial.icommunetech.com/public/icommunetech/profiles/images/${profileImages[i].imageName}",
                                               fit: BoxFit.fill,
                                             ),
@@ -353,10 +369,10 @@ class _MyImageEditPageState extends State<ImageEditScreen> {
                           padding: EdgeInsets.all(15),
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(40),
-                              color: AppColor.buttonColor),
+                              color: AppColor.white),
                           child: Icon(
                             Icons.edit_outlined,
-                            color: Colors.green,
+                            color: AppColor.mainText,
                           ),
                         ),
                       ),

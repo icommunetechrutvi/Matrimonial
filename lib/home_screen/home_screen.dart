@@ -29,9 +29,9 @@ class _HomeScreenNewState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   final imageList = [
-    // 'assets/card_image/A.jpg',
-    // 'assets/card_image/B.jpg',
-    // 'assets/card_image/C.jpg',
+    'assets/card_image/A.jpg',
+    'assets/card_image/B.jpg',
+    'assets/card_image/C.jpg',
   ];
   List<LatestData> alGetMatchList = [];
   bool _isLoading = false;
@@ -48,12 +48,7 @@ class _HomeScreenNewState extends State<HomeScreen> {
     "44","45",
     "46","47",
     "48","49",
-    "50","51",
-    "52","53",
-    "54","55",
-    "56","57",
-    "58","59",
-    "60","61"
+    "50"
   ];
 
   String? _selectMaritalStatus;
@@ -100,18 +95,18 @@ class _HomeScreenNewState extends State<HomeScreen> {
                   height: 240,
                   decoration:
                   BoxDecoration(borderRadius: BorderRadius.circular(50)),
-                  // child: Swiper(
-                  //   index: 1,
-                  //   scrollDirection: Axis.horizontal,
-                  //   itemCount: imageList.length,
-                  //   autoplay: true,
-                  //   itemBuilder: (context, index) {
-                  //     return Image.asset(
-                  //       imageList[index],
-                  //       fit: BoxFit.cover,
-                  //     );
-                  //   },
-                  // ),
+                  child: Swiper(
+                    index: 1,
+                    scrollDirection: Axis.horizontal,
+                    itemCount: imageList.length,
+                    autoplay: true,
+                    itemBuilder: (context, index) {
+                      return Image.asset(
+                        imageList[index],
+                        fit: BoxFit.cover,
+                      );
+                    },
+                  ),
                 ),
                 SizedBox(height: 5),
                 Padding(
@@ -239,7 +234,7 @@ class _HomeScreenNewState extends State<HomeScreen> {
                                 borderRadius: BorderRadius.circular(12),
                                 isExpanded: true,
                                 value: _selectedAge,
-                                hint: Text('22'),
+                                hint: Text('18'),
                                 underline: Column(),
                                 icon: const Icon(Icons.keyboard_arrow_down,
                                     color: Colors.black),
@@ -273,7 +268,7 @@ class _HomeScreenNewState extends State<HomeScreen> {
                                   borderRadius: BorderRadius.circular(12),
                                   isExpanded: true,
                                   value: _selectedAgeS,
-                                  hint: Text('30'),
+                                  hint: Text('24'),
                                   underline: Column(),
                                   icon: const Icon(Icons.keyboard_arrow_down,
                                       color: Colors.black),
@@ -307,7 +302,7 @@ class _HomeScreenNewState extends State<HomeScreen> {
                                         selectedGender: genderKey.toString()??1,
                                         selectedMaritalStatus: selectedMaritalKey??0,
                                         selectedAge: _selectedAge??18,
-                                        selectedAgeS: _selectedAgeS??25,
+                                        selectedAgeS: _selectedAgeS??24,
                                       ),
                                     ),
                                   );
@@ -448,7 +443,7 @@ class _HomeScreenNewState extends State<HomeScreen> {
                                             ),
                                           ),
                                           AutoSizeText(
-                                            "${alGetMatchList[index].age} Yrs,"+"${heightValue ??0}",
+                                            "${alGetMatchList[index].age} Yrs, "+"${heightValue ??0}",
                                             // "21 Yrs, 5ft 11 in",
                                             style: TextStyle(
                                               fontSize: 12,
@@ -567,7 +562,7 @@ class _HomeScreenNewState extends State<HomeScreen> {
     final userToken = prefs.getString(PrefKeys.ACCESSTOKEN) ?? "null";
     final userType = prefs.getString(PrefKeys.KEYGENDER)!;
     final int gender;
-    if (userType == "2") {
+    if (userType == "1") {
       gender = 1;
       profileImg = "https://rishtaforyou.com/storage/profiles/default1.png";
     } else {
@@ -644,7 +639,7 @@ class _HomeScreenNewState extends State<HomeScreen> {
 
     var jsonData = json.encode({
       'gender': '${genderKey ?? "0"}',
-      'marital_status[]':
+      'marital_status':
       '${maritalStatusKeys.isEmpty ? "" : maritalStatusKeys}',
       'start_age': '${_selectedAge!.isEmpty ? "" : _selectedAge}',
       'end_age': '${_selectedAgeS!.isEmpty ? "" : _selectedAgeS}',

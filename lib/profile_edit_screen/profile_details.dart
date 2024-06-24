@@ -90,18 +90,20 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
   late int selectedComplexionTypeIndex = 1;
 
   bool isLiked = false;
-  Color iconColor = Colors.white;
   bool isBlock = false;
-  Color blockColor = Colors.white;
 
   late var contact = "";
   bool isApiCallInProgress = false;
   bool isExpanded = false;
-  late var connection = "";
-  late var loginId;
+  late var loginId ="";
   var profileImg ="";
   bool genderMatch =false;
   var rishtaId;
+
+  var shortListColor=AppColor.profileEditTabText;
+  var connectionListColor=AppColor.profileEditTabText;
+  var contactListColor=AppColor.profileEditTabText;
+  var blockListColor=AppColor.profileEditTabText;
 
 
 
@@ -297,14 +299,16 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
         selectedBodyTypeIndex = alGetProfileDetail[0].data!.bodyType ?? 1;
         final wishList = alGetProfileDetail[0].data!.favorite!;
         isLiked = wishList == "yes";
-        iconColor = isLiked ? AppColor.red : AppColor.buttonColor;
+        shortListColor = isLiked ? AppColor.mainText : AppColor.profileEditTabText;
 
         final blockList = alGetProfileDetail[0].data!.block!;
         isBlock = blockList == "yes";
-        blockColor = isBlock ? AppColor.red : AppColor.buttonColor;
+        blockListColor = isBlock ? AppColor.mainText : AppColor.profileEditTabText;
 
         contact = alGetProfileDetail[0].data!.viewContact!;
-        connection = alGetProfileDetail[0].data!.connectionSent!;
+        contactListColor=contact=="yes"?AppColor.mainText : AppColor.profileEditTabText;
+        var con = alGetProfileDetail[0].data!.connectionSent!;
+        connectionListColor= con=="yes"? AppColor.mainText : AppColor.profileEditTabText;
         _isLoading = false;
 
         for (var pro in alGetProfileDetail[0].data?.profileImages ?? []) {
@@ -341,14 +345,26 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
       print('Response status: ${response.statusCode}');
       if (response.statusCode == 200) {
         final userMap = json.decode(response.body);
-
+        // String message = userMap["message"] ??
+        //     "null";
         print("response~~~~^^^^${userMap}");
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        responseDialog("is successfully Added to Shortlisted.","Short List",context);
+       /* ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
               "${alGetProfileDetail[0].data!.firstName} is successfully Added to Shortlisted"),
           backgroundColor: AppColor.lightGreen,
+        ));*/
+      } else if (response.statusCode == 500) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: const Text("Token is Expire!! Please Login Again"),
+          backgroundColor: AppColor.red,
         ));
-      } else {
+        Navigator.push(context, MaterialPageRoute(
+          builder: (context) {
+            return LoginScreen();
+          },
+        ));
+      }  else {
         setState(() {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text("${response}"),
@@ -393,12 +409,23 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
         final userMap = json.decode(response.body);
 
         print("response~~~~^^^^${userMap}");
+        responseDialog("is successfully Remove from Favorite Shortlisted.","Short List",context);
+        // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        //   content: Text(
+        //       "${alGetProfileDetail[0].data!.firstName} is successfully Remove from Favorite Shortlisted"),
+        //   backgroundColor: AppColor.snackBarColor,
+        // ));
+      } else if (response.statusCode == 500) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-              "${alGetProfileDetail[0].data!.firstName} is successfully Remove from Favorite Shortlisted"),
-          backgroundColor: AppColor.snackBarColor,
+          content: const Text("Token is Expire!! Please Login Again"),
+          backgroundColor: AppColor.red,
         ));
-      } else {
+        Navigator.push(context, MaterialPageRoute(
+          builder: (context) {
+            return LoginScreen();
+          },
+        ));
+      }  else {
         setState(() {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text("${response}"),
@@ -441,6 +468,8 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
         final userMap = json.decode(response.body);
 
         print("response~~~~^^^^${userMap}");
+        responseDialog("is successfully Member has been blocked.","Block",context);
+
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
               "${alGetProfileDetail[0].data!.firstName} is successfully Member has been blocked."),
@@ -488,6 +517,7 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
         final userMap = json.decode(response.body);
 
         print("response~~~~^^^^${userMap}");
+        responseDialog("is successfully Member has been unblocked.","Block",context);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
               "${alGetProfileDetail[0].data!.firstName}is successfully Member has been unblocked."),
@@ -535,11 +565,12 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
         final userMap = json.decode(response.body);
 
         print("response~~~~^^^^${userMap}");
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        responseDialog("is successfully Added to Contact.","Contact",context);
+      /*  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
               "${alGetProfileDetail[0].data!.firstName} is successfully Added to Contact"),
           backgroundColor: AppColor.lightGreen,
-        ));
+        ));*/
         setState(() {
           isApiCallInProgress = true;
         });
@@ -555,9 +586,11 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
         ));
       } else {
         setState(() {
+          contactDialog(context);
+          // responseDialog("View contact already exists for this profile.","Contact",context);
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(
-                "${alGetProfileDetail[0].data!.firstName} View contact already exists for this profile"),
+                "${alGetProfileDetail[0].data!.firstName} View contact already exists for this profile."),
             backgroundColor: Colors.red,
           ));
         });
@@ -595,8 +628,9 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
       print('Response status: ${response.statusCode}');
       if (response.statusCode == 200) {
         final userMap = json.decode(response.body);
-
+        responseDialog("Connection request sent Successfully.","Connection Request",context);
         print("response~~~~^^^^${userMap}");
+        connectionListColor=AppColor.mainText;
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: const Text("Connection request sent Successfully"),
           backgroundColor: AppColor.lightGreen,
@@ -605,6 +639,7 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
           isApiCallInProgress = true;
         });
       } else if (response.statusCode == 400) {
+        responseDialog("Connection request already Send.","Connection Request",context);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content:
               const Text("Connection request already Send for this profile"),
@@ -670,15 +705,21 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
             ),
             IconButton(
               onPressed: () {
-                Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => ImageEditScreen()),
-                        (route) => false);
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return ImageEditScreen();
+              },));
               },
               icon: Icon(Icons.photo_camera_rounded, color: AppColor.mainText),
             )
-          ],):Container()
+          ],):Container(
+            padding: EdgeInsets.only(right: 8.0),
+          child:  Center(
+            child: Text(
+              textAlign: TextAlign.center,
+                "Matrimonial Id: ${rishtaId ?? 0}",
+                style: AppTheme.matriId()),
+          ),
+          )
         ],
         backgroundColor: AppColor.white,
         title: Text(
@@ -728,9 +769,7 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
                     horizontal: 13, vertical: 12),
                 // padding: EdgeInsets.only(right: 10, left: 10),
                 child: Swiper(
-                  // viewportFraction: 1,
-                  pagination:
-                  SwiperPagination(margin: EdgeInsets.all(1)),
+                  pagination: SwiperPagination(margin: EdgeInsets.all(1)),
                   index: 1,
                   curve: Curves.decelerate,
                   // scale: 0.9,
@@ -739,14 +778,12 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
                   autoplay: true,
                   itemBuilder: (context, index) {
                     return Container(
-                      child: profileImages[index].imageName !=
-                          null
-                          ?
+                      child: profileImages[index].imageName !=null ?
                       FutureBuilder<bool>(
                         future: checkImageExists("${Webservices.imageUrl}${profileImages[index].imageName}"),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState == ConnectionState.waiting) {
-                            return Center(
+                            return const Center(
                               child: CircularProgressIndicator(),
                             );
                           } else if (snapshot.hasError || !snapshot.data!) {
@@ -824,22 +861,22 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
                     ),
                     Row(
                       children: [
-                        cleanedProfileId != cleanedLoginId || genderMatch==true
+                        cleanedProfileId == cleanedLoginId || genderMatch==true
                             ? Container(): Container(
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(50,),color: AppColor.mainText),
+                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(50,),color:shortListColor),
                           child: IconButton(
-                            color: AppColor.white,
                           onPressed: () {
                               setState(() {
-                                if (isLiked) {
-                                  postFavoriteRemoveApi();
-                                } else {
-                                  postFavoriteAddApi();
-                                }
-                                isLiked = !isLiked;
+                                dialogs("Add Shortlist","1");
+                                // if (isLiked) {
+                                //   postFavoriteRemoveApi();
+                                // } else {
+                                //   postFavoriteAddApi();
+                                // }
+                                // isLiked = !isLiked;
                               });
                           },
-                          icon: Icon(Icons.favorite,
+                          icon: Icon(Icons.favorite,color:AppColor.white,
                           ),
                         ),
                             ),
@@ -848,18 +885,15 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
                         /* connection == "yes"*/  cleanedProfileId == cleanedLoginId || genderMatch==true
                             ? Container()
                             : Container(
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(50,),color: AppColor.mainText),
+                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(50,),color: connectionListColor),
                           child: IconButton(
-                            color: AppColor.white,
                             onPressed: () {
                               setState(() {
-                                postAddConnectionApi();
-                                // connectionDialog();
                                 // postAddConnectionApi();
+                                dialogs("Add Connection Request","2");
                               });
                             },
-                            icon: Icon(Icons.person_add_alt_outlined,), /*Image.asset("assets/icon/profile_contact.png",
-                                ),*/
+                            icon: Icon(Icons.person_add_alt_outlined,  color: AppColor.white,),
                           ),
                         )
                         ,
@@ -867,39 +901,41 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
                         /*  contact == "yes" ||*/ cleanedProfileId == cleanedLoginId || genderMatch==true
                             ? Container()
                             : Container(
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(50,),color: AppColor.mainText),
+                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(50,),color: contactListColor),
                           child: IconButton(
-                              color: AppColor.white,
                               onPressed: () {
                                 setState(() {
                                   setState(() {
-                                    postAddContactsApi();
-                                    // contactDialogs();
-                                    // postAddContactsApi(context);
+                                    if(contact=="no") {
+                                      dialogs("View Contact", "3");
+                                    }else{
+                                      contactDialog(context);
+                                    }
+
+                                    // postAddContactsApi();
                                   });
                                 });
                               },
-                              icon: Icon(Icons.wifi_calling_3_sharp,)),
+                              icon: Icon(Icons.wifi_calling_3_sharp,  color: AppColor.white,)),
                         ),
                         SizedBox(width: 5,),
                         cleanedProfileId == cleanedLoginId|| genderMatch==true?Container():  Container(
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(50,),color: AppColor.mainText),
+                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(50,),color: blockListColor),
                           child: IconButton(
-                            color: AppColor.white,
                             onPressed: () {
                               setState(() {
-                                if (isBlock) {
-                                  postBlockRemoveApi();
-                                } else {
-                                  postBlockAddApi();
-                                }
-                                isBlock = !isBlock;
-                                blockColor =
-                                isBlock ? AppColor.red : AppColor.buttonColor;
-                                // alterDialog();
+                                dialogs("Add Block","4");
+                                // if (isBlock) {
+                                //   postBlockRemoveApi();
+                                // } else {
+                                //   postBlockAddApi();
+                                // }
+                                // isBlock = !isBlock;
+                                // blockColor =
+                                // isBlock ? AppColor.red : AppColor.buttonColor;
                               });
                             },
-                            icon: Icon(Icons.flag,),),
+                            icon: Icon(Icons.block,  color: AppColor.white,),),
                         )
                         // icon: cleanedProfileId == cleanedLoginId?Container(): Image(
                         //     image: AssetImage(
@@ -908,16 +944,6 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
                     ),
                   ],
                 ),
-              ),
-
-              SizedBox(
-                height: 5,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: Text(
-                    "Matrimonial Id: ${rishtaId ?? 0}",
-                    style: AppTheme.matriId()),
               ),
               SizedBox(
                 height: 2,
@@ -1501,766 +1527,6 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
 
 
 
-
-
-
-
-
-
-
-
-  /* @override
-  Widget build(BuildContext context) {
-    double screenHeight = MediaQuery.of(context).size.height;
-    double screenWidth = MediaQuery.of(context).size.width;
-    bool isPortrait = screenHeight > screenWidth;
-
-    String cleanedLoginId = loginId;
-    String cleanedProfileId = widget.profileId.toString();
-
-    return Scaffold(
-      key: _scaffoldKey,
-      // backgroundColor: Color.fromARGB(255, 255, 241, 241),
-      appBar: AppBar(
-        toolbarHeight: MediaQuery.of(context).size.height / 16,
-        backgroundColor: Color.fromARGB(255, 248, 205, 206),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(25),
-          ),
-        ),
-        elevation: 5,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-        ),
-        title: Text(
-          "Profile Details",
-          style: TextStyle(
-              color: Colors.black, fontSize: 19, fontWeight: FontWeight.w900),
-        ),
-        actions: [
-          cleanedProfileId != cleanedLoginId
-              ? IconButton(
-                  onPressed: () {
-                    setState(() {
-                      if (isLiked) {
-                        postFavoriteRemoveApi();
-                      } else {
-                        postFavoriteAddApi();
-                      }
-                      isLiked = !isLiked;
-                      iconColor = isLiked ? AppColor.red : AppColor.buttonColor;
-                    });
-                  },
-                  icon: Icon(Icons.favorite, color: iconColor
-                      // color: isLiked ? AppColor.red : AppColor.buttonColor,
-                      ),
-                )
-              : Container(),
-          contact == "yes" || cleanedProfileId == cleanedLoginId
-              ? Container()
-              : !isApiCallInProgress
-                  ? Padding(
-                      padding: const EdgeInsets.all(0),
-                      child: IconButton(
-                          onPressed: () {
-                            setState(() {
-                              if (!isApiCallInProgress) {
-                                setState(() {
-                                  postAddContactsApi();
-                                  // isApiCallInProgress = true;
-                                });
-                              }
-                            });
-                          },
-                          icon: Icon(
-                            Icons.contact_page,
-                            color: AppColor.buttonColor,
-                            // color: contactList ? AppColor.darkGreen : AppColor.buttonColor,
-                          )),
-                    )
-                  : Container(),
-          cleanedProfileId != cleanedLoginId
-              ? IconButton(
-                  onPressed: () {
-                    setState(() {
-                      if (isBlock) {
-                        postBlockRemoveApi();
-                      } else {
-                        postBlockAddApi();
-                      }
-                      isBlock = !isBlock;
-                      blockColor =
-                          isBlock ? AppColor.red : AppColor.buttonColor;
-                    });
-                  },
-                  icon: Icon(
-                    Icons.block,
-                    color: blockColor,
-                  ))
-              : Container(),
-          connection == "yes" || cleanedProfileId == cleanedLoginId
-              ? Container()
-              : IconButton(
-                  onPressed: () {
-                    setState(() {
-                      postAddConnectionApi();
-                      // isBlock = !isBlock;
-                      // blockColor = isBlock ? AppColor.red : AppColor.buttonColor;
-                    });
-                  },
-                  icon: Icon(
-                    Icons.send_sharp,
-                    color: AppColor.buttonColor,
-                  ))
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          // contact="yes";
-          await Future.delayed(Duration(seconds: 2));
-        },
-        child: Container(
-          color: AppColor.mainAppColor,
-        *//*  decoration: BoxDecoration(
-            image: DecorationImage(
-                image: AssetImage(
-                  "assets/images/bg_pink.jpg",
-                ),
-                fit: BoxFit.cover),
-          ),*//*
-          child: _isLoading
-              ? Center(
-                  child: CircularProgressIndicator(
-                    color: AppColor.white,
-                    // backgroundColor: AppColor.pink,
-                  ),
-                )
-              : SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        height: 7,
-                      ),
-                      profileImages.isEmpty
-                          ? Container()
-                          : Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 13, vertical: 12),
-                              // padding: EdgeInsets.only(right: 10, left: 10),
-                              height: 650,
-                              child: Swiper(
-                                // viewportFraction: 1,
-                                pagination:
-                                    SwiperPagination(margin: EdgeInsets.all(1)),
-                                index: 1,
-                                curve: Curves.decelerate,
-                                // scale: 0.9,
-                                scrollDirection: Axis.horizontal,
-                                itemCount: profileImages.length,
-                                autoplay: true,
-                                itemBuilder: (context, index) {
-                                  return Container(
-                                    decoration: const BoxDecoration(
-                                      // color: Colors.deepOrange,
-                                      shape: BoxShape.rectangle,
-                                      color: Colors.grey,
-                                      // image: DecorationImage(
-                                      //   fit: BoxFit.cover,
-                                      //     image: NetworkImage(
-                                      //   "https://matrimonial.icommunetech.com/public/icommunetech/profiles/images/" +
-                                      //       "${profileImages[index].imageName}",
-                                      // ),
-                                      // ),
-                                    ),
-                                    child: profileImages[index].imageName !=
-                                            null
-                                        ? Image.network(
-                                            "https://matrimonial.icommunetech.com/public/icommunetech/profiles/images/${profileImages[index].imageName}",
-                                            fit: BoxFit.cover,
-                                            height: double.infinity,
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                              return Center(
-                                                child: Text('Image Error'),
-                                              );
-                                            },
-                                          )
-                                        : Center(
-                                            child: Text('Image URL not found'),
-                                          ),
-
-                                    *//*  child: Image.network(
-                                      "https://matrimonial.icommunetech.com/public/icommunetech/profiles/images/${profileImages[index].imageName}",
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) {
-                                        return Text('Error loading image');
-                                      },
-                                    ),*//*
-                                  );
-                                },
-                              ),
-                            ),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      Text(
-                          "${alGetProfileDetail[0].data?.firstName}" +
-                              " ${alGetProfileDetail[0].data?.lastName}",
-                          style: AppTheme.nameText()),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Text(
-                          "Matrimonial Id:( ${alGetProfileDetail[0].data?.profileID} )",
-                          style: AppTheme.matriId()),
-                      SizedBox(
-                        height: 2,
-                      ),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: alGetProfileDetail.length,
-                        itemBuilder: (context, index) {
-                          var profile = alGetProfileDetail[index];
-                          return Container(
-                            padding: EdgeInsets.all(5),
-                            margin: EdgeInsets.all(3),
-                            child: Card(
-                              color: Color.fromARGB(255, 245, 245, 245),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15),
-                                side: BorderSide(
-                                  width: 3,
-                                  color: Colors.transparent,
-                                ),
-                              ),
-                              elevation: 4,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(
-                                    height: 8,
-                                  ),
-                                  Text(
-                                    "    Basic Detail",
-                                    style: AppTheme.profileText(),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(15.0),
-                                    child: Divider(
-                                      height: 0,
-                                      thickness: 0,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  _buildProfileDetailRow(
-                                      'Name',
-                                      "${profile.data!.firstName}" +
-                                          " ${profile.data!.lastName}"),
-                                  _buildProfileDetailRow(
-                                      'Age', "${profile.data!.age}" + " Yrs"),
-                                  _buildProfileDetailRow(
-                                      'Height', "${_selectedHeight}" + " "),
-                                  _buildProfileDetailRow('Weight',
-                                      "${profile.data!.weight}" + " Kgs"),
-                                  _buildProfileDetailRow(
-                                      'Gender', "${_selectedGender}" + " "),
-                                  _buildProfileDetailRow('Body Type',
-                                      "${selectedBodyTypeIndex != -1 ? bodyTypeList[selectedBodyTypeIndex] : null}"),
-                                  _buildProfileDetailRow('Complexion',
-                                      "${selectedComplexionTypeIndex != -1 ? complexionList[selectedComplexionTypeIndex] : null}"),
-                                  _buildProfileDetailRow(
-                                      'Diet', "${_selectedDiet}"),
-                                  _buildProfileDetailRow(
-                                      'Blood Group', "$_selectedBlood"),
-                                  _buildProfileDetailRow(
-                                      'Marital Status', "${_selectedMarital}"),
-                                  if (_selectedMarital != "Never Married")
-                                    _buildProfileDetailRow('Have Children',
-                                        "${profile.data!.havechildren}"),
-                                  if (profile.data!.havechildren != "No")
-                                    _buildProfileDetailRow('No Of Children',
-                                        "${profile.data!.noOfChildren}"),
-                                  SizedBox(
-                                    height: 8,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-
-                      *//* Contact Details.....*//*
-                      // if(isApiCallInProgress)
-                      // if(contact == "yes")
-
-                      *//* contact == "yes"? Container(
-                          height: MediaQuery.of(context).size.height * 0.18,
-                          child:  ListView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: alGetProfileDetail.length,
-                            itemBuilder: (context, index) {
-                              var profile = alGetProfileDetail[index];
-                              return Container(
-                                padding: EdgeInsets.all(5),
-                                margin: EdgeInsets.all(3),
-                                child: Card(
-                                  color: Color.fromARGB(255, 245, 245, 245),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                    side: BorderSide(
-                                      width: 3,
-                                      color: Colors.transparent,
-                                    ),
-                                  ),
-                                  elevation: 4,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      SizedBox(
-                                        height: 8,
-                                      ),
-                                      Text(
-                                        "   Contact Detail",
-                                        style: AppTheme.profileText(),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(15.0),
-                                        child: Divider(
-                                          height: 0,
-                                          thickness: 0,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                      _buildProfileDetailRow(
-                                        'Mobile No',
-                                        "${profile.data!.mobileNo}",
-                                      ),
-                                      _buildProfileDetailRow(
-                                        'Alt Phone',
-                                        "${profile.data!.altPhone}",
-                                      ),
-                                      SizedBox(
-                                        height: 8,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ):Container(),*//*
-
-                      contact == "no"
-                          ? Container()
-                          : ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: alGetProfileDetail.length,
-                              itemBuilder: (context, index) {
-                                var profile = alGetProfileDetail[index];
-                                return Container(
-                                  padding: EdgeInsets.all(5),
-                                  margin: EdgeInsets.all(3),
-                                  child: Card(
-                                    color: Color.fromARGB(255, 245, 245, 245),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(15),
-                                      side: BorderSide(
-                                        width: 3,
-                                        color: Colors.transparent,
-                                      ),
-                                    ),
-                                    elevation: 4,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        SizedBox(
-                                          height: 8,
-                                        ),
-                                        Text(
-                                          "   Contact Detail",
-                                          style: AppTheme.profileText(),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(15.0),
-                                          child: Divider(
-                                            height: 0,
-                                            thickness: 0,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        _buildProfileDetailRow(
-                                          'Mobile No',
-                                          "${profile.data!.mobileNo}",
-                                        ),
-                                        _buildProfileDetailRow(
-                                          'Alt Phone',
-                                          "${profile.data!.altPhone}",
-                                        ),
-                                        SizedBox(
-                                          height: 8,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: alGetProfileDetail.length,
-                        itemBuilder: (context, index) {
-                          var profile = alGetProfileDetail[index];
-                          return Container(
-                            padding: EdgeInsets.all(5),
-                            margin: EdgeInsets.all(3),
-                            child: Card(
-                              color: Color.fromARGB(255, 245, 245, 245),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15),
-                                side: BorderSide(
-                                  width: 3,
-                                  color: Colors.transparent,
-                                ),
-                              ),
-                              elevation: 4,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(
-                                    height: 8,
-                                  ),
-                                  Text(
-                                    "   Location Detail",
-                                    style: AppTheme.profileText(),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(15.0),
-                                    child: Divider(
-                                      height: 0,
-                                      thickness: 0,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  _buildProfileDetailRow(
-                                    'Address',
-                                    "${profile.data!.address1}",
-                                  ),
-                                  _buildProfileDetailRow(
-                                    'City',
-                                    "${profile.data!.city}",
-                                  ),
-                                  _buildProfileDetailRow(
-                                      'State', "${profile.data!.state}"),
-                                  _buildProfileDetailRow('Country',
-                                      "${profile.data!.countryId?.countryName}"),
-                                  SizedBox(
-                                    height: 8,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: alGetProfileDetail.length,
-                        itemBuilder: (context, index) {
-                          var profile = alGetProfileDetail[index];
-                          return Container(
-                            padding: EdgeInsets.all(5),
-                            margin: EdgeInsets.all(3),
-                            child: Card(
-                              color: Color.fromARGB(255, 245, 245, 245),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15),
-                                side: BorderSide(
-                                  width: 3,
-                                  color: Colors.transparent,
-                                ),
-                              ),
-                              elevation: 4,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(
-                                    height: 8,
-                                  ),
-                                  Text(
-                                    "    Religion Detail",
-                                    style: AppTheme.profileText(),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(15.0),
-                                    child: Divider(
-                                      height: 0,
-                                      thickness: 0,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  _buildProfileDetailRow(
-                                      'Religion', "${_selectedReligion}"),
-                                  _buildProfileDetailRow(
-                                    'Cast / Sub Caste',
-                                    "${profile.data!.subcaste}",
-                                  ),
-                                  SizedBox(
-                                    height: 8,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: alGetProfileDetail.length,
-                        itemBuilder: (context, index) {
-                          var profile = alGetProfileDetail[index];
-                          return Container(
-                            padding: EdgeInsets.all(5),
-                            margin: EdgeInsets.all(3),
-                            child: Card(
-                              color: Color.fromARGB(255, 245, 245, 245),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15),
-                                side: BorderSide(
-                                  width: 3,
-                                  color: Colors.transparent,
-                                ),
-                              ),
-                              elevation: 4,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(
-                                    height: 8,
-                                  ),
-                                  Text(
-                                    "    Professional Detail",
-                                    style: AppTheme.profileText(),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(15.0),
-                                    child: Divider(
-                                      height: 0,
-                                      thickness: 0,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  _buildProfileDetailRow(
-                                      'Education',
-                                      "${profile.data!.educationId?.education}" +
-                                          " "),
-                                  _buildProfileDetailRow(
-                                      'Profession',
-                                      "${profile.data!.professionId?.occupation}" +
-                                          " "),
-                                  _buildProfileDetailRow(
-                                      'Annual Income',
-                                      "Rs ${profile.data!.incomeFrom}" +
-                                          " to ${profile.data!.incomeTo} "),
-                                  SizedBox(
-                                    height: 8,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: alGetProfileDetail.length,
-                        itemBuilder: (context, index) {
-                          var profile = alGetProfileDetail[index];
-                          return Container(
-                            padding: EdgeInsets.all(5),
-                            margin: EdgeInsets.all(3),
-                            child: Card(
-                              color: Color.fromARGB(255, 245, 245, 245),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15),
-                                side: BorderSide(
-                                  width: 3,
-                                  color: Colors.transparent,
-                                ),
-                              ),
-                              elevation: 4,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(
-                                    height: 8,
-                                  ),
-                                  Text(
-                                    "    Family Detail",
-                                    style: AppTheme.profileText(),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(15.0),
-                                    child: Divider(
-                                      height: 0,
-                                      thickness: 0,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  _buildProfileDetailRow('Contact Person',
-                                      "${profile.data!.contactPerson}"),
-                                  _buildProfileDetailRow(
-                                      'Fathers status', "${_selectedFather}"),
-                                  _buildProfileDetailRow(
-                                      'Mothers status', "${_selectedMother}"),
-                                  _buildProfileDetailRow('Convenient time',
-                                      "${profile.data!.convenientTime}"),
-                                  _buildProfileDetailRow('No of Brothers',
-                                      "${profile.data!.noOfBrothers}"),
-                                  _buildProfileDetailRow(
-                                    'No of Sisters',
-                                    "${profile.data!.noOfSisters}",
-                                  ),
-                                  _buildProfileDetailRow('Native place',
-                                      "${profile.data!.nativePlace}"),
-                                  _buildProfileDetailRow('About my Family',
-                                      "${profile.data!.aboutMyFamily}"),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      SizedBox(height: 1),
-
-                      cleanedProfileId != cleanedLoginId?Container():
-                      Container(
-                        padding: EdgeInsets.all(5),
-                        margin: EdgeInsets.all(3),
-                        child: Card(
-                          color: Color.fromARGB(255, 245, 245, 245),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            side: BorderSide(
-                              width: 3,
-                              color: Colors.transparent,
-                            ),
-                          ),
-                          elevation: 4,
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  height: 18,
-                                ),
-                                Text('Current Plan',
-                                    style: TextStyle(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.w800)),
-                                SizedBox(
-                                  height: 18,
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Plan Name",
-                                          style: AppTheme.profileText(),
-                                        ),
-                                        Text("Silver",
-                                            style: TextStyle(
-                                                color: Colors.grey,
-                                                fontSize: 18)),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      width: 75,
-                                    ),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Validity",
-                                          style: AppTheme.profileText(),
-                                        ),
-                                        const Text("365 Days",
-                                            style: TextStyle(
-                                                color: Colors.grey,
-                                                fontSize: 18)),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 50,
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Valid Till",
-                                      style: AppTheme.profileText(),
-                                    ),
-                                    const Text("4 February, 2025",
-                                        style: TextStyle(
-                                            color: Colors.grey, fontSize: 18)),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 50,
-                                ),
-                                Center(
-                                  child: ElevatedButton(
-                                    onPressed: () {},
-                                    child: Container(
-                                      padding: const EdgeInsets.only(left: 50.0,right: 50,top: 15,bottom: 12),
-                                      child: Text("Upgrade"),
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(5),
-                                      ),
-                                      backgroundColor:
-                                          Color.fromARGB(255, 126, 143, 130),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 19,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-        ),
-      ),
-    );
-  }*/
-
   Widget _buildProfileDetailRow(
     String label,
     String value,
@@ -2292,6 +1558,297 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
             child: Text(
               value,
               style: AppTheme.profileDetail(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void dialogs(String textName,String apiClick){
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text("Do you want to\n${textName} ?",maxLines: 3,style:
+                    TextStyle(fontSize: 22,fontWeight: FontWeight.w600,color: AppColor.black,fontFamily: FontName.poppinsRegular),),
+                  ),
+                  IconButton(onPressed: () {Navigator.pop(context);  }, icon: Icon(Icons.close,color: AppColor.grey),),
+                ],
+              ),
+            ],
+          ),
+          // content: ,
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Container(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if(apiClick=="1"){
+                        setState(() {
+                          if (isLiked) {
+                            postFavoriteRemoveApi();
+                            shortListColor=AppColor.profileEditTabText;
+                          } else {
+                            postFavoriteAddApi();
+                            shortListColor=AppColor.mainText;
+                          }
+                          isLiked = !isLiked;
+                        });
+                      }else if(apiClick=="2"){
+                        setState(() {
+                          postAddConnectionApi();
+                          connectionListColor=AppColor.mainText;
+                        });
+                      }
+                      else if(apiClick=="3"){
+                        setState(() {
+                          postAddContactsApi();
+                          contactListColor=AppColor.mainText;
+                        });
+                      }
+                      else if(apiClick=="4"){
+                        setState(() {
+                          if (isBlock) {
+                            blockListColor=AppColor.profileEditTabText;
+                            postBlockRemoveApi();
+                          } else {
+                            blockListColor=AppColor.mainText;
+                            postBlockAddApi();
+                          }
+                          isBlock = !isBlock;
+                        });
+                      }
+                      else{
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: const Text(
+                              "Something want false"),
+                          backgroundColor: AppColor.snackBarColor,
+                        ));
+                      }
+                      // postAddContactsApi();
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      "Yes",
+                      style: AppTheme.buttonBold(),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.only(left: 35,right: 35,top: 14,bottom: 14),
+                        shape: RoundedRectangleBorder(side: BorderSide(width: 0,color: AppColor.mainText),
+                          borderRadius: BorderRadius.circular(28,),
+                        ),
+                        backgroundColor:AppColor.mainText),
+                  ),
+                ),
+                Container(
+                  // margin: EdgeInsets.all(13),
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      "No",
+                      style: AppTheme.buttonBold(),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.only(left: 35,right: 35,top: 14,bottom: 14),
+                        shape: RoundedRectangleBorder(side: BorderSide(width: 0,color: AppColor.mainText),
+                          borderRadius: BorderRadius.circular(28,),
+                        ),
+                        backgroundColor:AppColor.mainText),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void responseDialog(String massage,String title,BuildContext context){
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("$title",style: TextStyle(fontSize: 16,fontWeight: FontWeight.w300,color: AppColor.grey,fontFamily: FontName.poppinsRegular),),
+                  IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: Icon(Icons.close,color: AppColor.grey),
+                  ),
+                ],
+              ),
+              SizedBox(height: 8,),
+              Divider(height: 1,color: AppColor.grey,),
+              SizedBox(height: 10,),
+              Text("${alGetProfileDetail[0].data!.firstName} ${massage}",style: TextStyle(fontSize: 22,fontWeight: FontWeight.w600,color: AppColor.red,fontFamily: FontName.poppinsRegular),),
+            ],
+          ),
+          actions: [
+            Container(
+              margin: EdgeInsets.all(13),
+              child: ElevatedButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  "Ok",
+                  style: AppTheme.buttonBold(),
+                ),
+                style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.only(left: 35,right: 35,top: 14,bottom: 14),
+                    shape: RoundedRectangleBorder(side: BorderSide(width: 0,color: AppColor.mainAppColor),
+                      borderRadius: BorderRadius.circular(28,),
+                    ),
+                    backgroundColor:AppColor.mainText),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void contactDialog(BuildContext context){
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "View Contact",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w300,
+                      color: AppColor.profileEditTabText,
+                      fontFamily: FontName.poppinsRegular,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: Icon(Icons.close,color: AppColor.profileEditTabText),
+                  ),
+                ],
+              ),
+              Divider(color: AppColor.profileEditTabText,height: 1,),
+              Text(
+                maxLines: 2,
+                "You have Viewed Contacts",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w600,
+                  color: AppColor.mainText,
+                  fontFamily: FontName.poppinsRegular,
+                ),
+              ),
+              SizedBox(height: 8,),
+              _buildText(
+                  'Contact Person ', "${widget.profileFullName ?? ''}"),
+              _buildText(
+                  'Relation with Member ', "${alGetProfileDetail[0].data!.contactPerson ?? ''}"),
+              _buildText(
+                  'Mobile', "${alGetProfileDetail[0].data!.mobileNo ?? ''}"),
+              _buildText(
+                  'Alternative No.', "${alGetProfileDetail[0].data!.altPhone ?? ''}"),
+              _buildText(
+                  'Convenient Time to Call', "${alGetProfileDetail[0].data!.convenientTime ?? ''}"),
+              _buildText(
+                  'Email ID ', "${alGetProfileDetail[0].data!.emailId ?? ''}"),
+              _buildText(
+                  'Address : ', "${alGetProfileDetail[0].data!.address1 ?? ''}  ${alGetProfileDetail[0].data!.city ?? ""} ${alGetProfileDetail[0].data!.state} ${alGetProfileDetail[0].data!.countryId!.countryName}"),
+              _buildText(
+                  'Address2 ', "${alGetProfileDetail[0].data!.address2 ?? ''} ${alGetProfileDetail[0].data!.countryId!.countryName}"),
+            ],
+          ),
+          actions: [
+            Container(
+              margin: EdgeInsets.all(13),
+              child: ElevatedButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  "Ok",
+                  style: AppTheme.buttonBold(),
+                ),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.only(left: 35, right: 35, top: 14, bottom: 14),
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(width: 0, color: AppColor.mainText),
+                    borderRadius: BorderRadius.circular(28,),
+                  ),
+                  backgroundColor: AppColor.mainText,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+  Widget _buildText(
+      String label,
+      String value,
+      ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 3,
+            child: Text(
+              label,
+              style: AppTheme.profileTexts(),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              "-",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 5,
+            child: Text(
+              value,
+              style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w500,
+                  color:AppColor.black,
+                  fontFamily: FontName.poppinsRegular
+              ),
             ),
           ),
         ],

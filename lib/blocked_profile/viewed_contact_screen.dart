@@ -34,7 +34,7 @@ class _MyViewedContactScreenPageState extends State<ViewedContactScreen>
   bool _whoViewedContactLoaded = false;
 
   late final TabController _tabController;
-  final _selectedColor = AppColor.white;
+  final _selectedColor = AppColor.mainText;
   List<Iviewcontact> alGetIViewedContactList = [];
   List<WhoviewContact> alGetWhoViewedContactList = [];
   var profileImg = "";
@@ -213,7 +213,7 @@ class _MyViewedContactScreenPageState extends State<ViewedContactScreen>
               padding: const EdgeInsets.only(
                   top: 3.0, right: 2.0, left: 6.0, bottom: 3),
               decoration: BoxDecoration(
-                color: _selectedColor,
+                color: AppColor.white,
                 borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(8.0),
                     topRight: Radius.circular(8.0)),
@@ -228,7 +228,7 @@ class _MyViewedContactScreenPageState extends State<ViewedContactScreen>
                     ),
                     color: AppColor.mainAppColor),
                 labelColor: _selectedColor,
-                unselectedLabelColor: AppColor.mainAppColor,
+                unselectedLabelColor: AppColor.grey,
                 controller: _tabController,
                 tabs: <Widget>[
                   Tab(
