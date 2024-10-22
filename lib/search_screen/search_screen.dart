@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:matrimony/bottom_sheet_screen/bottom_sheet_screen.dart';
 import 'package:matrimony/bottom_sheet_screen/view_model/global_value_model.dart';
+import 'package:matrimony/chating_screen/chat_page.dart';
 import 'package:matrimony/profile_edit_screen/profile_details.dart';
 import 'package:matrimony/search_screen/profile_model.dart';
 import 'package:matrimony/ui_screen/appBar_screen.dart';
@@ -257,107 +258,6 @@ class _SearchScreenNewState extends State<SearchScreen> {
     }
   }
 
-
-
-  /* Future<void> openBottomSheet() async {
-    double screenHeight = MediaQuery.of(context).size.height;
-    var responseData = await showModalBottomSheet(
-      isScrollControlled: true,
-      useSafeArea: true,
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          height: screenHeight * 0.7,
-          child: BottomScreen(
-            selectedName: _selectedName,
-            selectedCountry: _selectedCountry,
-            selectedState: _selectedState,
-            selectedGender: _selectedGender,
-            selectedPhoto: _selectedPhoto,
-            selectedMaritalStatus: _selectedMaritalStatus,
-            selectedDiet: _selectedDiet,
-            selectedBodyType: _selectedBodyType,
-            selectedComplexion: _selectedComplexion,
-            selectedReligion: _selectedReligion,
-            selectedEducation: _selectedEducation,
-            selectedProfession: _selectedProfession,
-            selectedIncome: _selectedIncome,
-            selectedAge: _selectedAge,
-            selectedAgeS: _selectedAgeS,
-          ),
-        );
-      },
-    );
-    if (responseData != null) {
-      var url = Uri.parse(
-          '${Webservices.baseUrl+Webservices.profileList}');
-      var jsonData = json.encode({
-        'keyword': _selectedName,
-        // 'country_id': '${_selectedCountry!.id.isNull ?" ":_selectedCountry?.id.toString()}',
-        'state': _selectedState,
-        'gender': _selectedGender,
-        'religion_id': _selectedReligion,
-        'photo_available': _selectedPhoto,
-        'marital_status[]': _selectedMaritalStatus,
-        'diet[]': _selectedDiet,
-        'body_type[]':_selectedBodyType,
-        'complexion[]': _selectedComplexion,
-        'education_id[]': _selectedEducation,
-        'profession_id[]': _selectedProfession,
-        'income': _selectedIncome,
-        'start_age': _selectedAge,
-        'end_age':_selectedAgeS,
-
-        // 'height': '${_heightRange?.start.toInt().toString()}-${_heightRange?.end.toInt().toString()}',
-        // 'marital_status[]':'',
-      });
-      print("formData!!!${jsonData}");
-      try {
-        var response = await http.post(
-          url,
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
-          body: (jsonData),
-        );
-        print('Response status: ${response.statusCode}');
-        if (response.statusCode == 200) {
-          return json.decode(response.body);
-        } else {
-          throw Exception('Failed to load data');
-        }
-      } catch (e) {
-        // Handle exceptions
-        print('Exception: $e');
-      }
-      print("ALLDATA~~~${responseData}");
-     *//* setState(() {
-        _isLoading = true;
-        _selectedName = responseData['keyword'];
-        _selectedCountry = responseData['country_id'];
-        _selectedState = responseData['state'];
-        _selectedGender = responseData['gender'];
-        _selectedPhoto = responseData['photo_available'];
-        _selectedMaritalStatus = responseData['marital_status[]'];
-        _selectedDiet = responseData['diet[]'];
-        _selectedBodyType = responseData['body_type[]'];
-        _selectedComplexion = responseData['complexion[]'];
-        _selectedReligion = responseData['religion_id'];
-        _selectedEducation = responseData['education_id[]'];
-        _selectedProfession = responseData['profession_id[]'];
-        _selectedIncome = responseData['income'];
-        _selectedAge = responseData['start_age'];
-        _selectedAgeS = responseData['end_age'];
-        alGetProfileDetail.clear();
-      });*//*
-      print('Response Data from bottom sheet!!!: $responseData');
-
-
-    } else {
-      print('No data received from bottom sheet');
-    }
-  }*/
-
   Future<void> profileViewApi() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final userName  = prefs.getString(PrefKeys.KEYGENDER)!;
@@ -423,28 +323,6 @@ class _SearchScreenNewState extends State<SearchScreen> {
     var url = Uri.parse(
         '${Webservices.baseUrl+Webservices.profileList}');
     var jsonData = json.encode(parameters);
-  /*  var jsonData = json.encode({
-      'keyword': '${searchTextController.text.isNull ? _selectedName :searchTextController.text}',
-      'gender': widget.selectedGender ?? _selectedGender,
-      'marital_status[]': widget.selectedMaritalStatus ?? "",
-      'start_age': widget.selectedAge ?? "",
-      'end_age': widget.selectedAgeS ?? ""
-      // 'country_id': '${countryId.isNull ?"":countryId}',
-      // 'state': '${_selectedState?.state=="" ? _selectedState?.state: " "   }',
-      // 'gender': '${genderKey.isNull ?'1':genderKey}',
-      // 'religion_id': '${religionKey.isNull ?"":religionKey}',
-      // 'photo_available': '${photoKey.isNull ?"":photoKey}',
-      // 'marital_status[]': '${maritalKey.isNull ?"":maritalKey}',
-      // 'diet[]': '${dietKey.isNull ?"":dietKey}',
-      // 'body_type[]': '${bodyKey.isNull ?"":bodyKey}',
-      // 'complexion[]': '${complexionKey.isNull?"":complexionKey}',
-      // 'education_id[]': '${educationKey.isNull ?"":educationKey}',
-      // 'profession_id[]': '${professionKey.isNull ?"":professionKey}',
-      // 'income': '${incomeKey.isNull ? "" : incomeKey}',
-      // 'start_age': '${_selectedAge.isNull ?"":_selectedAge}',
-      // 'end_age': '${_selectedAgeS.isNull?"":_selectedAgeS}',
-      // // 'marital_status[]':'',
-    });*/
     print("formData!!!${jsonData}");
     try {
       var response = await http.post(
@@ -520,13 +398,6 @@ class _SearchScreenNewState extends State<SearchScreen> {
           drawer: SideDrawer(),
           body: Container(
             color: AppColor.mainAppColor,
-            /*decoration: BoxDecoration(
-              image: DecorationImage(
-                  image: AssetImage(
-                    "assets/images/bg_white.jpg",
-                  ),
-                  fit: BoxFit.fitHeight),*/
-
             child: Column(
               children: [
                 Container(
@@ -583,6 +454,9 @@ class _SearchScreenNewState extends State<SearchScreen> {
                         child: InkWell(
                           onTap: () {
                             openBottomSheet();
+                            // Navigator.push(context, MaterialPageRoute(builder: (context) {
+                            //   return ChatPage();
+                            // },));
                           },
                           child: Container(
                             padding: EdgeInsets.all(13),
@@ -615,12 +489,6 @@ class _SearchScreenNewState extends State<SearchScreen> {
                 ),
                    alGetProfileDetail.isNotEmpty ?
                    Expanded(
-                 /* child: RefreshIndicator(
-                    color: AppColor.mainText,
-                    onRefresh: () async {
-                      await Future.delayed(Duration(seconds: 1));
-                      return profileViewApi();
-                    },*/
                     child: _isLoading  && currentPage == 1
                         ? Center(
                             child: CircularProgressIndicator(
@@ -676,42 +544,45 @@ class _SearchScreenNewState extends State<SearchScreen> {
                                           topRight: Radius.circular(16),
                                         ),
                                       ),
-                                      child: FutureBuilder<bool>(
-                                        future: checkImageExists("${Webservices.imageUrl}${alGetProfileDetail[index].profileImages![0].imageName ?? ""}"),
-                                        builder: (context, snapshot) {
-                                          if (snapshot.connectionState == ConnectionState.waiting) {
-                                            return Center(
-                                              child: CircularProgressIndicator(),
-                                            );
-                                          } else if (snapshot.hasError || !snapshot.data!) {
-                                            return Container(
-                                              decoration: BoxDecoration(
-                                                image: DecorationImage(
-                                                  image: NetworkImage(profileImg),
-                                                  fit: BoxFit.fill,
-                                                ),
-                                                borderRadius: BorderRadius.only(
-                                                  topLeft: Radius.circular(16),
-                                                  topRight: Radius.circular(16),
-                                                ),
-                                              ),
-                                            );
-                                          } else {
-                                            return Container(
-                                              decoration: BoxDecoration(
-                                                image: DecorationImage(
-                                                  image: NetworkImage("${Webservices.imageUrl}${alGetProfileDetail[index].profileImages?[0].imageName}"),
-                                                  fit: BoxFit.fill,
-                                                ),
-                                                borderRadius: BorderRadius.only(
-                                                  topLeft: Radius.circular(16),
-                                                  topRight: Radius.circular(16),
-                                                ),
-                                              ),
-                                            );
-                                          }
-                                        },
+                                      child:Container(
+                                        decoration: BoxDecoration(
+                                                    image: DecorationImage(
+                                                      image: NetworkImage("${Webservices.imageUrl}${alGetProfileDetail[index].profileImages?[0].imageName}"),
+                                                      fit: BoxFit.fill,
+                                                    ),
+                                                  ),
                                       ),
+                                      // child: FutureBuilder<bool>(
+                                      //   future: checkImageExists("${Webservices.imageUrl}${alGetProfileDetail[index].profileImages![0].imageName ?? ""}"),
+                                      //   builder: (context, snapshot) {
+                                      //     if (snapshot.connectionState == ConnectionState.waiting) {
+                                      //       return Center(
+                                      //
+                                      //         // child: Container(
+                                      //         //   child: CircularProgressIndicator(),
+                                      //         // ),
+                                      //       );
+                                      //     } else if (snapshot.hasError || !snapshot.data!) {
+                                      //       return Container(
+                                      //         decoration: BoxDecoration(
+                                      //           image: DecorationImage(
+                                      //             image: NetworkImage(profileImg),
+                                      //             fit: BoxFit.fill,
+                                      //           ),
+                                      //         ),
+                                      //       );
+                                      //     } else {
+                                      //       return Container(
+                                      //         decoration: BoxDecoration(
+                                      //           image: DecorationImage(
+                                      //             image: NetworkImage("${Webservices.imageUrl}${alGetProfileDetail[index].profileImages?[0].imageName}"),
+                                      //             fit: BoxFit.fill,
+                                      //           ),
+                                      //         ),
+                                      //       );
+                                      //     }
+                                      //   },
+                                      // ),
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
@@ -833,7 +704,10 @@ class _SearchScreenNewState extends State<SearchScreen> {
                       },
                     ),
                   // ),
-                ):_emptyView(),
+                ):_isLoading ? Center(
+                       child: CircularProgressIndicator(
+                         color: AppColor.mainText,
+                       )):_emptyView(),
                 SizedBox(
                   height: 10,
                 ),

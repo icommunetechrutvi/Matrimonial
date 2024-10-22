@@ -1616,7 +1616,7 @@ class _BottomScreenState extends State<BottomScreen> {
                     style: AppTheme.buttonBold(),
                   ),
                   style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.only(left: 35,right: 35,top: 14,bottom: 14),
+                      padding: EdgeInsets.only(left: 35,right: 35,top: 4,bottom: 14),
                       shape: RoundedRectangleBorder(side: BorderSide(width: 0,color: AppColor.mainAppColor),
                         borderRadius: BorderRadius.circular(28,),
                       ),

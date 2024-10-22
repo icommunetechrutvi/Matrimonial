@@ -84,10 +84,10 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
   late String selectedMotherKey = '';
 
   List<String> bodyTypeList = [];
-  late int selectedBodyTypeIndex = 1;
+  late int selectedBodyTypeIndex = -1;
 
   List<String> complexionList = [];
-  late int selectedComplexionTypeIndex = 1;
+  late int selectedComplexionTypeIndex = -1;
 
   bool isLiked = false;
   bool isBlock = false;
@@ -117,9 +117,64 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
     });
   }
 
-  getSharedPrefValue() async {
+  Future<void> getSharedPrefValue() async {
+    final url = Uri.parse('${Webservices.baseUrl+Webservices.globalValue}');
+    final response = await http.get(url);
+    print("url~~${url}");
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      final localPickData = GlobalValueModel.fromJson(responseData);
+      allGetGlobalValue.add(localPickData);
+      Map<String, dynamic> heightLists = responseData['data']['height_list'];
+      heightLists.forEach((key, value) {
+        heightList.add(value as String);
+        heightKeys.add(key as String);
+      });
+
+      Map<String, dynamic> dietLists = responseData['data']['diet_list'];
+      dietLists.forEach((key, value) {
+        dietList.add(value as String);
+        dietKeys.add(key as String);
+      });
+
+      Map<String, dynamic> maritalLists =
+      responseData['data']['maritalstatus_list'];
+      maritalLists.forEach((key, value) {
+        maritalStatusList.add(value as String);
+        maritalKeys.add(key as String);
+      });
+
+      Map<String, dynamic> religionLists =
+      responseData['data']['religion_list'];
+      religionLists.forEach((key, value) {
+        religionList.add(value as String);
+        religionKeys.add(key as String);
+      });
+
+      Map<String, dynamic> fatherLists =
+      responseData['data']['fatherstatus_list'];
+      fatherLists.forEach((key, value) {
+        fatherList.add(value as String);
+        fatherKeys.add(key as String);
+      });
+
+      Map<String, dynamic> motherLists =
+      responseData['data']['motherstatus_list'];
+      motherLists.forEach((key, value) {
+        motherList.add(value as String);
+        motherKeys.add(key as String);
+      });
+
+      complexionList = localPickData.data!.complexionList!.toList();
+      bodyTypeList = localPickData.data!.bodytypeList!.toList();
+
+    } else {
+      throw Exception('Failed to load income options');
+    }
+  }
+  /*getSharedPrefValue() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    loginId = prefs.getString(PrefKeys.KEYPROFILEID)!;
     final stringValue = prefs.getString('globalApiData');
     if (stringValue != null) {
       Map<String, dynamic> jsonMap = jsonDecode(stringValue);
@@ -181,12 +236,14 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
         motherList.add(value as String);
         motherKeys.add(key as String);
       });
-
+print("motherLists##${motherLists}");
+print("motherLists##${profileData.data!.complexionList!.toList()}");
       complexionList = profileData.data!.complexionList!.toList();
       bodyTypeList = profileData.data!.bodytypeList!.toList();
+
     }
     return stringValue;
-  }
+  }*/
 
   Future<void> profileDetailApi() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -222,17 +279,12 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
           selectedKey = alGetProfileDetail[0].data!.height.toString();
         }
 
-        int profileGenderIndex =
-            genderKeys.indexOf(alGetProfileDetail[0].data!.gender.toString());
-        if (profileGenderIndex != -1 &&
-            profileGenderIndex < genderList.length) {
-          _selectedGender = genderList[profileGenderIndex];
-          selectedGenderKey = alGetProfileDetail[0].data!.gender.toString();
-        }
+
 
         int profileDietIndex =
             dietKeys.indexOf(alGetProfileDetail[0].data!.diet.toString());
         if (profileDietIndex != -1 && profileDietIndex < dietList.length) {
+          print("DIET***${_selectedDiet}");
           _selectedDiet = dietList[profileDietIndex];
           selectedDietKey = alGetProfileDetail[0].data!.diet.toString();
         }
@@ -282,21 +334,27 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
         }
         if(alGetProfileDetail[0].data!.gender ==1){
           profileImg="https://rishtaforyou.com/storage/profiles/default1.png";
+          _selectedGender="Male";
         }
         else{
           profileImg="https://rishtaforyou.com/storage/profiles/default2.png";
+          _selectedGender="Female";
         }
-        final userGender = alGetProfileDetail[0]?.data?.gender ?? '';
-        if(userName.toString()==userGender.toString())
-        {
-          genderMatch=true;
+
+        rishtaId=alGetProfileDetail[0].data!.profileID!;
+        if(alGetProfileDetail[0].data!.complexion!=null) {
+          selectedComplexionTypeIndex = alGetProfileDetail[0].data!.complexion ?? 0;
         }
         else{
-          genderMatch=false;
+          selectedComplexionTypeIndex=="";
         }
-        rishtaId=alGetProfileDetail[0].data!.profileID!;
-        selectedComplexionTypeIndex = alGetProfileDetail[0].data!.complexion ??1;
-        selectedBodyTypeIndex = alGetProfileDetail[0].data!.bodyType ?? 1;
+        if(alGetProfileDetail[0].data!.bodyType != null) {
+          selectedBodyTypeIndex = alGetProfileDetail[0].data!.bodyType ?? 1;
+        }
+        else{
+          selectedBodyTypeIndex=="";
+        }
+        print("selectedBodyTypeIndex~~${selectedBodyTypeIndex}");
         final wishList = alGetProfileDetail[0].data!.favorite!;
         isLiked = wishList == "yes";
         shortListColor = isLiked ? AppColor.mainText : AppColor.profileEditTabText;
@@ -690,7 +748,7 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        actions: [
+       /* actions: [
           cleanedProfileId == cleanedLoginId?
           Row(children: [
             IconButton(
@@ -699,7 +757,7 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
                   builder: (context) {
                     return ProfileEditScreen();
                   },
-                ));/*, (route) => false)*/
+                ));*//*, (route) => false)*//*
               },
               icon:  Icon(Icons.mode_edit_rounded, color: AppColor.mainText),
             ),
@@ -720,7 +778,7 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
                 style: AppTheme.matriId()),
           ),
           )
-        ],
+        ],*/
         backgroundColor: AppColor.white,
         title: Text(
           "Profile Detail",
@@ -750,7 +808,7 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
         child: _isLoading
             ? Center(
           child: CircularProgressIndicator(
-            color: AppColor.white,
+            color: AppColor.mainText,
             // backgroundColor: AppColor.pink,
           ),
         )
@@ -841,109 +899,116 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
                 height: 8,
               ),
 
-              Container(
-                height: screenSize*0.08,
-                color: AppColor.white,
-                padding: EdgeInsets.only(left: 12, right: 5),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: AutoSizeText(
-                        "${widget.profileFullName}",
-                        style: TextStyle(
-                          color: AppColor.mainText,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: FontName.poppinsRegular,
-                        ),
-                      ),
-                    ),
-                    Row(
+              Column(
+                children: [
+                  Container(
+                    height: screenSize*0.08,
+                    color: AppColor.white,
+                    padding: EdgeInsets.only(left: 12, right: 5),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        cleanedProfileId == cleanedLoginId || genderMatch==true
-                            ? Container(): Container(
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(50,),color:shortListColor),
-                          child: IconButton(
-                          onPressed: () {
-                              setState(() {
-                                dialogs("Add Shortlist","1");
-                                // if (isLiked) {
-                                //   postFavoriteRemoveApi();
-                                // } else {
-                                //   postFavoriteAddApi();
-                                // }
-                                // isLiked = !isLiked;
-                              });
-                          },
-                          icon: Icon(Icons.favorite,color:AppColor.white,
-                          ),
-                        ),
+                        Expanded(
+                          child: AutoSizeText(
+                            "${widget.profileFullName}",
+                            style: TextStyle(
+                              color: AppColor.mainText,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: FontName.poppinsRegular,
                             ),
-
-                        SizedBox(width: 5,),
-                        /* connection == "yes"*/  cleanedProfileId == cleanedLoginId || genderMatch==true
-                            ? Container()
-                            : Container(
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(50,),color: connectionListColor),
-                          child: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                // postAddConnectionApi();
-                                dialogs("Add Connection Request","2");
-                              });
-                            },
-                            icon: Icon(Icons.person_add_alt_outlined,  color: AppColor.white,),
                           ),
-                        )
-                        ,
-                        SizedBox(width: 5,),
-                        /*  contact == "yes" ||*/ cleanedProfileId == cleanedLoginId || genderMatch==true
-                            ? Container()
-                            : Container(
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(50,),color: contactListColor),
-                          child: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  setState(() {
-                                    if(contact=="no") {
-                                      dialogs("View Contact", "3");
-                                    }else{
-                                      contactDialog(context);
-                                    }
-
-                                    // postAddContactsApi();
-                                  });
-                                });
-                              },
-                              icon: Icon(Icons.wifi_calling_3_sharp,  color: AppColor.white,)),
                         ),
-                        SizedBox(width: 5,),
-                        cleanedProfileId == cleanedLoginId|| genderMatch==true?Container():  Container(
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(50,),color: blockListColor),
-                          child: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                dialogs("Add Block","4");
-                                // if (isBlock) {
-                                //   postBlockRemoveApi();
-                                // } else {
-                                //   postBlockAddApi();
-                                // }
-                                // isBlock = !isBlock;
-                                // blockColor =
-                                // isBlock ? AppColor.red : AppColor.buttonColor;
-                              });
-                            },
-                            icon: Icon(Icons.block,  color: AppColor.white,),),
-                        )
-                        // icon: cleanedProfileId == cleanedLoginId?Container(): Image(
-                        //     image: AssetImage(
-                        //         "assets/icon/profile_block.png"))),
+                        Row(
+                          children: [
+                            cleanedProfileId == cleanedLoginId || genderMatch==true
+                                ? Container(): Container(
+                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(50,),color:shortListColor),
+                              child: IconButton(
+                              onPressed: () {
+                                  setState(() {
+                                    dialogs("Add Shortlist","1");
+                                  });
+                              },
+                              icon: Icon(Icons.favorite,color:AppColor.white,
+                              ),
+                            ),
+                                ),
+
+                            SizedBox(width: 5,),
+                            /* connection == "yes"*/  cleanedProfileId == cleanedLoginId || genderMatch==true
+                                ? Container()
+                                : Container(
+                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(50,),color: connectionListColor),
+                              child: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    // postAddConnectionApi();
+                                    dialogs("Add Connection Request","2");
+                                  });
+                                },
+                                icon: Icon(Icons.person_add_alt_outlined,  color: AppColor.white,),
+                              ),
+                            )
+                            ,
+                            SizedBox(width: 5,),
+                            /*  contact == "yes" ||*/ cleanedProfileId == cleanedLoginId || genderMatch==true
+                                ? Container()
+                                : Container(
+                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(50,),color: contactListColor),
+                              child: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      setState(() {
+                                        if(contact=="no") {
+                                          dialogs("View Contact", "3");
+                                        }else{
+                                          contactDialog(context);
+                                        }
+
+                                        // postAddContactsApi();
+                                      });
+                                    });
+                                  },
+                                  icon: Icon(Icons.wifi_calling_3_sharp,  color: AppColor.white,)),
+                            ),
+                            SizedBox(width: 5,),
+                            cleanedProfileId == cleanedLoginId|| genderMatch==true?Container():  Container(
+                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(50,),color: blockListColor),
+                              child: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    dialogs("Add Block","4");
+                                    // if (isBlock) {
+                                    //   postBlockRemoveApi();
+                                    // } else {
+                                    //   postBlockAddApi();
+                                    // }
+                                    // isBlock = !isBlock;
+                                    // blockColor =
+                                    // isBlock ? AppColor.red : AppColor.buttonColor;
+                                  });
+                                },
+                                icon: Icon(Icons.block,  color: AppColor.white,),),
+                            )
+                            // icon: cleanedProfileId == cleanedLoginId?Container(): Image(
+                            //     image: AssetImage(
+                            //         "assets/icon/profile_block.png"))),
+                          ],
+                        ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Text(
+                    "Matrimonial Id : ${rishtaId ?? 0}",
+                    style: AppTheme.matriId()),
               ),
               SizedBox(
                 height: 2,
@@ -1062,14 +1127,16 @@ class _MyProfileDetailPageState extends State<ProfileDetailScreen> {
                               "${profile.data!.weight ?? ''}" + " Kgs"),
                           _buildProfileDetailRow(
                               'Gender', "${_selectedGender ?? ''}"),
-                          _buildProfileDetailRow('Body Type',
+                          _buildProfileDetailRow('Body Type',''
                               "${selectedBodyTypeIndex != -1 ? bodyTypeList[selectedBodyTypeIndex] : ""}"),
-                          _buildProfileDetailRow('Complexion',
+                              // "Average"),
+                          _buildProfileDetailRow('Complexion',''
                               "${selectedComplexionTypeIndex != -1 ? complexionList[selectedComplexionTypeIndex] : ""}"),
+                              // "Fair"),
                           _buildProfileDetailRow(
                               'Diet', "${_selectedDiet ?? ''}"),
                           _buildProfileDetailRow(
-                              'Marital Status', "${_selectedMarital}"),
+                              'Marital Status', "${_selectedMarital??' '}"),
                           if (_selectedMarital != "Never Married")
                             _buildProfileDetailRow('Have Children',
                                 "${profile.data!.havechildren}"),

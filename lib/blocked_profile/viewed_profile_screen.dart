@@ -337,7 +337,15 @@ class _MyViewedProfileScreenPageState extends State<ViewedProfileScreen>
                                                 topRight: Radius.circular(16),
                                               ),
                                             ),
-                                            child: FutureBuilder<bool>(
+                                            child:Container(
+                                              decoration: BoxDecoration(
+                                                image: DecorationImage(
+                                                  image: NetworkImage("${Webservices.imageUrl}${alGetIViewedProfileList[index].imageName}"),
+                                                  fit: BoxFit.fill,
+                                                ),
+                                              ),
+                                            )
+                                            /* FutureBuilder<bool>(
                                               future: checkImageExists("${Webservices.imageUrl}${alGetIViewedProfileList[index].imageName ?? ""}"),
                                               builder: (context, snapshot) {
                                                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -372,7 +380,7 @@ class _MyViewedProfileScreenPageState extends State<ViewedProfileScreen>
                                                   );
                                                 }
                                               },
-                                            ),
+                                            ),*/
                                           ),
                                           Padding(
                                             padding: const EdgeInsets.all(8.0),
@@ -573,7 +581,15 @@ class _MyViewedProfileScreenPageState extends State<ViewedProfileScreen>
                                                 topRight: Radius.circular(16),
                                               ),
                                             ),
-                                            child: FutureBuilder<bool>(
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                              image: NetworkImage("${Webservices.imageUrl}${alGetWhoViewedProfileList[index].imageName}"),
+                                              fit: BoxFit.fill,
+                                            ),
+                                          ),
+                                        ),
+                                        /*    child: FutureBuilder<bool>(
                                               future: checkImageExists("${Webservices.imageUrl}${alGetWhoViewedProfileList[index].imageName ?? ""}"),
                                               builder: (context, snapshot) {
                                                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -608,7 +624,7 @@ class _MyViewedProfileScreenPageState extends State<ViewedProfileScreen>
                                                   );
                                                 }
                                               },
-                                            ),
+                                            ),*/
                                           ),
                                           Padding(
                                             padding: const EdgeInsets.all(8.0),

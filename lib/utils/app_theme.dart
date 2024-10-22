@@ -13,7 +13,17 @@ class AppTheme {
         fontFamily: FontName.poppinsRegular);
   }
 
-
+  static profileEditAlert(String message) {
+    showSimpleNotification(
+        Text(
+          message,
+          style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white,fontFamily: FontName.poppinsRegular),
+        ),
+        background: AppColor.red,
+        // foreground:AppColor.alert,
+        slideDismiss: true,
+        duration: const Duration(seconds: 3));
+  }
   static TextStyle letterText(
       double size, Color color, FontWeight fontWeight, FontStyle fontStyle) {
     return TextStyle(
@@ -172,7 +182,15 @@ class AppTheme {
         )
       ],);
   }
-
+  static TextStyle nameText1(
+      [double? size,  TextDecoration? decoration]) {
+    return TextStyle(
+      decoration: decoration,
+      fontSize: 23,
+      fontWeight: FontWeight.bold,
+      color: AppColor.mainText,
+      fontFamily: FontName.poppinsRegular,);
+  }
   static showAlert(String message) {
     showSimpleNotification(
         Text(
@@ -182,6 +200,18 @@ class AppTheme {
         ),
         background: AppColor.alert,
         foreground:AppColor.alert,
+        slideDismiss: true,
+        duration: const Duration(seconds: 3));
+  }
+  static mobileAlert(String message) {
+    showSimpleNotification(
+        Text(
+          message,
+          style:
+          const TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
+        ),
+        background: AppColor.red,
+        foreground:AppColor.red,
         slideDismiss: true,
         duration: const Duration(seconds: 3));
   }

@@ -8,6 +8,10 @@ class Webservices {
   static const baseUrl = "https://matrimonial.icommunetech.com/public/";
 
   static const profileLogin = "api/profile_login";
+  static const registrationApi = "api/registrationApi";
+  static const registrationCompleteApi = "api/registration_complete_Api";
+  static const registrationWithMobileApi = "api/registrationWithMobileApi";
+  static const profileFieldsUpdate = "api/profile_fields_update";
   static const logout = "api/logout";
 
   static const globalValue = "api/global_values";
@@ -56,6 +60,7 @@ class Webservices {
 
 
   static const latestProfilesList = "api/latestprofiles";
+  static const planView = "api/planview";
 
   static const imageUrl = "https://matrimonial.icommunetech.com/public/icommunetech/profiles/images/";
 

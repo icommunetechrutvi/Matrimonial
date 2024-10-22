@@ -31,9 +31,6 @@ class _MyMatchListPageState extends State<MatchListScreen> {
   var profileImg = "";
   Map<String, dynamic>? heightList;
 
-
-
-
   @override
   void initState() {
     super.initState();
@@ -42,15 +39,18 @@ class _MyMatchListPageState extends State<MatchListScreen> {
       fetchGlobalValues();
     });
   }
+
   Future<void> fetchGlobalValues() async {
-    final response = await http.get(Uri.parse(
-        '${Webservices.baseUrl+Webservices.globalValue}'));
+    final response = await http
+        .get(Uri.parse('${Webservices.baseUrl + Webservices.globalValue}'));
     print("response~~${response}");
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseData = json.decode(response.body);
 
-      final Map<String, dynamic> heightMap = responseData['data']['height_list'];
-      heightList = heightMap.map((key, value) => MapEntry(key, value.toString()));
+      final Map<String, dynamic> heightMap =
+          responseData['data']['height_list'];
+      heightList =
+          heightMap.map((key, value) => MapEntry(key, value.toString()));
     } else {
       throw Exception('Failed to load income options');
     }
@@ -58,7 +58,7 @@ class _MyMatchListPageState extends State<MatchListScreen> {
 
   Future<void> favoriteListApi() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final userToken = prefs.getString(PrefKeys.ACCESSTOKEN)?? "null";
+    final userToken = prefs.getString(PrefKeys.ACCESSTOKEN) ?? "null";
     final userType = prefs.getString(PrefKeys.KEYGENDER)!;
     if (userType == "2") {
       profileImg = "https://rishtaforyou.com/storage/profiles/default1.png";
@@ -68,7 +68,7 @@ class _MyMatchListPageState extends State<MatchListScreen> {
     setState(() {
       _isLoading = true;
     });
-    final url = Uri.parse( '${Webservices.baseUrl+Webservices.matchList}');
+    final url = Uri.parse('${Webservices.baseUrl + Webservices.matchList}');
     print("url~~${url}");
     final response = await http.get(url, headers: {
       'Content-Type': 'application/json',
@@ -108,11 +108,11 @@ class _MyMatchListPageState extends State<MatchListScreen> {
       throw Exception('Failed to load education_list');
     }
   }
+
   Future<bool> checkImageExists(String url) async {
     final response = await http.head(Uri.parse(url));
     return response.statusCode == 200;
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +132,7 @@ class _MyMatchListPageState extends State<MatchListScreen> {
       drawer: SideDrawer(),
       body: Stack(fit: StackFit.expand, children: [
         Container(color: AppColor.mainAppColor),
-       /* Image.asset(
+        /* Image.asset(
           "assets/images/bg_white.jpg",
           fit: BoxFit.fill,
         ),*/
@@ -141,199 +141,257 @@ class _MyMatchListPageState extends State<MatchListScreen> {
             children: [
               _isLoading
                   ? Center(
-                child: CircularProgressIndicator(
-                  color: AppColor.lightGreen,
-                ),
-              )
+                      child: CircularProgressIndicator(
+                        color: AppColor.lightGreen,
+                      ),
+                    )
                   : alGetMatchList.isNotEmpty
-                  ? Container(
-                height: MediaQuery.of(context).size.height * 0.9,
-                child: ListView.builder(
-                  itemCount: alGetMatchList.length,
-                  itemBuilder: (context, index) {
-                    String? heightKey = alGetMatchList[index].height.toString();
-                    String? heightValue = heightList?[heightKey??0];
-                    return InkWell(
-                      onTap: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return ProfileDetailScreen(
-                                  profileId:
-                                  alGetMatchList[index]
-                                      .id,
-                                  profileFullName:
-                                  "${alGetMatchList[index].firstName} ${alGetMatchList[index].lastName}",
-                                );
-                              },
-                            ));
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(3),
-                        margin: EdgeInsets.all(3),
-                        child: Card(
-                          color: Color.fromARGB(255, 245, 245, 245),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            side: BorderSide(
-                                width: 3, color: Colors.transparent),
-                          ),
-                          elevation: 5,
-                          child: Column(
-                            children: [
-                              Container(
-                                height: screenHeight * 0.3,
-                                // width: screenWidth / 0,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(16),
-                                    topRight: Radius.circular(16),
+                      ? Container(
+                          height: MediaQuery.of(context).size.height * 0.9,
+                          child: ListView.builder(
+                            itemCount: alGetMatchList.length,
+                            itemBuilder: (context, index) {
+                              String? heightKey =
+                                  alGetMatchList[index].height.toString();
+                              String? heightValue = heightList?[heightKey ?? 0];
+                              return InkWell(
+                                onTap: () {
+                                  Navigator.push(context, MaterialPageRoute(
+                                    builder: (context) {
+                                      return ProfileDetailScreen(
+                                        profileId: alGetMatchList[index].id,
+                                        profileFullName:
+                                            "${alGetMatchList[index].firstName} ${alGetMatchList[index].lastName}",
+                                      );
+                                    },
+                                  ));
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.all(3),
+                                  margin: EdgeInsets.all(3),
+                                  child: Card(
+                                    color: Color.fromARGB(255, 245, 245, 245),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                      side: BorderSide(
+                                          width: 3, color: Colors.transparent),
+                                    ),
+                                    elevation: 5,
+                                    child: Column(
+                                      children: [
+                                        Container(
+                                          height: screenHeight * 0.3,
+                                          // width: screenWidth / 0,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.only(
+                                              topLeft: Radius.circular(16),
+                                              topRight: Radius.circular(16),
+                                            ),
+                                          ),
+                                          child: alGetMatchList[index]
+                                                  .profileImages!
+                                                  .isEmpty
+                                              ? Container(
+                                            decoration:
+                                            BoxDecoration(
+                                              image:
+                                              DecorationImage(
+                                                image: NetworkImage(
+                                                    profileImg),
+                                                fit: BoxFit.fill,
+                                              ),
+                                              borderRadius:
+                                              BorderRadius.only(
+                                                topLeft:
+                                                Radius.circular(
+                                                    16),
+                                                topRight:
+                                                Radius.circular(
+                                                    16),
+                                              ),
+                                            ),
+                                                 )
+                                              : FutureBuilder<bool>(
+                                                  future: checkImageExists(
+                                                      "${Webservices.imageUrl}${alGetMatchList[index].profileImages![0].imageName ?? ""}"),
+                                                  builder: (context, snapshot) {
+                                                    if (snapshot
+                                                            .connectionState ==
+                                                        ConnectionState
+                                                            .waiting) {
+                                                      return Center(
+                                                        child:
+                                                            CircularProgressIndicator(),
+                                                      );
+                                                    } else if (snapshot
+                                                            .hasError ||
+                                                        !snapshot.data!) {
+                                                      return Container(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          image:
+                                                              DecorationImage(
+                                                            image: NetworkImage(
+                                                                profileImg),
+                                                            fit: BoxFit.fill,
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius.only(
+                                                            topLeft:
+                                                                Radius.circular(
+                                                                    16),
+                                                            topRight:
+                                                                Radius.circular(
+                                                                    16),
+                                                          ),
+                                                        ),
+                                                      );
+                                                    } else {
+                                                      return Container(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          image:
+                                                              DecorationImage(
+                                                            image: NetworkImage(
+                                                                "${Webservices.imageUrl}${alGetMatchList[index].profileImages![0].imageName}"),
+                                                            fit: BoxFit.fill,
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius.only(
+                                                            topLeft:
+                                                                Radius.circular(
+                                                                    16),
+                                                            topRight:
+                                                                Radius.circular(
+                                                                    16),
+                                                          ),
+                                                        ),
+                                                      );
+                                                    }
+                                                  },
+                                                ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Expanded(
+                                                    child: AutoSizeText(
+                                                      maxLines: 2,
+                                                      minFontSize: 6,
+                                                      "${alGetMatchList[index].firstName ?? ""}" +
+                                                          " ${alGetMatchList[index].lastName ?? ""}",
+                                                      style: TextStyle(
+                                                        fontSize: 18,
+                                                        color:
+                                                            AppColor.mainText,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontFamily: FontName
+                                                            .poppinsRegular,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  AutoSizeText(
+                                                    "${alGetMatchList[index].age} Yrs, " +
+                                                        "${heightValue ?? 0}",
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: AppColor.grey,
+                                                      fontFamily: FontName
+                                                          .poppinsRegular,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .height *
+                                                      0.02),
+                                              AutoSizeText(
+                                                maxLines: 2,
+                                                minFontSize: 6,
+                                                "${alGetMatchList[index].professionId!.occupation ?? ""}" +
+                                                    " - ${alGetMatchList[index].educationId!.education ?? ""}",
+                                                // "Software Professional - Graduate",
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: AppColor.grey,
+                                                  fontFamily:
+                                                      FontName.poppinsRegular,
+                                                ),
+                                              ),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Expanded(
+                                                    child: AutoSizeText(
+                                                      maxLines: 2,
+                                                      minFontSize: 6,
+                                                      "${alGetMatchList[index].city ?? ""}" +
+                                                          ", ${alGetMatchList[index].state ?? ""}" +
+                                                          ", ${alGetMatchList[index].countryId?.countryName ?? ""}",
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: AppColor.black,
+                                                        fontFamily: FontName
+                                                            .poppinsRegular,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TextButton(
+                                                    // style: ButtonStyle(
+                                                    // alignment: Alignment.centerLeft,
+                                                    // padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                                    //   EdgeInsets.zero,
+                                                    // ),
+                                                    // ),
+                                                    onPressed: () {
+                                                      Navigator.push(context,
+                                                          MaterialPageRoute(
+                                                        builder: (context) {
+                                                          return ProfileDetailScreen(
+                                                            profileId:
+                                                                alGetMatchList[
+                                                                        index]
+                                                                    .id,
+                                                            profileFullName:
+                                                                "${alGetMatchList[index].firstName} ${alGetMatchList[index].lastName}",
+                                                          );
+                                                        },
+                                                      ));
+                                                    },
+                                                    child: AutoSizeText(
+                                                      "View Profile",
+                                                      style: TextStyle(
+                                                        color:
+                                                            AppColor.mainText,
+                                                        fontFamily: FontName
+                                                            .poppinsRegular,
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                                child: FutureBuilder<bool>(
-                                  future: checkImageExists("${Webservices.imageUrl}${alGetMatchList[index].profileImages![0].imageName ?? ""}"),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState == ConnectionState.waiting) {
-                                      return Center(
-                                        child: CircularProgressIndicator(),
-                                      );
-                                    } else if (snapshot.hasError || !snapshot.data!) {
-                                      return Container(
-                                        decoration: BoxDecoration(
-                                          image: DecorationImage(
-                                            image: NetworkImage(profileImg),
-                                            fit: BoxFit.fill,
-                                          ),
-                                          borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(16),
-                                            topRight: Radius.circular(16),
-                                          ),
-                                        ),
-                                      );
-                                    } else {
-                                      return Container(
-                                        decoration: BoxDecoration(
-                                          image: DecorationImage(
-                                            image: NetworkImage("${Webservices.imageUrl}${alGetMatchList[index].profileImages![0].imageName}"),
-                                            fit: BoxFit.fill,
-                                          ),
-                                          borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(16),
-                                            topRight: Radius.circular(16),
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                  },
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.center,
-                                      children: [
-                                        Expanded(
-                                          child: AutoSizeText(
-                                            maxLines: 2,
-                                            minFontSize: 6,
-                                            "${alGetMatchList[index].firstName ?? ""}"+" ${alGetMatchList[index].lastName ?? ""}",
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                              color: AppColor.mainText,
-                                              fontWeight: FontWeight.bold,
-                                              fontFamily:
-                                              FontName.poppinsRegular,
-                                            ),
-                                          ),
-                                        ),
-                                        AutoSizeText(
-                                          "${alGetMatchList[index].age} Yrs, "+"${heightValue ??0}",
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: AppColor.grey,
-                                            fontFamily:
-                                            FontName.poppinsRegular,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                        height: MediaQuery.of(context)
-                                            .size
-                                            .height *
-                                            0.02),
-                                    AutoSizeText(
-                                      maxLines: 2,
-                                      minFontSize: 6,
-                                      "${alGetMatchList[index].professionId!.occupation ?? ""}"+" - ${alGetMatchList[index].educationId!.education ?? ""}",
-                                      // "Software Professional - Graduate",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: AppColor.grey,
-                                        fontFamily: FontName.poppinsRegular,
-                                      ),
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: AutoSizeText(
-                                            maxLines: 2,
-                                            minFontSize: 6,
-                                            "${alGetMatchList[index].city ?? ""}"+", ${alGetMatchList[index].state?? ""}"+", ${alGetMatchList[index].countryId?.countryName ?? ""}",
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: AppColor.black,
-                                              fontFamily: FontName.poppinsRegular,
-                                            ),),
-                                        ),
-                                        TextButton(
-                                          // style: ButtonStyle(
-                                          // alignment: Alignment.centerLeft,
-                                          // padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                                          //   EdgeInsets.zero,
-                                          // ),
-                                          // ),
-                                          onPressed: () {
-                                            Navigator.push(context,
-                                                MaterialPageRoute(
-                                                  builder: (context) {
-                                                    return ProfileDetailScreen(
-                                                      profileId:
-                                                      alGetMatchList[index]
-                                                          .id,
-                                                      profileFullName:
-                                                      "${alGetMatchList[index].firstName} ${alGetMatchList[index].lastName}",
-                                                    );
-                                                  },
-                                                ));
-                                          },
-                                          child: AutoSizeText(
-                                            "View Profile",
-                                            style: TextStyle(
-                                              color: AppColor.mainText,
-                                              fontFamily: FontName.poppinsRegular,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                   /* return Container(
+                              );
+                              /* return Container(
                       padding: EdgeInsets.all(3),
                       margin: EdgeInsets.all(3),
                       // height: MediaQuery.of(context).size.height * 0.4,
@@ -443,18 +501,18 @@ class _MyMatchListPageState extends State<MatchListScreen> {
                         ),
                       ),
                     );*/
-                  },
-                ),
-              )
-                  : Container(
-                padding: EdgeInsets.only(top: 30),
-                child: Center(
-                  child: Text(
-                    "YOUR SHORTLIST IS EMPTY",
-                    style: AppTheme.nameText(),
-                  ),
-                ),
-              ),
+                            },
+                          ),
+                        )
+                      : Container(
+                          padding: EdgeInsets.only(top: 30),
+                          child: Center(
+                            child: Text(
+                              "YOUR SHORTLIST IS EMPTY",
+                              style: AppTheme.nameText(),
+                            ),
+                          ),
+                        ),
             ],
           ),
         ),

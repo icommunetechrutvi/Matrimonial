@@ -68,7 +68,7 @@ class _MyProfileEditPageState extends State<ProfileEditScreen>  with TickerProvi
   String? _selectBloodG;
   List<String> bloodGList = [];
   List<String> bloodKeys = [];
-  late String selectedBloodKey;
+  late String selectedBloodKey="";
 
   String? _selectIncome;
   List<String> incomeList = [];
@@ -87,17 +87,17 @@ class _MyProfileEditPageState extends State<ProfileEditScreen>  with TickerProvi
   String? _selectMaritalStatus;
   List<String> maritalStatusList = [];
   List<String> maritalStatusKeys = [];
-  late String selectedMaritalKey;
+  late String selectedMaritalKey="";
 
   String? _selectFatherStatus;
   List<String> fatherStatusList = [];
   List<String> fatherStatusKeys = [];
-  late String selectedFatherKey;
+  late String selectedFatherKey="";
 
   String? _selectMotherStatus;
   List<String> motherStatusList = [];
   List<String> motherStatusKeys = [];
-  late String selectedMotherKey;
+  late String selectedMotherKey="";
 
   late final TextEditingController fNameController = TextEditingController();
   late final TextEditingController lNameController = TextEditingController();
@@ -170,11 +170,11 @@ class _MyProfileEditPageState extends State<ProfileEditScreen>  with TickerProvi
       mobileController.text = alGetProfileDetail[0].data!.mobileNo!;
       altMobileController.text = alGetProfileDetail[0].data!.altPhone.toString().isNull ?'':alGetProfileDetail[0].data!.altPhone.toString() ;
       emailController.text = alGetProfileDetail[0].data!.emailId!;
-      incomeController.text = alGetProfileDetail[0].data!.incomeTo!.toString() +
+      incomeController.text = alGetProfileDetail[0].data!.incomeTo.toString() +
           " to " +
           alGetProfileDetail[0].data!.incomeFrom.toString();
 
-      weightController.text = alGetProfileDetail[0].data!.weight!;
+      weightController.text = alGetProfileDetail[0].data!.weight?? "";
       // _selectedHeight=alGetProfileDetail[0].data!.height!.toString();
 
       noOfSisterController.text =
@@ -206,12 +206,6 @@ class _MyProfileEditPageState extends State<ProfileEditScreen>  with TickerProvi
         selectedDietKey = alGetProfileDetail[0].data!.diet.toString();
       }
 
-      int profileBloodIndex =
-          bloodKeys.indexOf(alGetProfileDetail[0].data!.bloodGroup.toString());
-      if (profileBloodIndex != -1 && profileBloodIndex < bloodGList.length) {
-        _selectBloodG = bloodGList[profileBloodIndex];
-        selectedBloodKey = alGetProfileDetail[0].data!.bloodGroup.toString();
-      }
       int profileIncomeIndex = incomeKeys.indexOf(
           alGetProfileDetail[0].data!.incomeFrom.toString() +
               "-" +
@@ -247,9 +241,14 @@ class _MyProfileEditPageState extends State<ProfileEditScreen>  with TickerProvi
         selectedMaritalKey =
             alGetProfileDetail[0].data!.maritalStatus.toString();
       }
-
-      selectedIndex = alGetProfileDetail[0].data!.complexion!;
-      selectedBodyTypeIndex = alGetProfileDetail[0].data!.bodyType!;
+      int profileBloodIndex =
+      bloodKeys.indexOf(alGetProfileDetail[0].data!.bloodGroup.toString());
+      if (profileBloodIndex != -1 && profileBloodIndex < bloodGList.length) {
+        _selectBloodG = bloodGList[profileBloodIndex];
+        selectedBloodKey = alGetProfileDetail[0].data!.bloodGroup.toString();
+      }
+      selectedIndex = alGetProfileDetail[0].data!.complexion?.toInt() ?? 0;
+      selectedBodyTypeIndex = alGetProfileDetail[0].data!.bodyType?.toInt()??0;
 
       _selectedEducationId =  alGetProfileDetail[0].data!.educationId!.id.toString();
       _selectedEducation = _education .firstWhereOrNull((edu) => edu.id.toString() == _selectedEducationId);
@@ -269,9 +268,15 @@ class _MyProfileEditPageState extends State<ProfileEditScreen>  with TickerProvi
 
 
       _selectedCountry = CountryData(id: alGetProfileDetail[0].data!.countryId!.id, countryName: alGetProfileDetail[0].data!.countryId!.countryName.toString());
-      _selectState = StateData(state: alGetProfileDetail[0].data!.state,);
-
-      print("_selectState~~~${_selectState!.state}");
+      _selectState=StateData(state: alGetProfileDetail[0].data!.state);
+      // _selectState = StateData(state: alGetProfileDetail[0].data!.state,);
+      // if (stateList.isNotEmpty) {
+      //   _selectState = stateList.firstWhere(
+      //         (state) => state.stateid == alGetProfileDetail[0].data!.state,
+      //     orElse: () => stateList[0],
+      //   );
+      // }
+      print("_selectState~~~${_selectState?.state}");
       await Future.delayed(Duration(seconds: 1));
       setState(() {
         _isLoading = false;
@@ -280,6 +285,81 @@ class _MyProfileEditPageState extends State<ProfileEditScreen>  with TickerProvi
     } else {
       throw Exception('Failed to load education_list');
     }
+  }
+  void validateAndSubmit() async {
+    List<String> validationErrors = _validateProfileData();
+
+    if (validationErrors.isNotEmpty) {
+      for (String error in validationErrors) {
+        AppTheme.profileEditAlert(error);
+      }
+      setState(() {
+        _isLoading = false;
+      });
+    } else {
+      await postProfileEdit();
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+  List<String> _validateProfileData() {
+    List<String> errors = [];
+    if(addressController.text.isEmpty){
+      errors.add("Address is required.");
+    }
+    if(cityController.text.isNull){
+      errors.add("Please Select an City");
+    }
+    if(_selectState!.stateid.isNull&&alGetProfileDetail[0].data!.state.toString().isEmpty){
+      errors.add("Please Select an State");
+    }
+
+    if(selectedFatherKey.isEmpty){
+      errors.add("Please Select an Father Status");
+    }
+    if(selectedMotherKey.isEmpty){
+      errors.add("Please Select an Mothers Status");
+    }
+    if(contactPersonController.text.isEmpty){
+      errors.add("Please add Contact person");
+    }
+    if(aboutFamilyController.text.isEmpty){
+      errors.add("About Family Details is required.");
+    }
+
+
+    if(selectedKey.isNull){
+      errors.add("Please Select Height");
+    }
+    if(weightController.text.isEmpty){
+      errors.add("Weight is required.");
+    }
+    if(complexionKey.isNull){
+      errors.add("Please add Personal Detail in Complexion");
+    }
+    if(bodyTypeKey.isNull){
+      errors.add("Please add Personal Detail in Body Type");
+    }
+    if(selectedBloodKey.toString().isEmpty){
+      errors.add("Please Select Blood Group");
+    }
+    if(selectedIncomeFromKey.isEmpty){
+      errors.add("Please Select Income");
+    }
+    if (_selectedEducation?.id == null) {
+      errors.add("Please Select an Education");
+    }
+    if(_selectedOccupation?.id==null){
+      errors.add("Please Select an Profession");
+    }
+    if(selectedMaritalKey.isEmpty){
+      errors.add("Please Select an Marital Status");
+    }
+
+
+
+    return errors;
   }
 
   Future<dynamic> postProfileEdit() async {
@@ -580,7 +660,8 @@ class _MyProfileEditPageState extends State<ProfileEditScreen>  with TickerProvi
         ),
       ),
 
-      body: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      body: Column(crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
 
         Container(color: AppColor.mainAppColor),
         Column(
@@ -651,7 +732,7 @@ class _MyProfileEditPageState extends State<ProfileEditScreen>  with TickerProvi
               style: AppTheme.buttonBold(),
             ),
             onPressed: () async {
-              await postProfileEdit();
+               validateAndSubmit();
             },
           ),
         ),
@@ -2189,17 +2270,28 @@ class _MyProfileEditPageState extends State<ProfileEditScreen>  with TickerProvi
                           Icons.keyboard_arrow_down,
                           color: Colors.black),
                       onChanged: (String? newValue) {
+                        // setState(() {
+                        //   _selectBloodG = newValue;
+                        // });
+                        // if (newValue != null) {
+                        //   int index =
+                        //   bloodGList.indexOf(newValue);
+                        //   if (index != -1 &&
+                        //       index < bloodKeys.length) {
+                        //     selectedBloodKey =  bloodKeys[index];
+                        //     print( "Selected key: $selectedBloodKey");
+                        //   }
+                        // }
                         setState(() {
                           _selectBloodG = newValue;
                         });
                         if (newValue != null) {
-                          int index =
-                          bloodGList.indexOf(newValue);
+                          int index = bloodGList
+                              .indexOf(newValue);
                           if (index != -1 &&
                               index < bloodKeys.length) {
                             selectedBloodKey =
                             bloodKeys[index];
-                            print( "Selected key: $selectedBloodKey");
                           }
                         }
                       },

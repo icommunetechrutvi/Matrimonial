@@ -381,7 +381,24 @@ class _HomeScreenNewState extends State<HomeScreen> {
                                       topRight: Radius.circular(16),
                                     ),
                                   ),
-                                  child: FutureBuilder<bool>(
+                                  child:alGetMatchList[index].profileImages!.isEmpty?Container(decoration:
+                                  BoxDecoration(
+                                    image:
+                                    DecorationImage(
+                                      image: NetworkImage(
+                                          profileImg),
+                                      fit: BoxFit.fill,
+                                    ),
+                                    borderRadius:
+                                    BorderRadius.only(
+                                      topLeft:
+                                      Radius.circular(
+                                          16),
+                                      topRight:
+                                      Radius.circular(
+                                          16),
+                                    ),
+                                  ),): FutureBuilder<bool>(
                                     future: checkImageExists("${Webservices.imageUrl}${alGetMatchList[index].profileImages![0].imageName ?? ""}"),
                                     builder: (context, snapshot) {
                                       if (snapshot.connectionState == ConnectionState.waiting) {

@@ -199,7 +199,15 @@ class _MyWishlistPageState extends State<WishlistScreen> {
                                               topRight: Radius.circular(16),
                                             ),
                                           ),
-                                          child: FutureBuilder<bool>(
+                                       child: Container(
+                                         decoration: BoxDecoration(
+                                           image: DecorationImage(
+                                             image: NetworkImage("${Webservices.imageUrl}${alGetFavoriteList[index].imageName}"),
+                                             fit: BoxFit.fill,
+                                           ),
+                                         ),
+                                       ),
+                                       /*   child: FutureBuilder<bool>(
                                             future: checkImageExists("${Webservices.imageUrl}${alGetFavoriteList[index].imageName ?? ""}"),
                                             builder: (context, snapshot) {
                                               if (snapshot.connectionState == ConnectionState.waiting) {
@@ -234,7 +242,7 @@ class _MyWishlistPageState extends State<WishlistScreen> {
                                                 );
                                               }
                                             },
-                                          ),
+                                          ),*/
                                         ),
                                         /*  Container(
                                           height: screenHeight * 0.3,

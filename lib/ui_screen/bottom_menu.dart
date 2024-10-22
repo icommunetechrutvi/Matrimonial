@@ -4,6 +4,7 @@ import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_not
 import 'package:flutter/material.dart';
 import 'package:matrimony/blocked_profile/connection_screen.dart';
 import 'package:matrimony/blocked_profile/extra.dart';
+import 'package:matrimony/chating_screen/chat_page.dart';
 import 'package:matrimony/home_screen/home_screen.dart';
 import 'package:matrimony/profile_edit_screen/my_profile.dart';
 import 'package:matrimony/profile_edit_screen/profile_details.dart';

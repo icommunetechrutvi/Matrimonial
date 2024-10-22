@@ -106,29 +106,20 @@ class _MyProfileDetailPageState extends State<MyProfileScreen> {
     });
   }
 
-  getSharedPrefValue() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    loginId = prefs.getString(PrefKeys.KEYPROFILEID)!;
-    final stringValue = prefs.getString('globalApiData');
-    if (stringValue != null) {
-      Map<String, dynamic> jsonMap = jsonDecode(stringValue);
+  Future<void> getSharedPrefValue() async {
+    final url = Uri.parse('${Webservices.baseUrl+Webservices.globalValue}');
+    final response = await http.get(url);
+    print("url~~${url}");
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = json.decode(response.body);
 
-      GlobalValueModel profileData = GlobalValueModel.fromJson(jsonMap);
-      allGetGlobalValue.add(profileData);
-
-      Map<String, dynamic> responseData = json.decode(stringValue);
-
+      final localPickData = GlobalValueModel.fromJson(responseData);
+      allGetGlobalValue.add(localPickData);
       Map<String, dynamic> heightLists = responseData['data']['height_list'];
       heightLists.forEach((key, value) {
         heightList.add(value as String);
         heightKeys.add(key as String);
       });
-
-      // Map<String, dynamic> genderLists = responseData['data']['gender_list'];
-      // genderLists.forEach((key, value) {
-      //   genderList.add(value as String);
-      //   genderKeys.add(key as String);
-      // });
 
       Map<String, dynamic> dietLists = responseData['data']['diet_list'];
       dietLists.forEach((key, value) {
@@ -137,39 +128,40 @@ class _MyProfileDetailPageState extends State<MyProfileScreen> {
       });
 
       Map<String, dynamic> maritalLists =
-          responseData['data']['maritalstatus_list'];
+      responseData['data']['maritalstatus_list'];
       maritalLists.forEach((key, value) {
         maritalStatusList.add(value as String);
         maritalKeys.add(key as String);
       });
 
       Map<String, dynamic> religionLists =
-          responseData['data']['religion_list'];
+      responseData['data']['religion_list'];
       religionLists.forEach((key, value) {
         religionList.add(value as String);
         religionKeys.add(key as String);
       });
 
       Map<String, dynamic> fatherLists =
-          responseData['data']['fatherstatus_list'];
+      responseData['data']['fatherstatus_list'];
       fatherLists.forEach((key, value) {
         fatherList.add(value as String);
         fatherKeys.add(key as String);
       });
 
       Map<String, dynamic> motherLists =
-          responseData['data']['motherstatus_list'];
+      responseData['data']['motherstatus_list'];
       motherLists.forEach((key, value) {
         motherList.add(value as String);
         motherKeys.add(key as String);
       });
 
-      complexionList = profileData.data!.complexionList!.toList();
-      bodyTypeList = profileData.data!.bodytypeList!.toList();
-    }
-    return stringValue;
-  }
+      complexionList = localPickData.data!.complexionList!.toList();
+      bodyTypeList = localPickData.data!.bodytypeList!.toList();
 
+    } else {
+      throw Exception('Failed to load income options');
+    }
+  }
   Future<void> profileDetailApi() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final userToken = prefs.getString(PrefKeys.ACCESSTOKEN) ?? "null";
@@ -202,14 +194,6 @@ class _MyProfileDetailPageState extends State<MyProfileScreen> {
               profileHeightIndex < heightList.length) {
             _selectedHeight = heightList[profileHeightIndex];
             selectedKey = alGetProfileDetail[0].data!.height.toString();
-          }
-
-          int profileGenderIndex =
-              genderKeys.indexOf(alGetProfileDetail[0].data!.gender.toString());
-          if (profileGenderIndex != -1 &&
-              profileGenderIndex < genderList.length) {
-            _selectedGender = genderList[profileGenderIndex];
-            selectedGenderKey = alGetProfileDetail[0].data!.gender.toString();
           }
 
           int profileDietIndex =
@@ -258,6 +242,7 @@ class _MyProfileDetailPageState extends State<MyProfileScreen> {
           selectedComplexionTypeIndex =
               alGetProfileDetail[0].data!.complexion ?? 1;
           selectedBodyTypeIndex = alGetProfileDetail[0].data!.bodyType ?? 1;
+
           final wishList = alGetProfileDetail[0].data!.favorite!;
           isLiked = wishList == "yes";
           iconColor = isLiked ? AppColor.red : AppColor.buttonColor;
@@ -321,15 +306,15 @@ class _MyProfileDetailPageState extends State<MyProfileScreen> {
     bool isPortrait = screenHeight > screenWidth;
     final screenSize = MediaQuery.of(context).size.height;
 
-    String cleanedLoginId = loginId;
-    String cleanedProfileId = widget.profileId.toString();
+    // String cleanedLoginId = loginId;
+    // String cleanedProfileId = widget.profileId.toString();
 
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         actions: [
-          cleanedProfileId == cleanedLoginId
-              ? Row(
+          // cleanedProfileId == cleanedLoginId
+               Row(
                   children: [
                     IconButton(
                       onPressed: () {
@@ -353,7 +338,7 @@ class _MyProfileDetailPageState extends State<MyProfileScreen> {
                     ),
                   ],
                 )
-              : Container(),
+              // : Container(),
         ],
         backgroundColor: AppColor.white,
         title: Text(
@@ -370,13 +355,13 @@ class _MyProfileDetailPageState extends State<MyProfileScreen> {
                 icon: const Icon(Icons.menu, color: Colors.black),
         )
       ),
-      drawer: cleanedProfileId == cleanedLoginId ? SideDrawer() : Container(),
+      drawer: SideDrawer() ,
       body: Container(
         color: AppColor.mainAppColor,
         child: _isLoading
             ? Center(
                 child: CircularProgressIndicator(
-                  color: AppColor.white,
+                  color: AppColor.mainText,
                 ),
               )
             : SingleChildScrollView(
@@ -459,7 +444,7 @@ class _MyProfileDetailPageState extends State<MyProfileScreen> {
                         ),
                         Padding(
                           padding: const EdgeInsets.only(left: 8.0),
-                          child: Text("Rishta Id: ${rishtaId ?? 0}",
+                          child: Text("Matrimonial Id : ${rishtaId ?? 0}",
                               style: AppTheme.matriId()),
                         ),
                         SizedBox(
@@ -494,8 +479,6 @@ class _MyProfileDetailPageState extends State<MyProfileScreen> {
                                       'Height', "${_selectedHeight ?? ''}"),
                                   _buildProfileDetailRow('Weight',
                                       "${profile.data!.weight ?? ''} Kgs"),
-                                  _buildProfileDetailRow(
-                                      'Gender', "${_selectedGender ?? ' '}"),
                                   _buildProfileDetailRow('Body Type',
                                       "${selectedBodyTypeIndex != -1 ? bodyTypeList[selectedBodyTypeIndex] : ""}"),
                                   _buildProfileDetailRow('Complexion',

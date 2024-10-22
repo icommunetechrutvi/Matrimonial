@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:matrimony/ui_screen/bottom_menu.dart';
 import 'package:matrimony/utils/app_theme.dart';
+import 'package:matrimony/utils/appcolor.dart';
 
 class ForgotScreen extends StatefulWidget {
   const ForgotScreen({Key? key}) : super(key: key);
@@ -21,23 +22,25 @@ class _MyForgotScreen extends State<ForgotScreen> {
       body: Form(
         key: _formKey,
         child: Container(
-          decoration: const BoxDecoration(
-            image: DecorationImage(
+          decoration: BoxDecoration(
+          /*  image: DecorationImage(
                 image: AssetImage(
                   "assets/images/bg_pink.jpg",
                 ),
-                fit: BoxFit.fill),
+                fit: BoxFit.fill),*/
+            color: AppColor.mainAppColor,
           ),
           child: Center(
             child: Card(
               elevation: 8,
               child: Container(
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
+                decoration: BoxDecoration(
+                 /* image: DecorationImage(
                       image: AssetImage(
                         "assets/images/bg_white.jpg",
                       ),
-                      fit: BoxFit.fill),
+                      fit: BoxFit.fill),*/
+                  color: AppColor.white,
                 ),
                 padding: const EdgeInsets.all(32.0),
                 constraints: const BoxConstraints(maxWidth: 350),
@@ -118,24 +121,24 @@ class _MyForgotScreen extends State<ForgotScreen> {
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(5)),
                               backgroundColor:
-                              Color.fromARGB(255, 126, 143, 130)),
+                              AppColor.mainText),
                           child: Padding(
                             padding: EdgeInsets.all(10.0),
                             child: Text(
                               // 'Sign in',
                               'Send',
-                              style: AppTheme.nextBold(),
+                              style: AppTheme.buttonBold(),
                             ),
                           ),
-                          onPressed: () {
-                            Navigator.of(context).pushReplacement(
+                          onPressed: () {}
+                          /*  Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(
                                     builder: (BuildContext context) =>
                                         BottomMenuScreen(pageId: 1,)));
                             // if (_formKey.currentState?.validate() ?? false) {
                             //   /// do something
                             // }
-                          },
+                          },*/
                         ),
                       ),
                       // Row(

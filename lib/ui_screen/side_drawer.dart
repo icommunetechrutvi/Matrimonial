@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:matrimony/blocked_profile/connection_screen.dart';
 import 'package:matrimony/blocked_profile/match_list_screen.dart';
+import 'package:matrimony/blocked_profile/packages_screen.dart';
 import 'package:matrimony/blocked_profile/viewed_contact_screen.dart';
 import 'package:matrimony/blocked_profile/viewed_profile_screen.dart';
 import 'package:matrimony/login_screen/change_password.dart';
@@ -365,6 +366,22 @@ class _SecondScreenState extends State<SideDrawer> {
                     },
                   ),
                   ListTile(
+                    leading:  Icon(
+                      Icons.card_membership,
+                      color:AppColor.mainText,
+                    ),
+                    title:  Text('Membership',
+                        style: TextStyle(
+                          color: AppColor.mainText,
+                        )),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (context) {
+                        return PackageScreen();
+                      },));
+                    },
+                  ),
+                  ListTile(
                       leading: Icon(
                         Icons.logout,
                         color:AppColor.mainText,
@@ -403,5 +420,5 @@ void _logout(BuildContext context) async {
     builder: (context) {
       return LoginScreen();
     },
-  ), (route) => false);
+  ), (route) => true);
 }

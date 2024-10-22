@@ -328,7 +328,7 @@ class _MyViewedContactScreenPageState extends State<ConnectionListScreen>
                   viewedContactReceivedLoaded
                       ? Center(
                     child: CircularProgressIndicator(
-                      color: AppColor.lightGreen,
+                      color: AppColor.mainText,
                     ),
                   )
                       : Container(
@@ -385,7 +385,15 @@ class _MyViewedContactScreenPageState extends State<ConnectionListScreen>
                                           topRight: Radius.circular(16),
                                         ),
                                       ),
-                                      child: FutureBuilder<bool>(
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          image: DecorationImage(
+                                            image: NetworkImage("${Webservices.imageUrl}${alGetConnectionReceivedList[index].imageName}"),
+                                            fit: BoxFit.fill,
+                                          ),
+                                        ),
+                                      )
+                                      /*FutureBuilder<bool>(
                                         future: checkImageExists("${Webservices.imageUrl}${alGetConnectionReceivedList[index].imageName ?? ""}"),
                                         builder: (context, snapshot) {
                                           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -420,7 +428,7 @@ class _MyViewedContactScreenPageState extends State<ConnectionListScreen>
                                             );
                                           }
                                         },
-                                      ),
+                                      ),*/
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
@@ -602,7 +610,7 @@ class _MyViewedContactScreenPageState extends State<ConnectionListScreen>
                   viewedContactSentLoaded
                       ? Center(
                     child: CircularProgressIndicator(
-                      color: AppColor.lightGreen,
+                      color: AppColor.mainText,
                     ),
                   )
                       : Container(
@@ -659,7 +667,15 @@ class _MyViewedContactScreenPageState extends State<ConnectionListScreen>
                                           topRight: Radius.circular(16),
                                         ),
                                       ),
-                                      child: FutureBuilder<bool>(
+                                    child: Container(
+                                        decoration: BoxDecoration(
+                                          image: DecorationImage(
+                                            image: NetworkImage("${Webservices.imageUrl}${alGetConnectionSentList[index].imageName}"),
+                                            fit: BoxFit.fill,
+                                          ),
+                                        ),
+                                    )
+                                    /*  child: FutureBuilder<bool>(
                                         future: checkImageExists("${Webservices.imageUrl}${alGetConnectionSentList[index].imageName ?? ""}"),
                                         builder: (context, snapshot) {
                                           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -694,7 +710,7 @@ class _MyViewedContactScreenPageState extends State<ConnectionListScreen>
                                             );
                                           }
                                         },
-                                      ),
+                                      ),*/
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),

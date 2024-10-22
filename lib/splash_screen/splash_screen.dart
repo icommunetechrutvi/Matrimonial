@@ -106,6 +106,7 @@ class _SplashScreenState extends State<SplashScreen> {
       //
           Navigator.of(context!).pushReplacement(MaterialPageRoute(
               builder: (BuildContext context) => LoginScreen()));
+              // builder: (BuildContext context) => BottomMenuScreen(pageId: 1,)));
         }
         else{
           //Todo:User Not Login

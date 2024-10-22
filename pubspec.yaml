@@ -53,13 +53,24 @@ dependencies:
   insta_image_viewer: ^1.0.1   # Edit Image Page CLick To Image display
 
   auto_size_text: ^3.0.0  # font size
-
-
 #  flutter_easyloading: ^3.0.3
 
 
   overlay_support: ^1.2.1   #splash_scrren
   sizer: ^2.0.13
+
+  pusher_client: ^2.0.0 #chating
+  provider: ^6.0.0
+
+
+#  laravel_echo:
+#    git:
+#      url: https://github.com/kakajansh/echo.git
+#      ref: master
+#  pusher_client:
+#    git:
+#      url: https://github.com/DumbDev168/pusher_client.git
+#      ref: master
 
 #  dropdown_plus: ^0.0.9
 #  animated_dropdown: ^1.0.0

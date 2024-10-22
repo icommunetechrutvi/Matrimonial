@@ -324,7 +324,15 @@ class _MyViewedContactScreenPageState extends State<ViewedContactScreen>
                                                         Radius.circular(16),
                                                   ),
                                                 ),
-                                                child: FutureBuilder<bool>(
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    image: DecorationImage(
+                                                      image: NetworkImage("${Webservices.imageUrl}${alGetIViewedContactList[index].imageName}"),
+                                                      fit: BoxFit.fill,
+                                                    ),
+                                                  ),
+                                                ),
+                                                /*child: FutureBuilder<bool>(
                                                   future: checkImageExists(
                                                       "${Webservices.imageUrl}${alGetIViewedContactList[index].imageName ?? ""}"),
                                                   builder: (context, snapshot) {
@@ -382,7 +390,7 @@ class _MyViewedContactScreenPageState extends State<ViewedContactScreen>
                                                       );
                                                     }
                                                   },
-                                                ),
+                                                ),*/
                                               ),
                                               Padding(
                                                 padding:
@@ -483,21 +491,21 @@ class _MyViewedContactScreenPageState extends State<ViewedContactScreen>
                                                                 .poppinsRegular,
                                                           ),
                                                         ),
-                                                        AutoSizeText(
-                                                          maxLines: 2,
-                                                          minFontSize: 6,
-                                                          " Viewed on ${timeAgo}",
-                                                          style: TextStyle(
-                                                            fontSize: 12,
-                                                            color: AppColor
-                                                                .black,
-                                                            fontWeight:
-                                                            FontWeight
-                                                                .bold,
-                                                            fontFamily: FontName
-                                                                .poppinsRegular,
-                                                          ),
-                                                        ),
+                                                        // AutoSizeText(
+                                                        //   maxLines: 2,
+                                                        //   minFontSize: 6,
+                                                        //   " Viewed on ${timeAgo}",
+                                                        //   style: TextStyle(
+                                                        //     fontSize: 12,
+                                                        //     color: AppColor
+                                                        //         .black,
+                                                        //     fontWeight:
+                                                        //     FontWeight
+                                                        //         .bold,
+                                                        //     fontFamily: FontName
+                                                        //         .poppinsRegular,
+                                                        //   ),
+                                                        // ),
                                                       ],
                                                     ),
                                                     Row(
@@ -637,7 +645,15 @@ class _MyViewedContactScreenPageState extends State<ViewedContactScreen>
                                                         Radius.circular(16),
                                                   ),
                                                 ),
-                                                child: FutureBuilder<bool>(
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    image: DecorationImage(
+                                                      image: NetworkImage("${Webservices.imageUrl}${alGetWhoViewedContactList[index].imageName}"),
+                                                      fit: BoxFit.fill,
+                                                    ),
+                                                  ),
+                                                ),
+                                                /*child: FutureBuilder<bool>(
                                                   future: checkImageExists(
                                                       "${Webservices.imageUrl}${alGetWhoViewedContactList[index].imageName ?? ""}"),
                                                   builder: (context, snapshot) {
@@ -695,7 +711,7 @@ class _MyViewedContactScreenPageState extends State<ViewedContactScreen>
                                                       );
                                                     }
                                                   },
-                                                ),
+                                                ),*/
                                               ),
                                               Padding(
                                                 padding:

@@ -112,7 +112,7 @@ class _MyImageEditPageState extends State<ImageEditScreen> {
     setState(() {
       _isLoading = true;
     });
-
+    print("imageNAME!!!${image}");
     final url =
         Uri.parse('${Webservices.baseUrl + Webservices.updateProfileImg}');
     print("url~~$url");

@@ -99,7 +99,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   _isLoading
                       ? Center(
                           child: CircularProgressIndicator(
-                            color: AppColor.lightGreen,
+                            color: AppColor.mainText,
                           ),
                         )
                       : Container(
